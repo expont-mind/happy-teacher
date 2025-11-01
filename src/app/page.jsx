@@ -50,7 +50,7 @@ export default function ColoringApp() {
 
     // 🎨 1. Main SVG ачаалах
     const img = new window.Image();
-    img.src = "/page_11.svg";
+    img.src = "/page_12.svg";
 
     img.onload = () => {
       canvas.width = img.width;
