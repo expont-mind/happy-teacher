@@ -7,41 +7,10 @@ import { toast } from "sonner";
 import { formatPrice, getStatusClass } from "../functions";
 import { PriceDetail } from "./PriceDetail";
 import { Loader } from "../constants";
-import { OrderStatus, useUpdateOrderStatusMutation } from "@/generated/graphql";
 
 export const UserContent = ({ order, refetch, loading }: UserContentProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
-
-  const statusMap: Record<OrderStatus, string> = {
-    [OrderStatus.PENDING]: "bg-[#F97316]",
-    [OrderStatus.SHIPPED]: "bg-[#2563EB]",
-    [OrderStatus.DELIVERED]: "bg-[#18BA51]",
-    [OrderStatus.CANCELLED]: "bg-[#E11D48]",
-  };
-
-  const [editStatus] = useUpdateOrderStatusMutation();
-
-  const handleEditStatus = async (newStatus: OrderStatus) => {
-    try {
-      await editStatus({
-        variables: {
-          input: {
-            id: order?.id || "",
-            status: newStatus,
-          },
-        },
-      });
-
-      toast.success("Status edited successfully");
-      refetch();
-    } catch (error) {
-      console.error("Error editing status:", error);
-      toast.error("Failed to edit status");
-    } finally {
-      setIsOpen(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-4 max-w-[592px] w-full">

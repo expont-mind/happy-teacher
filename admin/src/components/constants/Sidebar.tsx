@@ -27,10 +27,8 @@ const SidebarLink = ({ href, isActive, label }: SidebarLinkProps) => (
 );
 
 type SidebarType = {
-  product: string;
-  order: string;
   user: string;
-  cover: string;
+  payment: string;
 };
 
 export const Sidebar = (props: SidebarType) => {
@@ -54,8 +52,12 @@ export const Sidebar = (props: SidebarType) => {
             </div>
           </div>
           <div className="p-2 w-full">
-            <SidebarLink href="/" isActive={!!props.product} label="Product" />
-            <SidebarLink href="/order" isActive={!!props.order} label="Order" />
+            <SidebarLink href="/" isActive={!!props.user} label="User" />
+            <SidebarLink
+              href="/payment"
+              isActive={!!props.payment}
+              label="Payment"
+            />
           </div>
         </div>
       </div>

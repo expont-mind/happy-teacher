@@ -4,7 +4,7 @@ import { SearchBarProps } from ".";
 export const SearchBar = ({ searchTerm, setSearchTerm }: SearchBarProps) => {
   return (
     <div className="flex gap-2 items-center w-full h-10 px-3 py-1 border border-[#E4E4E7] rounded-lg bg-white">
-      <Search size={16} />
+      <Search size={16} color="#09090B" />
       <input
         type="text"
         value={searchTerm}

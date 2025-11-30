@@ -1,26 +1,17 @@
-import { Product } from "@/generated/graphql";
+export interface User {
+  id: string;
+  email: string;
+  created_at: string;
+  full_name?: string;
+  avatar_url?: string;
+}
 
-export interface ProductDataTableProps {
-  data: Product[];
+export interface UserDataTableProps {
+  data: User[];
   loading: boolean;
-  deletingProduct: Product | null;
-  handleDeleteProduct: () => void;
-  setDeletingProduct: (product: Product | null) => void;
-  isSubmitLoading: boolean;
 }
 
-export interface ProductRowProps {
-  product: Product;
+export interface UserRowProps {
+  user: User;
   index: number;
-  deletingProduct: Product | null;
-  handleDeleteProduct: () => void;
-  setDeletingProduct: (product: Product | null) => void;
-  isSubmitLoading: boolean;
 }
-
-export type DeleteProductDialogProps = {
-  product: Product;
-  setDeletingProduct: (product: Product | null) => void;
-  handleDeleteProduct: () => void;
-  isSubmitLoading: boolean;
-};
