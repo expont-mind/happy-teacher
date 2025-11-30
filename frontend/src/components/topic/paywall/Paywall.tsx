@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/src/components/auth";
 import AuthModal from "@/src/components/auth/AuthModal";
 import Loader from "@/src/components/ui/Loader";
+import { Lock, BookOpen, Gamepad2, Trophy } from "lucide-react";
 
 interface PaywallProps {
   topicKey: string;
@@ -75,7 +76,7 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center text-center p-6 bg-linear-to-br from-yellow-100 via-pink-100 to-purple-100 rounded-3xl border-4 border-purple-200">
+      <div className="flex flex-col items-center justify-center text-center p-12 bg-white rounded-3xl border-2 border-gray-200 shadow-lg">
         <Loader />
       </div>
     );
@@ -85,21 +86,78 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center text-center p-6 bg-linear-to-br from-yellow-100 via-pink-100 to-purple-100 rounded-3xl border-4 border-purple-200">
-        <h2 className="text-3xl font-extrabold text-purple-800 mb-2">
-          Сэдэв нээх
-        </h2>
-        <p className="text-purple-700 mb-4">
-          {user
-            ? "Энэ сэдэв цоожтой байна. Худалдаж авч үргэлжлүүлээрэй! 🔓"
-            : "Энэ сэдэв цоожтой байна. Нэвтэрч худалдаж авна уу! 🔓"}
-        </p>
-        <button
-          onClick={handlePurchase}
-          className="cursor-pointer px-6 py-3 bg-purple-600 text-white font-bold rounded-full shadow-lg hover:bg-purple-700 active:scale-95"
-        >
-          {user ? "Худалдаж авах" : "Нэвтрэх"}
-        </button>
+      <div className="max-w-2xl mx-auto">
+        <div className="duo-card text-center p-12 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-orange-200">
+          {/* Lock Icon */}
+          <div className="flex justify-center mb-6">
+            <Lock
+              size={80}
+              className="text-[var(--duo-yellow-dark)]"
+              strokeWidth={2.5}
+            />
+          </div>
+
+          {/* Title */}
+          <h2
+            className="text-4xl font-black mb-4"
+            style={{ color: "var(--duo-yellow-dark)" }}
+          >
+            Сэдэв цоожтой байна
+          </h2>
+
+          {/* Description */}
+          <p className="text-lg text-gray-700 font-semibold mb-8 max-w-md mx-auto">
+            {user
+              ? "Энэ сэдвийг нээхийн тулд худалдаж аваарай!"
+              : "Энэ сэдвийг нээхийн тулд эхлээд нэвтэрнэ үү!"}
+          </p>
+
+          {/* Benefits */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="p-4 bg-white rounded-2xl border border-gray-200">
+              <div className="flex justify-center mb-2">
+                <BookOpen
+                  size={32}
+                  className="text-[var(--duo-blue)]"
+                  strokeWidth={2}
+                />
+              </div>
+              <p className="text-sm font-bold text-gray-700">10+ хичээл</p>
+            </div>
+            <div className="p-4 bg-white rounded-2xl border border-gray-200">
+              <div className="flex justify-center mb-2">
+                <Gamepad2
+                  size={32}
+                  className="text-[var(--duo-purple)]"
+                  strokeWidth={2}
+                />
+              </div>
+              <p className="text-sm font-bold text-gray-700">
+                Интерактив дасгал
+              </p>
+            </div>
+            <div className="p-4 bg-white rounded-2xl border border-gray-200">
+              <div className="flex justify-center mb-2">
+                <Trophy
+                  size={32}
+                  className="text-[var(--duo-yellow-dark)]"
+                  strokeWidth={2}
+                />
+              </div>
+              <p className="text-sm font-bold text-gray-700">
+                Шагнал цуглуулах
+              </p>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <button
+            onClick={handlePurchase}
+            className="duo-button duo-button-yellow px-12 py-5 text-xl cursor-pointer"
+          >
+            {user ? "Худалдаж авах" : "Нэвтрэх"}
+          </button>
+        </div>
       </div>
 
       <AuthModal

@@ -1,68 +1,125 @@
-import { Heart, Palette } from "lucide-react";
+import { Facebook, Instagram, Twitter, Heart } from "lucide-react";
 
 export const Footer = () => {
   return (
-    <footer className="w-full bg-slate-900 text-slate-100 p-12 border-t-4 border-slate-700">
-      <div className="flex flex-col gap-8">
+    <footer className="w-full bg-gray-50 border-t-2 border-gray-200 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div className="text-center md:text-left">
-            <div className="flex items-center gap-2 justify-center md:justify-start mb-4">
-              <Palette size={40} className="text-cyan-400" />
-              <h3 className="text-2xl font-black text-white">LearniKids</h3>
-            </div>
-            <p className="text-slate-300 font-semibold">
-              Making learning fun, one lesson at a time!
-            </p>
-          </div>
-
-          {/* Quick Links */}
-          <div className="text-center">
-            <h4 className="text-lg font-black mb-4 text-white">Quick Links</h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+          {/* About */}
+          <div>
+            <h4 className="text-sm font-black mb-3 text-gray-700 uppercase">
+              Бидний тухай
+            </h4>
             <div className="flex flex-col gap-2">
-              <button className="hover:text-cyan-400 transition-colors font-semibold text-slate-300">
-                About Us
-              </button>
-              <button className="hover:text-cyan-400 transition-colors font-semibold text-slate-300">
-                Lessons
-              </button>
-              <button className="hover:text-cyan-400 transition-colors font-semibold text-slate-300">
-                Contact
-              </button>
+              <a
+                href="#"
+                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+              >
+                Танилцуулга
+              </a>
+              <a
+                href="#"
+                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+              >
+                Багш нар
+              </a>
             </div>
           </div>
 
-          {/* Parent Info */}
-          <div className="text-center">
-            <h4 className="text-lg font-black mb-4 text-white">For Parents</h4>
+          {/* Products */}
+          <div>
+            <h4 className="text-sm font-black mb-3 text-gray-700 uppercase">
+              Бүтээгдэхүүн
+            </h4>
             <div className="flex flex-col gap-2">
-              <button className="hover:text-cyan-400 transition-colors font-semibold text-slate-300">
-                Progress Tracking
-              </button>
-              <button className="hover:text-cyan-400 transition-colors font-semibold text-slate-300">
-                Safety & Privacy
-              </button>
-              <button className="hover:text-cyan-400 transition-colors font-semibold text-slate-300">
-                Support
-              </button>
+              <a
+                href="#"
+                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+              >
+                Хичээлүүд
+              </a>
+              <a
+                href="#"
+                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+              >
+                Тоглоомууд
+              </a>
+            </div>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h4 className="text-sm font-black mb-3 text-gray-700 uppercase">
+              Тусламж
+            </h4>
+            <div className="flex flex-col gap-2">
+              <a
+                href="#"
+                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+              >
+                Холбоо барих
+              </a>
+              <a
+                href="#"
+                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+              >
+                Түгээмэл асуулт
+              </a>
+            </div>
+          </div>
+
+          {/* Social */}
+          <div>
+            <h4 className="text-sm font-black mb-3 text-gray-700 uppercase">
+              Сошиал
+            </h4>
+            <div className="flex gap-3">
+              <a
+                href="#"
+                className="p-2 rounded-lg hover:bg-blue-100 transition-all group"
+              >
+                <Facebook
+                  size={24}
+                  className="text-gray-600 group-hover:text-[var(--duo-blue)]"
+                  strokeWidth={2}
+                />
+              </a>
+              <a
+                href="#"
+                className="p-2 rounded-lg hover:bg-pink-100 transition-all group"
+              >
+                <Instagram
+                  size={24}
+                  className="text-gray-600 group-hover:text-pink-500"
+                  strokeWidth={2}
+                />
+              </a>
+              <a
+                href="#"
+                className="p-2 rounded-lg hover:bg-blue-100 transition-all group"
+              >
+                <Twitter
+                  size={24}
+                  className="text-gray-600 group-hover:text-[var(--duo-blue)]"
+                  strokeWidth={2}
+                />
+              </a>
             </div>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="w-full h-px bg-slate-700 rounded-full"></div>
+        <div className="w-full h-px bg-gray-200 mb-6"></div>
 
         {/* Bottom Footer */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <p className="text-slate-300 font-bold">
-              © 2025 LearniKids. All rights reserved.
-            </p>
-          </div>
-          <p className="text-sm text-slate-400 flex items-center justify-center gap-1">
-            Designed with <Heart size={16} className="text-cyan-400" /> for
-            curious young learners everywhere!
+        <div className="text-center">
+          <p className="text-sm text-gray-500 font-semibold mb-2">
+            © 2025 Happy Teacher. Бүх эрх хуулиар хамгаалагдсан.
+          </p>
+          <p className="text-xs text-gray-400 flex items-center justify-center gap-1">
+            Хүүхдүүдийн хөгжилд зориулав
+            <Heart size={14} className="text-red-400 fill-red-400" />
           </p>
         </div>
       </div>
