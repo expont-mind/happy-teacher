@@ -1,8 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Paywall from "@/src/components/topic/paywall/Paywall";
 import { useAuth } from "@/src/components/auth";
 import { Construction, Sparkles } from "lucide-react";
+import Skeleton from "@/src/components/ui/Skeleton";
 
 export default function MultiplicationPage() {
   const [paid, setPaid] = useState(false);
@@ -49,22 +51,17 @@ export default function MultiplicationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white py-12 px-4">
+      <div className="min-h-screen bg-linear-to-b from-purple-50 to-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center">
+          <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <MultiplyIcon
-                size={64}
-                className="text-[var(--duo-purple)] animate-pulse"
-              />
+              <Skeleton className="w-16 h-16 rounded-full" />
             </div>
-            <h1
-              className="text-4xl font-black mb-4"
-              style={{ color: "var(--duo-purple)" }}
-            >
-              Үржих
-            </h1>
-            <div className="text-gray-600 font-semibold">Уншиж байна...</div>
+            <Skeleton className="h-12 w-48 mx-auto mb-4" />
+            <Skeleton className="h-6 w-64 mx-auto" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-64 w-full rounded-2xl" />
           </div>
         </div>
       </div>
@@ -72,12 +69,12 @@ export default function MultiplicationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white py-12 px-4">
+    <div className="min-h-screen bg-linear-to-b from-purple-50 to-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4 animate-float">
-            <MultiplyIcon size={64} className="text-[var(--duo-purple)]" />
+            <MultiplyIcon size={64} className="text-(--duo-purple)" />
           </div>
           <h1
             className="text-4xl md:text-5xl font-black mb-3"
@@ -89,7 +86,7 @@ export default function MultiplicationPage() {
             Үржих үйлдлийг эзэмшиж, дасгал хийцгээе!
             <Sparkles
               size={20}
-              className="text-[var(--duo-yellow)]"
+              className="text-(--duo-yellow)"
               strokeWidth={2.5}
             />
           </p>
@@ -106,11 +103,11 @@ export default function MultiplicationPage() {
 
         {paid && (
           <div className="max-w-2xl mx-auto">
-            <div className="duo-card text-center p-12 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
+            <div className="duo-card text-center p-12 bg-linear-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
               <div className="flex justify-center mb-6">
                 <Construction
                   size={80}
-                  className="text-[var(--duo-purple)]"
+                  className="text-(--duo-purple)"
                   strokeWidth={2.5}
                 />
               </div>
@@ -124,7 +121,7 @@ export default function MultiplicationPage() {
                 Энэ сэдвийн хичээлүүд бэлтгэгдэж байна. Удахгүй нэмэгдэнэ!
                 <Sparkles
                   size={24}
-                  className="text-[var(--duo-yellow)]"
+                  className="text-(--duo-yellow)"
                   strokeWidth={2.5}
                 />
               </p>

@@ -42,10 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     toast.success("Амжилттай нэвтэрлээ!");
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, username: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          full_name: username,
+          username: username,
+        },
+      },
     });
     if (error) {
       toast.error(error.message);

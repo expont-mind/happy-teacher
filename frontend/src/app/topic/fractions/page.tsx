@@ -5,6 +5,7 @@ import Paywall from "@/src/components/topic/paywall/Paywall";
 import Roadmap from "@/src/components/topic/roadmap/Roadmap";
 import { useAuth } from "@/src/components/auth";
 import { BookOpen, Target } from "lucide-react";
+import Skeleton from "@/src/components/ui/Skeleton";
 
 export default function FractionsRoadmapPage() {
   const [paid, setPaid] = useState(false);
@@ -29,21 +30,17 @@ export default function FractionsRoadmapPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center">
+          <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <BookOpen
-                size={64}
-                className="text-[var(--duo-blue)] animate-pulse"
-                strokeWidth={2.5}
-              />
+              <Skeleton className="w-16 h-16 rounded-full" />
             </div>
-            <h1
-              className="text-4xl font-black mb-4"
-              style={{ color: "var(--duo-blue)" }}
-            >
-              Бутархай
-            </h1>
-            <div className="text-gray-600 font-semibold">Уншиж байна...</div>
+            <Skeleton className="h-12 w-48 mx-auto mb-4" />
+            <Skeleton className="h-6 w-64 mx-auto" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-32 w-full rounded-2xl" />
+            <Skeleton className="h-32 w-full rounded-2xl" />
+            <Skeleton className="h-32 w-full rounded-2xl" />
           </div>
         </div>
       </div>
@@ -58,7 +55,7 @@ export default function FractionsRoadmapPage() {
           <div className="flex justify-center mb-4 animate-float">
             <BookOpen
               size={64}
-              className="text-[var(--duo-blue)]"
+              className="text-(--duo-blue)"
               strokeWidth={2.5}
             />
           </div>
@@ -72,7 +69,7 @@ export default function FractionsRoadmapPage() {
             Бутархай тоонуудтай танилцаж, дасгал хийцгээе!
             <Target
               size={20}
-              className="text-[var(--duo-green)]"
+              className="text-(--duo-green)"
               strokeWidth={2.5}
             />
           </p>

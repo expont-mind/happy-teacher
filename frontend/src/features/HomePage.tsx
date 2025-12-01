@@ -15,7 +15,7 @@ import {
 
 export const HomePage = () => {
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen w-full bg-linear-to-b from-blue-50 to-white">
       {/* Hero Section */}
       <div className="max-w-6xl mx-auto px-4 py-12 md:py-20">
         {/* Main Title with Icon */}
@@ -25,7 +25,7 @@ export const HomePage = () => {
             <div className="animate-float">
               <GraduationCap
                 size={80}
-                className="text-[var(--duo-green)]"
+                className="text-(--duo-green)"
                 strokeWidth={2.5}
               />
             </div>
@@ -56,12 +56,16 @@ export const HomePage = () => {
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Fractions Card */}
-          <div className="duo-card cursor-pointer group">
+          <Link
+            href="/topic/fractions"
+            className="duo-card cursor-pointer group"
+            prefetch={true}
+          >
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-blue-100 rounded-2xl group-hover:scale-110 transition-transform">
                 <BookOpen
                   size={48}
-                  className="text-[var(--duo-blue)]"
+                  className="text-(--duo-blue)"
                   strokeWidth={2.5}
                 />
               </div>
@@ -80,10 +84,14 @@ export const HomePage = () => {
             <div className="duo-progress">
               <div className="duo-progress-fill" style={{ width: "0%" }}></div>
             </div>
-          </div>
+          </Link>
 
           {/* Multiplication Card */}
-          <div className="duo-card cursor-pointer group">
+          <Link
+            href="/topic/multiplication"
+            className="duo-card cursor-pointer group"
+            prefetch={true}
+          >
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-purple-100 rounded-2xl group-hover:scale-110 transition-transform">
                 <svg
@@ -115,49 +123,49 @@ export const HomePage = () => {
             <div className="duo-progress">
               <div className="duo-progress-fill" style={{ width: "0%" }}></div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Benefits Section */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[var(--duo-green)] transition-all">
+          <div className="text-center p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[--duo-green] transition-all">
             <div className="flex justify-center mb-3">
               <Palette
                 size={40}
-                className="text-[var(--duo-green)]"
+                className="text-[--duo-green]"
                 strokeWidth={2}
               />
             </div>
             <p className="font-bold text-gray-700">Будах</p>
           </div>
 
-          <div className="text-center p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[var(--duo-blue)] transition-all">
+          <div className="text-center p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[--duo-blue] transition-all">
             <div className="flex justify-center mb-3">
               <Gamepad2
                 size={40}
-                className="text-[var(--duo-blue)]"
+                className="text-[--duo-blue]"
                 strokeWidth={2}
               />
             </div>
             <p className="font-bold text-gray-700">Тоглох</p>
           </div>
 
-          <div className="text-center p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[var(--duo-yellow)] transition-all">
+          <div className="text-center p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[--duo-yellow] transition-all">
             <div className="flex justify-center mb-3">
               <Trophy
                 size={40}
-                className="text-[var(--duo-yellow-dark)]"
+                className="text-[--duo-yellow-dark]"
                 strokeWidth={2}
               />
             </div>
             <p className="font-bold text-gray-700">Ялах</p>
           </div>
 
-          <div className="text-center p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[var(--duo-purple)] transition-all">
+          <div className="text-center p-6 bg-white rounded-2xl border-2 border-gray-100 hover:border-[--duo-purple] transition-all">
             <div className="flex justify-center mb-3">
               <GraduationCap
                 size={40}
-                className="text-[var(--duo-purple)]"
+                className="text-[--duo-purple]"
                 strokeWidth={2}
               />
             </div>
@@ -167,13 +175,9 @@ export const HomePage = () => {
 
         {/* Stats Section - Gamification */}
         <div className="mt-16 grid grid-cols-3 gap-4 max-w-3xl mx-auto">
-          <div className="text-center p-6 bg-gradient-to-br from-orange-100 to-orange-50 rounded-2xl border-2 border-orange-200">
+          <div className="text-center p-6 bg-linear-to-br from-orange-100 to-orange-50 rounded-2xl border-2 border-orange-200">
             <div className="flex justify-center mb-2">
-              <Flame
-                size={40}
-                className="text-[var(--duo-red)]"
-                strokeWidth={2.5}
-              />
+              <Flame size={40} className="text-[--duo-red]" strokeWidth={2.5} />
             </div>
             <p
               className="text-3xl font-black"
@@ -184,11 +188,11 @@ export const HomePage = () => {
             <p className="text-sm font-bold text-gray-600">Дэс дараалал</p>
           </div>
 
-          <div className="text-center p-6 bg-gradient-to-br from-yellow-100 to-yellow-50 rounded-2xl border-2 border-yellow-200">
+          <div className="text-center p-6 bg-linear-to-br from-yellow-100 to-yellow-50 rounded-2xl border-2 border-yellow-200">
             <div className="flex justify-center mb-2">
               <Zap
                 size={40}
-                className="text-[var(--duo-yellow-dark)]"
+                className="text-[--duo-yellow-dark]"
                 strokeWidth={2.5}
               />
             </div>
@@ -201,11 +205,11 @@ export const HomePage = () => {
             <p className="text-sm font-bold text-gray-600">XP</p>
           </div>
 
-          <div className="text-center p-6 bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl border-2 border-purple-200">
+          <div className="text-center p-6 bg-linear-to-br from-purple-100 to-purple-50 rounded-2xl border-2 border-purple-200">
             <div className="flex justify-center mb-2">
               <Award
                 size={40}
-                className="text-[var(--duo-purple)]"
+                className="text-[--duo-purple]"
                 strokeWidth={2.5}
               />
             </div>
