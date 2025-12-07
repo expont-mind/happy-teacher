@@ -64,7 +64,7 @@ export const HomePage = () => {
         <div className="max-w-[1654px] w-full h-full p-4 flex flex-col justify-between gap-4">
           <div className="w-full h-full flex flex-col gap-4">
             <p className="h-10 flex items-center font-Inter text-2xl font-semibold text-[#020617]">
-              User
+              Users
             </p>
 
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
