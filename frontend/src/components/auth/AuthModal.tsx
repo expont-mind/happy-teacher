@@ -18,6 +18,7 @@ export default function AuthModal({
 }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
@@ -32,9 +33,10 @@ export default function AuthModal({
       if (isLogin) {
         await signIn(email, password);
       } else {
-        await signUp(email, password);
+        await signUp(email, password, username);
       }
       setEmail("");
+      setUsername("");
       setPassword("");
       onSuccess?.();
       onClose();
@@ -76,6 +78,26 @@ export default function AuthModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!isLogin && (
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-bold text-gray-700 mb-2"
+              >
+                Нэр
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-(--duo-blue) transition-colors font-semibold"
+                placeholder="Таны нэр"
+              />
+            </div>
+          )}
+
           <div>
             <label
               htmlFor="email"
@@ -120,16 +142,7 @@ export default function AuthModal({
               isLogin ? "duo-button-green" : "duo-button-blue"
             }`}
           >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <Loader />
-                <span>Түр хүлээнэ үү...</span>
-              </div>
-            ) : isLogin ? (
-              "Нэвтрэх"
-            ) : (
-              "Бүртгүүлэх"
-            )}
+            {loading ? <Loader /> : isLogin ? "Нэвтрэх" : "Бүртгүүлэх"}
           </button>
         </form>
 
@@ -138,6 +151,7 @@ export default function AuthModal({
             onClick={() => {
               setIsLogin(!isLogin);
               setEmail("");
+              setUsername("");
               setPassword("");
             }}
             className="text-sm font-bold cursor-pointer transition-colors"

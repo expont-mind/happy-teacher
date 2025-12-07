@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { useAuth } from "@/src/components/auth";
 import AuthModal from "@/src/components/auth/AuthModal";
+import Skeleton from "@/src/components/ui/Skeleton";
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +28,7 @@ export const Header = () => {
         <Link href="/" className="flex items-center gap-2 cursor-pointer group">
           <GraduationCap
             size={32}
-            className="text-[var(--duo-green)] group-hover:scale-110 transition-transform"
+            className="text-(--duo-green) group-hover:scale-110 transition-transform"
             strokeWidth={2.5}
           />
           <span
@@ -41,8 +42,11 @@ export const Header = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-3">
           {loading ? (
-            <div className="px-4 py-2 text-gray-500 text-sm font-semibold">
-              ...
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-16 h-10" />
+              <Skeleton className="w-16 h-10" />
+              <Skeleton className="w-40 h-10" />
+              <Skeleton className="w-24 h-10" />
             </div>
           ) : user ? (
             <div className="flex items-center gap-3">
@@ -50,7 +54,7 @@ export const Header = () => {
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
                 <Flame
                   size={18}
-                  className="text-[var(--duo-red)]"
+                  className="text-(--duo-red)"
                   strokeWidth={2.5}
                 />
                 <span className="text-sm font-bold text-gray-700">0</span>
@@ -59,7 +63,7 @@ export const Header = () => {
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
                 <Zap
                   size={18}
-                  className="text-[var(--duo-yellow-dark)]"
+                  className="text-(--duo-yellow-dark)"
                   strokeWidth={2.5}
                 />
                 <span className="text-sm font-bold text-gray-700">0</span>
@@ -115,9 +119,14 @@ export const Header = () => {
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-200 px-4 py-4 flex flex-col gap-3">
           {loading ? (
-            <div className="px-4 py-2 text-gray-500 text-sm font-semibold">
-              ...
-            </div>
+            <>
+              <div className="flex gap-2 mb-2">
+                <Skeleton className="flex-1 h-10" />
+                <Skeleton className="flex-1 h-10" />
+              </div>
+              <Skeleton className="w-full h-10" />
+              <Skeleton className="w-full h-12" />
+            </>
           ) : user ? (
             <>
               {/* User Stats Mobile */}
@@ -125,7 +134,7 @@ export const Header = () => {
                 <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
                   <Flame
                     size={18}
-                    className="text-[var(--duo-red)]"
+                    className="text-(--duo-red)"
                     strokeWidth={2.5}
                   />
                   <span className="text-sm font-bold text-gray-700">0</span>
@@ -134,7 +143,7 @@ export const Header = () => {
                 <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
                   <Zap
                     size={18}
-                    className="text-[var(--duo-yellow-dark)]"
+                    className="text-(--duo-yellow-dark)"
                     strokeWidth={2.5}
                   />
                   <span className="text-sm font-bold text-gray-700">0</span>
