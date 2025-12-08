@@ -88,7 +88,6 @@ export default function AuthModal({
   };
 
   const handleAdultLoginSuccess = () => {
-    // Adult login is handled in AdultLogin component via signIn which sets the profile
     onSuccess?.();
     onClose();
     setStep("choice");
@@ -100,7 +99,7 @@ export default function AuthModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-y-auto bg-white">
+    <div className="fixed inset-0 z-100 overflow-y-auto bg-white">
       {step === "choice" && (
         <div className="min-h-screen bg-linear-to-b from-blue-50 via-green-50 to-yellow-50 flex items-center justify-center p-4 relative">
           {/* Close Button */}
