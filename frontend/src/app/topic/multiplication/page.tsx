@@ -9,11 +9,11 @@ import Skeleton from "@/src/components/ui/Skeleton";
 export default function MultiplicationPage() {
   const [paid, setPaid] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { user, checkPurchase } = useAuth();
+  const { user, activeProfile, checkPurchase } = useAuth();
 
   useEffect(() => {
     const checkPaid = async () => {
-      if (user) {
+      if (user || activeProfile) {
         const isPurchased = await checkPurchase("multiplication");
         setPaid(isPurchased);
       } else {
@@ -23,7 +23,7 @@ export default function MultiplicationPage() {
     };
 
     checkPaid();
-  }, [user, checkPurchase]);
+  }, [user, activeProfile, checkPurchase]);
 
   // Multiplication Icon Component
   const MultiplyIcon = ({

@@ -6,11 +6,6 @@ import { Header } from "@/src/components/navigations/Header";
 import { Footer } from "@/src/components/navigations/Footer";
 import { AuthProvider } from "@/src/components/auth";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -29,9 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="mn">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={` ${geistMono.variable} antialiased`}>
         <AuthProvider>
           <div className="w-full min-h-screen bg-white">
             <Header />

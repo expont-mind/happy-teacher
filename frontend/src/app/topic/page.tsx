@@ -32,7 +32,7 @@ export default function TopicsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+    <div className="min-h-screen bg-linear-to-b from-blue-50 to-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -65,7 +65,7 @@ export default function TopicsPage() {
                 className="cursor-pointer group"
               >
                 <div
-                  className={`duo-card bg-gradient-to-br ${topic.bgColor} border-2 ${topic.borderColor} p-8`}
+                  className={`duo-card bg-linear-to-br ${topic.bgColor} border-2 ${topic.borderColor} p-8`}
                 >
                   {/* Icon */}
                   <div className="mb-4 flex justify-center">

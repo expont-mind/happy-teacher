@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { X, GraduationCap } from "lucide-react";
-import { useAuth } from "./AuthProvider";
-import Loader from "@/src/components/ui/Loader";
+import { useState, useRef } from "react";
+import PinLogin from "./PinLogin";
+import AdultLogin from "./AdultLogin";
+import { Baby, UserCircle, X } from "lucide-react";
+import { createClient } from "@/src/utils/supabase/client";
+import { useAuth } from "@/src/components/auth";
+
+import { useRouter } from "next/navigation";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -11,158 +15,196 @@ interface AuthModalProps {
   onSuccess?: () => void;
 }
 
+type AuthStep = "choice" | "pin-login" | "adult-login";
+
 export default function AuthModal({
   isOpen,
   onClose,
   onSuccess,
 }: AuthModalProps) {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const [step, setStep] = useState<AuthStep>("choice");
+  const [childName, setChildName] = useState("Хүүхэд");
+  const [childId, setChildId] = useState("");
+  const [childParentId, setChildParentId] = useState("");
+  const childDataRef = useRef<{
+    id: string;
+    name: string;
+    parentId: string;
+  } | null>(null);
+  const { selectProfile } = useAuth();
+  const router = useRouter();
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleChildSelect = () => {
+    setStep("pin-login");
+  };
 
+  const handleAdultSelect = () => {
+    setStep("adult-login");
+  };
+
+  const verifyPin = async (pin: string): Promise<boolean> => {
+    const supabase = createClient();
     try {
-      if (isLogin) {
-        await signIn(email, password);
-      } else {
-        await signUp(email, password, username);
-      }
-      setEmail("");
-      setUsername("");
-      setPassword("");
-      onSuccess?.();
-      onClose();
-    } catch (error) {
-      // Error is handled in AuthProvider
-    } finally {
-      setLoading(false);
+      const { data, error } = await supabase
+        .from("children")
+        .select("name, id, parent_id")
+        .eq("pin_code", pin)
+        .maybeSingle();
+
+      if (error || !data) return false;
+
+      setChildName(data.name);
+      setChildId(data.id);
+      setChildParentId(data.parent_id);
+
+      // Store in ref for immediate access in handlePinSuccess
+      childDataRef.current = {
+        id: data.id,
+        name: data.name,
+        parentId: data.parent_id,
+      };
+
+      return true;
+    } catch (err) {
+      console.error("Error verifying pin:", err);
+      return false;
     }
   };
 
+  const handlePinSuccess = () => {
+    if (childDataRef.current) {
+      selectProfile({
+        id: childDataRef.current.id,
+        name: childDataRef.current.name,
+        type: "child",
+        parentId: childDataRef.current.parentId,
+      });
+    }
+    onSuccess?.();
+    onClose();
+    setStep("choice");
+  };
+
+  const handleAdultLoginSuccess = () => {
+    // Adult login is handled in AdultLogin component via signIn which sets the profile
+    onSuccess?.();
+    onClose();
+    setStep("choice");
+    router.push("/profiles");
+  };
+
+  const handleBack = () => {
+    setStep("choice");
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-50 p-4">
-      <div className="bg-white rounded-3xl p-8 max-w-md w-full relative border-2 border-gray-200 shadow-2xl">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          <X size={24} className="text-gray-600" />
-        </button>
-
-        {/* Header with Icon */}
-        <div className="text-center mb-6">
-          <div className="flex justify-center mb-3">
-            <GraduationCap
-              size={64}
-              className="text-(--duo-green)"
-              strokeWidth={2.5}
-            />
-          </div>
-          <h2
-            className="text-3xl font-black mb-2"
-            style={{ color: "var(--duo-green)" }}
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-white">
+      {step === "choice" && (
+        <div className="min-h-screen bg-linear-to-b from-blue-50 via-green-50 to-yellow-50 flex items-center justify-center p-4 relative">
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-black/5 transition-colors cursor-pointer z-10"
           >
-            {isLogin ? "Нэвтрэх" : "Бүртгүүлэх"}
-          </h2>
-          <p className="text-sm text-gray-600 font-semibold">
-            {isLogin ? "Сурахаа үргэлжлүүлээрэй!" : "Шинэ аялал эхлүүлээрэй!"}
-          </p>
-        </div>
+            <X size={32} className="text-gray-500" />
+          </button>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-bold text-gray-700 mb-2"
+          <div className="max-w-2xl w-full">
+            {/* Header */}
+            <div className="text-center mb-12 animate-bounce-in">
+              <h1
+                className="text-5xl md:text-6xl font-black mb-4 text-shadow-lg"
+                style={{ color: "var(--duo-green)" }}
               >
-                Нэр
-              </label>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-(--duo-blue) transition-colors font-semibold"
-                placeholder="Таны нэр"
-              />
+                Хэн сурч байна?
+              </h1>
+              <p
+                className="text-xl font-bold"
+                style={{ color: "var(--duo-gray-700)" }}
+              >
+                Төрлөө сонгоно уу 🎉
+              </p>
             </div>
-          )}
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-bold text-gray-700 mb-2"
-            >
-              Имэйл
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-(--duo-blue) transition-colors font-semibold"
-              placeholder="имэйл@жишээ.com"
-            />
+            {/* Choice Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+              <button
+                onClick={handleAdultSelect}
+                className="group cursor-pointer transform transition-all hover:scale-105"
+              >
+                <div className="duo-card p-12 text-center">
+                  <div className="mb-6 flex justify-center">
+                    <div className="bg-linear-to-br from-blue-400 to-purple-400 rounded-full p-8 border-4 border-blue-400 shadow-lg group-hover:scale-110 transition-transform">
+                      <UserCircle
+                        size={80}
+                        className="text-white"
+                        strokeWidth={2.5}
+                      />
+                    </div>
+                  </div>
+                  <h2
+                    className="text-4xl font-black mb-3"
+                    style={{ color: "var(--duo-blue)" }}
+                  >
+                    Том хүн
+                  </h2>
+                  <p
+                    className="text-lg font-bold"
+                    style={{ color: "var(--duo-gray-700)" }}
+                  >
+                    Имэйл, нууц үгээр нэвтрэх
+                  </p>
+                </div>
+              </button>
+
+              <button
+                onClick={handleChildSelect}
+                className="group cursor-pointer transform transition-all hover:scale-105"
+              >
+                <div className="duo-card p-12 text-center">
+                  <div className="mb-6 flex justify-center">
+                    <div className="bg-linear-to-br from-yellow-200 to-orange-200 rounded-full p-8 border-4 border-yellow-400 shadow-lg group-hover:scale-110 transition-transform">
+                      <Baby
+                        size={80}
+                        className="text-white"
+                        strokeWidth={2.5}
+                      />
+                    </div>
+                  </div>
+                  <h2
+                    className="text-4xl font-black mb-3"
+                    style={{ color: "var(--duo-yellow-dark)" }}
+                  >
+                    Хүүхэд
+                  </h2>
+                  <p
+                    className="text-lg font-bold"
+                    style={{ color: "var(--duo-gray-700)" }}
+                  >
+                    4 оронтой кодоор нэвтрэх
+                  </p>
+                </div>
+              </button>
+            </div>
           </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-bold text-gray-700 mb-2"
-            >
-              Нууц үг
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-(--duo-blue) transition-colors font-semibold"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`duo-button w-full px-6 py-4 text-base ${
-              isLogin ? "duo-button-green" : "duo-button-blue"
-            }`}
-          >
-            {loading ? <Loader /> : isLogin ? "Нэвтрэх" : "Бүртгүүлэх"}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setEmail("");
-              setUsername("");
-              setPassword("");
-            }}
-            className="text-sm font-bold cursor-pointer transition-colors"
-            style={{ color: "var(--duo-blue)" }}
-          >
-            {isLogin
-              ? "Бүртгэл байхгүй юу? Бүртгүүлэх"
-              : "Аль хэдийн бүртгэлтэй юу? Нэвтрэх"}
-          </button>
         </div>
-      </div>
+      )}
+
+      {step === "adult-login" && (
+        <AdultLogin onSuccess={handleAdultLoginSuccess} onBack={handleBack} />
+      )}
+
+      {step === "pin-login" && (
+        <PinLogin
+          profileName={childName}
+          profileAvatar="👶"
+          onVerify={verifyPin}
+          onSuccess={handlePinSuccess}
+          onBack={handleBack}
+        />
+      )}
     </div>
   );
 }

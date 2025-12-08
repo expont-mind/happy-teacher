@@ -10,11 +10,11 @@ import Skeleton from "@/src/components/ui/Skeleton";
 export default function FractionsRoadmapPage() {
   const [paid, setPaid] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { user, checkPurchase } = useAuth();
+  const { user, activeProfile, checkPurchase } = useAuth();
 
   useEffect(() => {
     const checkPaid = async () => {
-      if (user) {
+      if (user || activeProfile) {
         const isPurchased = await checkPurchase("fractions");
         setPaid(isPurchased);
       } else {
@@ -22,13 +22,12 @@ export default function FractionsRoadmapPage() {
       }
       setLoading(false);
     };
-
     checkPaid();
-  }, [user, checkPurchase]);
+  }, [user, activeProfile, checkPurchase]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="min-h-screen bg-linear-to-b from-blue-50 to-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
@@ -48,7 +47,7 @@ export default function FractionsRoadmapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+    <div className="min-h-screen bg-linear-to-b from-blue-50 to-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">

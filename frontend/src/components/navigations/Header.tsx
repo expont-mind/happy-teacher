@@ -10,16 +10,21 @@ import {
   GraduationCap,
   Flame,
   Zap,
+  Baby,
+  Plus,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/src/components/auth";
 import AuthModal from "@/src/components/auth/AuthModal";
 import Skeleton from "@/src/components/ui/Skeleton";
+import { useRouter } from "next/navigation";
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, activeProfile } = useAuth();
+  const router = useRouter();
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b-2 border-gray-200 shadow-sm">
@@ -48,8 +53,19 @@ export const Header = () => {
               <Skeleton className="w-40 h-10" />
               <Skeleton className="w-24 h-10" />
             </div>
-          ) : user ? (
+          ) : user || activeProfile ? (
             <div className="flex items-center gap-3">
+              {/* Manage Profiles Button - Only for Adults */}
+              {activeProfile?.type === "adult" && (
+                <button
+                  onClick={() => router.push("/profiles")}
+                  className="duo-button duo-button-green px-4 py-2 text-sm cursor-pointer flex items-center gap-2"
+                >
+                  <Users size={16} />
+                  <span>Профайл</span>
+                </button>
+              )}
+
               {/* User Stats */}
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
                 <Flame
@@ -73,7 +89,7 @@ export const Header = () => {
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
                 <User size={16} className="text-gray-600" />
                 <span className="text-sm font-semibold text-gray-700 hidden lg:inline">
-                  {user.email?.split("@")[0]}
+                  {activeProfile?.name || user?.email?.split("@")[0]}
                 </span>
               </div>
 
@@ -127,8 +143,21 @@ export const Header = () => {
               <Skeleton className="w-full h-10" />
               <Skeleton className="w-full h-12" />
             </>
-          ) : user ? (
+          ) : user || activeProfile ? (
             <>
+              {activeProfile?.type === "adult" && (
+                <button
+                  onClick={() => {
+                    router.push("/profiles");
+                    setIsOpen(false);
+                  }}
+                  className="duo-button duo-button-green w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Users size={16} />
+                  <span>Профайл</span>
+                </button>
+              )}
+
               {/* User Stats Mobile */}
               <div className="flex gap-2 mb-2">
                 <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
@@ -152,7 +181,7 @@ export const Header = () => {
 
               <div className="px-4 py-2 text-gray-700 text-sm font-semibold flex items-center gap-2 bg-gray-50 rounded-xl">
                 <User size={16} />
-                <span>{user.email}</span>
+                <span>{activeProfile?.name || user?.email}</span>
               </div>
 
               <button
