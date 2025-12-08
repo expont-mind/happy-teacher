@@ -16,17 +16,18 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [shouldPurchaseAfterLogin, setShouldPurchaseAfterLogin] =
     useState(false);
-  const { user, checkPurchase, purchaseTopic } = useAuth();
+  const { user, activeProfile, checkPurchase, purchaseTopic } = useAuth();
 
   useEffect(() => {
     const checkUnlocked = async () => {
       setLoading(true);
-      if (user) {
+      if (user || activeProfile) {
         const isPurchased = await checkPurchase(topicKey);
         setUnlocked(isPurchased);
 
         // If user just logged in and we should purchase, do it now
-        if (!isPurchased && shouldPurchaseAfterLogin) {
+        // Only for adult users (who have a 'user' object)
+        if (user && !isPurchased && shouldPurchaseAfterLogin) {
           try {
             await purchaseTopic(topicKey);
             const purchased = await checkPurchase(topicKey);
@@ -48,6 +49,7 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
     checkUnlocked();
   }, [
     user,
+    activeProfile,
     topicKey,
     checkPurchase,
     shouldPurchaseAfterLogin,
@@ -56,8 +58,21 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
   ]);
 
   const handlePurchase = async () => {
-    if (!user) {
+    if (!user && !activeProfile) {
       setShouldPurchaseAfterLogin(true);
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (activeProfile?.type === "child") {
+      // Children cannot purchase directly
+      // Ideally show a modal saying "Ask your parent to buy this"
+      alert("Эцэг эхээсээ худалдаж авч өгөхийг хүсээрэй!");
+      return;
+    }
+
+    if (!user) {
+      // Should not happen for adult profile if logic is correct, but safe fallback
       setShowAuthModal(true);
       return;
     }
@@ -87,12 +102,12 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
   return (
     <>
       <div className="max-w-2xl mx-auto">
-        <div className="duo-card text-center p-12 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-orange-200">
+        <div className="duo-card text-center p-12 bg-linear-to-br from-yellow-50 to-orange-50 border-2 border-orange-200">
           {/* Lock Icon */}
           <div className="flex justify-center mb-6">
             <Lock
               size={80}
-              className="text-[var(--duo-yellow-dark)]"
+              className="text-(--duo-yellow-dark)"
               strokeWidth={2.5}
             />
           </div>
@@ -107,7 +122,7 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
 
           {/* Description */}
           <p className="text-lg text-gray-700 font-semibold mb-8 max-w-md mx-auto">
-            {user
+            {user || activeProfile
               ? "Энэ сэдвийг нээхийн тулд худалдаж аваарай!"
               : "Энэ сэдвийг нээхийн тулд эхлээд нэвтэрнэ үү!"}
           </p>
@@ -118,7 +133,7 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
               <div className="flex justify-center mb-2">
                 <BookOpen
                   size={32}
-                  className="text-[var(--duo-blue)]"
+                  className="text-(--duo-blue)"
                   strokeWidth={2}
                 />
               </div>
@@ -128,7 +143,7 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
               <div className="flex justify-center mb-2">
                 <Gamepad2
                   size={32}
-                  className="text-[var(--duo-purple)]"
+                  className="text-(--duo-purple)"
                   strokeWidth={2}
                 />
               </div>
@@ -140,7 +155,7 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
               <div className="flex justify-center mb-2">
                 <Trophy
                   size={32}
-                  className="text-[var(--duo-yellow-dark)]"
+                  className="text-(--duo-yellow-dark)"
                   strokeWidth={2}
                 />
               </div>
@@ -155,7 +170,7 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
             onClick={handlePurchase}
             className="duo-button duo-button-yellow px-12 py-5 text-xl cursor-pointer"
           >
-            {user ? "Худалдаж авах" : "Нэвтрэх"}
+            {user || activeProfile ? "Худалдаж авах" : "Нэвтрэх"}
           </button>
         </div>
       </div>

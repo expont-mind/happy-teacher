@@ -14,13 +14,13 @@ export const Footer = () => {
             <div className="flex flex-col gap-2">
               <a
                 href="#"
-                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+                className="text-sm text-gray-600 hover:text-(--duo-blue) transition-colors font-semibold"
               >
                 Танилцуулга
               </a>
               <a
                 href="#"
-                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+                className="text-sm text-gray-600 hover:text-(--duo-blue) transition-colors font-semibold"
               >
                 Багш нар
               </a>
@@ -35,13 +35,13 @@ export const Footer = () => {
             <div className="flex flex-col gap-2">
               <a
                 href="#"
-                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+                className="text-sm text-gray-600 hover:text-(--duo-blue) transition-colors font-semibold"
               >
                 Хичээлүүд
               </a>
               <a
                 href="#"
-                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+                className="text-sm text-gray-600 hover:text-(--duo-blue) transition-colors font-semibold"
               >
                 Тоглоомууд
               </a>
@@ -56,13 +56,13 @@ export const Footer = () => {
             <div className="flex flex-col gap-2">
               <a
                 href="#"
-                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+                className="text-sm text-gray-600 hover:text-(--duo-blue) transition-colors font-semibold"
               >
                 Холбоо барих
               </a>
               <a
                 href="#"
-                className="text-sm text-gray-600 hover:text-[var(--duo-blue)] transition-colors font-semibold"
+                className="text-sm text-gray-600 hover:text-(--duo-blue) transition-colors font-semibold"
               >
                 Түгээмэл асуулт
               </a>
@@ -81,7 +81,7 @@ export const Footer = () => {
               >
                 <Facebook
                   size={24}
-                  className="text-gray-600 group-hover:text-[var(--duo-blue)]"
+                  className="text-gray-600 group-hover:text-(--duo-blue)"
                   strokeWidth={2}
                 />
               </a>
@@ -101,7 +101,7 @@ export const Footer = () => {
               >
                 <Twitter
                   size={24}
-                  className="text-gray-600 group-hover:text-[var(--duo-blue)]"
+                  className="text-gray-600 group-hover:text-(--duo-blue)"
                   strokeWidth={2}
                 />
               </a>

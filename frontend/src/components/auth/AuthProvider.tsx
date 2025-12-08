@@ -1,22 +1,39 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/src/utils/supabase/client";
 import { toast } from "sonner";
-import { AuthContextType } from "./types";
+import { AuthContextType, UserProfile } from "./types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [activeProfile, setActiveProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const activeProfileRef = useRef<UserProfile | null>(null);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+
+      const savedProfile = localStorage.getItem("activeProfile");
+      if (savedProfile) {
+        setActiveProfile(JSON.parse(savedProfile));
+      } else if (session?.user) {
+        setActiveProfile({
+          id: session.user.id,
+          name:
+            session.user.user_metadata.full_name ||
+            session.user.email?.split("@")[0] ||
+            "Adult",
+          type: "adult",
+        });
+      }
+
       setLoading(false);
     });
 
@@ -25,13 +42,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+
+      if (!session) {
+        const savedProfileStr = localStorage.getItem("activeProfile");
+        if (savedProfileStr) {
+          const savedProfile = JSON.parse(savedProfileStr);
+          if (savedProfile.type === "child") {
+            setActiveProfile(savedProfile);
+            return;
+          }
+        }
+
+        setActiveProfile(null);
+        localStorage.removeItem("activeProfile");
+      } else if (!activeProfile) {
+        // If logging in and no profile set, default to adult
+        const newProfile: UserProfile = {
+          id: session.user.id,
+          name:
+            session.user.user_metadata.full_name ||
+            session.user.email?.split("@")[0] ||
+            "Adult",
+          type: "adult",
+        };
+        setActiveProfile(newProfile);
+        localStorage.setItem("activeProfile", JSON.stringify(newProfile));
+      }
     });
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -39,6 +82,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.error(error.message);
       throw error;
     }
+
+    // Set default adult profile on login
+    if (data.user) {
+      const profile: UserProfile = {
+        id: data.user.id,
+        name:
+          data.user.user_metadata.full_name ||
+          data.user.email?.split("@")[0] ||
+          "Adult",
+        type: "adult",
+      };
+      setActiveProfile(profile);
+      localStorage.setItem("activeProfile", JSON.stringify(profile));
+    }
+
     toast.success("Амжилттай нэвтэрлээ!");
   };
 
@@ -66,10 +124,104 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.error(error.message);
       throw error;
     }
+    setActiveProfile(null);
+    localStorage.removeItem("activeProfile");
     toast.success("Гарах амжилттай!");
   };
 
+  const selectProfile = (profile: UserProfile) => {
+    setActiveProfile(profile);
+    activeProfileRef.current = profile;
+    localStorage.setItem("activeProfile", JSON.stringify(profile));
+    toast.success(`${profile.name} профайл руу шилжлээ!`);
+  };
+
   const checkPurchase = async (topicKey: string): Promise<boolean> => {
+    // Use state first, then fallback to localStorage to be safe
+    let currentProfile = activeProfile;
+    if (!currentProfile) {
+      const saved = localStorage.getItem("activeProfile");
+      if (saved) {
+        try {
+          currentProfile = JSON.parse(saved);
+        } catch (e) {
+          console.error("Error parsing saved profile", e);
+        }
+      }
+    }
+
+    // If active profile is child
+    // If active profile is child
+    if (currentProfile?.type === "child") {
+      // Self-healing: If parentId is missing, try to fetch it
+      if (!currentProfile.parentId) {
+        try {
+          const { data: childData, error: childError } = await supabase
+            .from("children")
+            .select("parent_id")
+            .eq("id", currentProfile.id)
+            .maybeSingle();
+
+          if (!childError && childData) {
+            // Update profile with parentId
+            const updatedProfile = {
+              ...currentProfile,
+              parentId: childData.parent_id,
+            };
+            currentProfile = updatedProfile;
+            setActiveProfile(updatedProfile);
+            activeProfileRef.current = updatedProfile;
+            localStorage.setItem(
+              "activeProfile",
+              JSON.stringify(updatedProfile)
+            );
+          }
+        } catch (err) {
+          console.error("Error fetching missing parentId:", err);
+        }
+      }
+
+      if (currentProfile.parentId) {
+        try {
+          // Try RPC first (secure way to bypass RLS)
+          const { data: rpcData, error: rpcError } = await supabase.rpc(
+            "check_parent_purchase",
+            {
+              p_id: currentProfile.parentId,
+              t_key: topicKey,
+            }
+          );
+
+          if (!rpcError) {
+            return !!rpcData;
+          }
+
+          console.warn(
+            "RPC check failed (function might not exist), falling back to direct query:",
+            rpcError.message
+          );
+
+          // Fallback to direct query (works if RLS is disabled or public)
+          const { data, error } = await supabase
+            .from("purchases")
+            .select("id")
+            .eq("user_id", currentProfile.parentId)
+            .eq("topic_key", topicKey)
+            .maybeSingle();
+
+          if (error) {
+            console.warn("Error checking parent purchase:", error);
+            return false;
+          }
+
+          return !!data;
+        } catch (err) {
+          console.warn("Unexpected error checking parent purchase:", err);
+          return false;
+        }
+      }
+    }
+
     if (!user) return false;
 
     try {
@@ -80,24 +232,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq("topic_key", topicKey)
         .maybeSingle();
 
-      // PGRST116 is "not found" error, which is expected when not purchased
       if (error) {
-        // PGRST116 = not found (expected when not purchased)
-        if (error.code === "PGRST116") {
-          return false;
-        }
+        if (error.code === "PGRST116") return false;
         if (
           error.code === "42P01" ||
           error.message?.includes("relation") ||
           error.message?.includes("does not exist") ||
           error.message?.includes("schema cache")
         ) {
-          console.warn(
-            "⚠️ Purchases table not found. Please run SUPABASE_SETUP.sql in your Supabase SQL Editor."
-          );
+          console.warn("⚠️ Purchases table not found.");
           return false;
         }
-
         console.warn("Error checking purchase:", error.message || error);
         return false;
       }
@@ -115,7 +260,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Check if already purchased
       const alreadyPurchased = await checkPurchase(topicKey);
       if (alreadyPurchased) {
         toast.info("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.");
@@ -128,26 +272,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
-        // Handle specific error cases
         if (error.code === "23505") {
-          // Unique constraint violation - already purchased
           toast.info("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.");
           return;
         }
-        // Table doesn't exist errors
         if (
           error.code === "42P01" ||
           error.message?.includes("relation") ||
           error.message?.includes("does not exist") ||
           error.message?.includes("schema cache")
         ) {
-          toast.error(
-            "Database table байхгүй байна. Supabase SQL Editor дээр SUPABASE_SETUP.sql файлыг ажиллуулна уу.",
-            { duration: 8000 }
-          );
-          console.error(
-            "📋 Please run the SQL from SUPABASE_SETUP.sql in your Supabase SQL Editor"
-          );
+          toast.error("Database table байхгүй байна.");
           throw error;
         }
         toast.error(error.message || "Худалдан авалт амжилтгүй боллоо.");
@@ -156,14 +291,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       toast.success("Худалдан авалт амжилттай!");
     } catch (err) {
-      // Re-throw to let caller handle
       throw err;
     }
   };
 
   const markLessonCompleted = async (topicKey: string, lessonId: string) => {
+    // Use state first, then fallback to localStorage to be safe
+    let currentProfile = activeProfile;
+    if (!currentProfile) {
+      const saved = localStorage.getItem("activeProfile");
+      if (saved) {
+        try {
+          currentProfile = JSON.parse(saved);
+        } catch (e) {
+          console.error("Error parsing saved profile", e);
+        }
+      }
+    }
+
+    // If child profile
+    if (currentProfile?.type === "child") {
+      try {
+        const { error } = await supabase.rpc("mark_child_progress", {
+          p_child_id: currentProfile.id,
+          p_topic_key: topicKey,
+          p_lesson_id: lessonId,
+        });
+
+        if (error) {
+          console.error("Error marking child lesson completed:", error);
+          // Fallback to localStorage
+          const key = `child_progress:${currentProfile.id}:${topicKey}`;
+          const saved = localStorage.getItem(key);
+          const list: string[] = saved ? JSON.parse(saved) : [];
+          if (!list.includes(lessonId)) {
+            const updated = [...list, lessonId];
+            localStorage.setItem(key, JSON.stringify(updated));
+          }
+        }
+      } catch (err) {
+        console.error("Unexpected error marking child lesson completed:", err);
+      }
+      return;
+    }
+
     if (!user) {
-      // Fallback to localStorage if not logged in
       const key = `progress:${topicKey}`;
       const saved = localStorage.getItem(key);
       const list: string[] = saved ? JSON.parse(saved) : [];
@@ -188,7 +360,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
 
       if (error) {
-        // If table doesn't exist, fallback to localStorage
         if (
           error.code === "42P01" ||
           error.message?.includes("relation") ||
@@ -212,7 +383,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (err) {
       console.error("Unexpected error marking lesson completed:", err);
-      // Fallback to localStorage on error
       const key = `progress:${topicKey}`;
       const saved = localStorage.getItem(key);
       const list: string[] = saved ? JSON.parse(saved) : [];
@@ -224,8 +394,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getCompletedLessons = async (topicKey: string): Promise<string[]> => {
+    // Use state first, then fallback to localStorage to be safe
+    let currentProfile = activeProfile;
+    if (!currentProfile) {
+      const saved = localStorage.getItem("activeProfile");
+      if (saved) {
+        try {
+          currentProfile = JSON.parse(saved);
+        } catch (e) {
+          console.error("Error parsing saved profile", e);
+        }
+      }
+    }
+
+    // If child profile
+    if (currentProfile?.type === "child") {
+      try {
+        const { data, error } = await supabase.rpc("get_child_progress", {
+          p_child_id: currentProfile.id,
+          p_topic_key: topicKey,
+        });
+
+        if (error) {
+          console.error("Error getting child completed lessons:", error);
+          // Fallback to localStorage
+          const key = `child_progress:${currentProfile.id}:${topicKey}`;
+          const saved = localStorage.getItem(key);
+          return saved ? JSON.parse(saved) : [];
+        }
+
+        return data?.map((item: any) => item.lesson_id) || [];
+      } catch (err) {
+        console.error("Unexpected error getting child completed lessons:", err);
+        const key = `child_progress:${currentProfile.id}:${topicKey}`;
+        const saved = localStorage.getItem(key);
+        return saved ? JSON.parse(saved) : [];
+      }
+    }
+
     if (!user) {
-      // Fallback to localStorage if not logged in
       const key = `progress:${topicKey}`;
       const saved = localStorage.getItem(key);
       return saved ? JSON.parse(saved) : [];
@@ -239,7 +446,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq("topic_key", topicKey);
 
       if (error) {
-        // If table doesn't exist, fallback to localStorage
         if (
           error.code === "42P01" ||
           error.message?.includes("relation") ||
@@ -254,7 +460,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return saved ? JSON.parse(saved) : [];
         }
         console.error("Error getting completed lessons:", error);
-        // Fallback to localStorage on error
         const key = `progress:${topicKey}`;
         const saved = localStorage.getItem(key);
         return saved ? JSON.parse(saved) : [];
@@ -263,7 +468,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return data?.map((item) => item.lesson_id) || [];
     } catch (err) {
       console.error("Unexpected error getting completed lessons:", err);
-      // Fallback to localStorage on error
       const key = `progress:${topicKey}`;
       const saved = localStorage.getItem(key);
       return saved ? JSON.parse(saved) : [];
@@ -274,10 +478,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        activeProfile,
         loading,
         signIn,
         signUp,
         signOut,
+        selectProfile,
         checkPurchase,
         purchaseTopic,
         markLessonCompleted,
