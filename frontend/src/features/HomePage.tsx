@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import {
   GraduationCap,
@@ -12,8 +13,15 @@ import {
   Zap,
   Award,
 } from "lucide-react";
+import { useTutorial, homePageTutorial } from "@/src/components/tutorial";
 
 export const HomePage = () => {
+  const { startTutorial } = useTutorial();
+
+  useEffect(() => {
+    startTutorial(homePageTutorial);
+  }, [startTutorial]);
+
   return (
     <div className="min-h-screen w-full bg-linear-to-b from-blue-50 to-white">
       {/* Hero Section */}
@@ -45,7 +53,7 @@ export const HomePage = () => {
 
         {/* Main CTA Button - Duolingo Style */}
         <div className="flex justify-center mb-16">
-          <Link href="/topic" className="cursor-pointer">
+          <Link href="/topic" className="cursor-pointer" data-tutorial="main-cta">
             <button className="duo-button duo-button-green px-12 py-5 text-xl md:text-2xl font-black flex items-center gap-3">
               <Sparkles size={28} />
               <span>Эхлэх</span>
@@ -59,6 +67,7 @@ export const HomePage = () => {
           <Link
             href="/topic/fractions"
             className="duo-card cursor-pointer group"
+            data-tutorial="fractions-card"
             prefetch={true}
           >
             <div className="flex items-center gap-4 mb-4">
@@ -90,6 +99,7 @@ export const HomePage = () => {
           <Link
             href="/topic/multiplication"
             className="duo-card cursor-pointer group"
+            data-tutorial="multiplication-card"
             prefetch={true}
           >
             <div className="flex items-center gap-4 mb-4">

@@ -289,6 +289,32 @@ body {
   animation: float 3s ease-in-out infinite;
 }
 
+@keyframes slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tutorial-enter {
+  animation: slide-in-bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
 /* Utility Classes */
 .text-shadow {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
