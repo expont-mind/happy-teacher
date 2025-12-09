@@ -12,10 +12,12 @@ import { fractionLessons } from "@/src/data/lessons/fractions";
 import Image from "next/image";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 
+import { RewardModal } from "@/src/components/gamification/RewardModal";
+
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted } = useAuth();
+  const { markLessonCompleted, addXP } = useAuth();
 
   const lesson = useMemo(
     () => fractionLessons.find((l) => l.id === params.lessonId),
@@ -29,6 +31,8 @@ export default function LessonPage() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
   const toastQueue = useRef<Array<string | number>>([]);
+  const [showReward, setShowReward] = useState(false);
+  const [xpEarned, setXpEarned] = useState(0);
 
   // Toast function (same as ColoringCanvas)
   const showLimitedToast = useCallback((message: string) => {
@@ -45,36 +49,56 @@ export default function LessonPage() {
   }
 
   const markCompleted = async () => {
-    if (!canvasRef.current || !lesson) return;
+    // if (!canvasRef.current || !lesson) return;
 
-    const { isComplete, missingColors } = canvasRef.current.checkCompletion();
+    // const { isComplete, missingColors } = canvasRef.current.checkCompletion();
 
-    if (!isComplete) {
-      const colorNames: Record<string, string> = {
-        "#6b3ab5": "Нил ягаан",
-        "#1066b4": "Хөх",
-        "#3396c7": "Цэнхэр",
-        "#1a9742": "Ногоон",
-        "#fdf3dc": "Цагаан шар",
-        "#ffd200": "Шар",
-        "#ff7900": "Улбар шар",
-        "#ee3030": "Улаан",
-        "#603130": "Хүрэн",
-        "#95928d": "Саарал",
-      };
+    // if (!isComplete) {
+    //   const colorNames: Record<string, string> = {
+    //     "#6b3ab5": "Нил ягаан",
+    //     "#1066b4": "Хөх",
+    //     "#3396c7": "Цэнхэр",
+    //     "#1a9742": "Ногоон",
+    //     "#fdf3dc": "Цагаан шар",
+    //     "#ffd200": "Шар",
+    //     "#ff7900": "Улбар шар",
+    //     "#ee3030": "Улаан",
+    //     "#603130": "Хүрэн",
+    //     "#95928d": "Саарал",
+    //   };
 
-      const missingColorNames = missingColors
-        .map((color) => colorNames[color.toLowerCase()] || color)
-        .join(", ");
+    //   const missingColorNames = missingColors
+    //     .map((color) => colorNames[color.toLowerCase()] || color)
+    //     .join(", ");
 
-      showLimitedToast(
-        `Дуусаагүй хэсэг байна! 😊\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
-      );
-      return;
-    }
+    //   showLimitedToast(
+    //     `Дуусаагүй хэсэг байна! 😊\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
+    //   );
+    //   return;
+    //   return;
+    // }
 
     // Save to Supabase (with localStorage fallback)
     await markLessonCompleted("fractions", lesson.id);
+
+    // Calculate XP based on mistakes
+    const mistakes = canvasRef.current?.getMistakeCount() || 0;
+    const baseXP = 10;
+    const bonusXP = mistakes === 0 ? 5 : 0;
+    const totalXP = baseXP + bonusXP;
+
+    // Award XP
+    const result = await addXP(totalXP);
+    if (result) {
+      setXpEarned(totalXP);
+      setShowReward(true);
+    } else {
+      router.push("/topic/fractions");
+    }
+  };
+
+  const handleRewardClose = () => {
+    setShowReward(false);
     router.push("/topic/fractions");
   };
 
@@ -113,6 +137,14 @@ export default function LessonPage() {
         helpOpen={helpOpen}
         setHelpOpen={setHelpOpen}
         helpImage={lesson.helpImage}
+      />
+
+      <RewardModal
+        isOpen={showReward}
+        onClose={handleRewardClose}
+        xpEarned={xpEarned}
+        bonus={xpEarned === 15 ? "Perfect Lesson Bonus!" : undefined}
+        type="lesson"
       />
     </div>
   );

@@ -12,6 +12,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [activeProfile, setActiveProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastPurchaseTime, setLastPurchaseTime] = useState<number>(0);
   const supabase = createClient();
   const activeProfileRef = useRef<UserProfile | null>(null);
 
@@ -129,11 +130,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     toast.success("Гарах амжилттай!");
   };
 
-  const selectProfile = (profile: UserProfile) => {
-    setActiveProfile(profile);
-    activeProfileRef.current = profile;
-    localStorage.setItem("activeProfile", JSON.stringify(profile));
+  const fetchProfileStats = async (profile: UserProfile) => {
+    try {
+      if (profile.type === "child") {
+        const { data, error } = await supabase
+          .from("children")
+          .select("streak_count, xp, level")
+          .eq("id", profile.id)
+          .single();
+        if (!error && data) {
+          return {
+            streak: data.streak_count || 0,
+            xp: data.xp || 0,
+            level: data.level || 1,
+          };
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("user_streaks")
+          .select("streak_count")
+          .eq("user_id", profile.id)
+          .single();
+        if (!error && data) {
+          return { streak: data.streak_count || 0 };
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching stats:", err);
+    }
+    return { streak: 0 };
+  };
+
+  const selectProfile = async (profile: UserProfile) => {
+    // Fetch stats before setting profile
+    const stats = await fetchProfileStats(profile);
+    const profileWithStats = { ...profile, ...stats };
+
+    setActiveProfile(profileWithStats);
+    activeProfileRef.current = profileWithStats;
+    localStorage.setItem("activeProfile", JSON.stringify(profileWithStats));
     toast.success(`${profile.name} профайл руу шилжлээ!`);
+  };
+
+  const addXP = async (
+    amount: number
+  ): Promise<{ xp: number; level: number; leveled_up: boolean } | null> => {
+    if (activeProfile?.type !== "child") return null;
+
+    try {
+      const { data, error } = await supabase.rpc("add_child_xp", {
+        p_child_id: activeProfile.id,
+        p_amount: amount,
+      });
+
+      if (error) throw error;
+
+      // Update local state
+      const updatedProfile = {
+        ...activeProfile,
+        xp: data.xp,
+        level: data.level,
+      };
+      setActiveProfile(updatedProfile);
+      activeProfileRef.current = updatedProfile;
+      localStorage.setItem("activeProfile", JSON.stringify(updatedProfile));
+
+      return data;
+    } catch (err) {
+      console.error("Error adding XP:", err);
+      return null;
+    }
   };
 
   const checkPurchase = async (topicKey: string): Promise<boolean> => {
@@ -150,7 +216,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // If active profile is child
     // If active profile is child
     if (currentProfile?.type === "child") {
       // Self-healing: If parentId is missing, try to fetch it
@@ -328,6 +393,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const updated = [...list, lessonId];
             localStorage.setItem(key, JSON.stringify(updated));
           }
+        } else {
+          // Update streak
+          const { data: newStreak, error: streakError } = await supabase.rpc(
+            "update_child_streak",
+            {
+              p_child_id: currentProfile.id,
+            }
+          );
+
+          if (!streakError && newStreak !== null) {
+            const updatedProfile = { ...currentProfile, streak: newStreak };
+            setActiveProfile(updatedProfile);
+            activeProfileRef.current = updatedProfile;
+            localStorage.setItem(
+              "activeProfile",
+              JSON.stringify(updatedProfile)
+            );
+          }
         }
       } catch (err) {
         console.error("Unexpected error marking child lesson completed:", err);
@@ -380,6 +463,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         console.error("Error marking lesson completed:", error);
         throw error;
+      } else {
+        // Update streak for adult
+        const { data: newStreak, error: streakError } = await supabase.rpc(
+          "update_user_streak"
+        );
+
+        if (!streakError && newStreak !== null && currentProfile) {
+          const updatedProfile = { ...currentProfile, streak: newStreak };
+          setActiveProfile(updatedProfile);
+          activeProfileRef.current = updatedProfile;
+          localStorage.setItem("activeProfile", JSON.stringify(updatedProfile));
+        }
       }
     } catch (err) {
       console.error("Unexpected error marking lesson completed:", err);
@@ -488,6 +583,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         purchaseTopic,
         markLessonCompleted,
         getCompletedLessons,
+        lastPurchaseTime,
+        addXP,
       }}
     >
       {children}

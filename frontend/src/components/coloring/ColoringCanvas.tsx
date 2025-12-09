@@ -36,6 +36,7 @@ interface ColoringCanvasProps {
 
 export interface ColoringCanvasRef {
   checkCompletion: () => { isComplete: boolean; missingColors: string[] };
+  getMistakeCount: () => number;
 }
 
 const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
@@ -67,6 +68,8 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const [isFullScreen, setIsFullScreen] = useState(false);
 
     const toastQueue = useRef<Array<string | number>>([]);
+
+    const mistakeCountRef = useRef<number>(0);
 
     // Check completion status
     const checkCompletion = useCallback((): {
@@ -161,9 +164,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       };
     }, [palette]);
 
-    // Expose checkCompletion via ref
+    // Expose checkCompletion and getMistakeCount via ref
     useImperativeHandle(ref, () => ({
       checkCompletion,
+      getMistakeCount: () => mistakeCountRef.current,
     }));
 
     // Toast function
@@ -345,11 +349,13 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         }
 
         if (maskColor === "#ffffff") {
+          mistakeCountRef.current += 1;
           showLimitedToast("Будаж болохгүй хэсэг байна 😊");
           return;
         }
 
         if (maskColor !== selectedColor.toLowerCase()) {
+          mistakeCountRef.current += 1;
           showLimitedToast("Энэ хэсэгт өөр өнгө сонгоорой 🌈");
           return;
         }

@@ -13,6 +13,8 @@ import {
   Baby,
   Plus,
   Users,
+  LayoutDashboard,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/src/components/auth";
@@ -55,17 +57,7 @@ export const Header = () => {
             </div>
           ) : user || activeProfile ? (
             <div className="flex items-center gap-3">
-              {/* Manage Profiles Button - Only for Adults */}
-              {activeProfile?.type === "adult" && (
-                <button
-                  onClick={() => router.push("/profiles")}
-                  className="duo-button duo-button-green px-4 py-2 text-sm cursor-pointer flex items-center gap-2"
-                >
-                  <Users size={16} />
-                  <span>Профайл</span>
-                </button>
-              )}
-
+              {/* User Stats */}
               {/* User Stats */}
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
                 <Flame
@@ -73,7 +65,9 @@ export const Header = () => {
                   className="text-(--duo-red)"
                   strokeWidth={2.5}
                 />
-                <span className="text-sm font-bold text-gray-700">0</span>
+                <span className="text-sm font-bold text-gray-700">
+                  {activeProfile?.streak || 0}
+                </span>
               </div>
 
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
@@ -82,8 +76,23 @@ export const Header = () => {
                   className="text-(--duo-yellow-dark)"
                   strokeWidth={2.5}
                 />
-                <span className="text-sm font-bold text-gray-700">0</span>
+                <span className="text-sm font-bold text-gray-700">
+                  {activeProfile?.type === "child" ? activeProfile.xp || 0 : 0}
+                </span>
               </div>
+
+              {activeProfile?.type === "child" && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
+                  <Trophy
+                    size={16}
+                    className="text-yellow-600"
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-sm font-bold text-gray-700">
+                    Lvl {activeProfile.level || 1}
+                  </span>
+                </div>
+              )}
 
               {/* User Menu */}
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
@@ -92,6 +101,25 @@ export const Header = () => {
                   {activeProfile?.name || user?.email?.split("@")[0]}
                 </span>
               </div>
+
+              {activeProfile?.type === "adult" && (
+                <>
+                  <button
+                    onClick={() => router.push("/dashboard")}
+                    className="duo-button duo-button-blue px-4 py-2 text-sm cursor-pointer flex items-center gap-2"
+                  >
+                    <LayoutDashboard size={16} />
+                    <span>Dashboard</span>
+                  </button>
+                  <button
+                    onClick={() => router.push("/profiles")}
+                    className="duo-button duo-button-green px-4 py-2 text-sm cursor-pointer flex items-center gap-2"
+                  >
+                    <Users size={16} />
+                    <span>Users</span>
+                  </button>
+                </>
+              )}
 
               <button
                 onClick={async () => {
@@ -146,16 +174,28 @@ export const Header = () => {
           ) : user || activeProfile ? (
             <>
               {activeProfile?.type === "adult" && (
-                <button
-                  onClick={() => {
-                    router.push("/profiles");
-                    setIsOpen(false);
-                  }}
-                  className="duo-button duo-button-green w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Users size={16} />
-                  <span>Профайл</span>
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      router.push("/dashboard");
+                      setIsOpen(false);
+                    }}
+                    className="duo-button duo-button-blue w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <LayoutDashboard size={16} />
+                    <span>Dashboard</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push("/profiles");
+                      setIsOpen(false);
+                    }}
+                    className="duo-button duo-button-green w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <Users size={16} />
+                    <span>Users</span>
+                  </button>
+                </>
               )}
 
               {/* User Stats Mobile */}
@@ -166,7 +206,9 @@ export const Header = () => {
                     className="text-(--duo-red)"
                     strokeWidth={2.5}
                   />
-                  <span className="text-sm font-bold text-gray-700">0</span>
+                  <span className="text-sm font-bold text-gray-700">
+                    {activeProfile?.streak || 0}
+                  </span>
                 </div>
 
                 <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
