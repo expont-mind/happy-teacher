@@ -3,6 +3,7 @@
 import { Check, Lock, Star, BookOpen } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useAuth } from "@/src/components/auth/AuthProvider";
+import Link from "next/link";
 
 export type RoadmapItem = {
   id: string;
@@ -196,8 +197,8 @@ export default function Roadmap({ topicKey, items }: RoadmapProps) {
                   top: `${position.y}px`,
                 }}
               >
-                <a
-                  href={unlocked ? `/topic/${topicKey}/${item.id}` : undefined}
+                <Link
+                  href={unlocked ? `/topic/${topicKey}/${item.id}` : "#"}
                   className={`relative transition-transform duration-200 ${
                     unlocked
                       ? "active:scale-95 cursor-pointer"
@@ -264,7 +265,7 @@ export default function Roadmap({ topicKey, items }: RoadmapProps) {
                       ))}
                     </div>
                   )}
-                </a>
+                </Link>
               </div>
             );
           })}

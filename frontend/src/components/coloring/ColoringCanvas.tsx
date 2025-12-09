@@ -38,6 +38,7 @@ interface ColoringCanvasProps {
 
 export interface ColoringCanvasRef {
   checkCompletion: () => { isComplete: boolean; missingColors: string[] };
+  getMistakeCount: () => number;
 }
 
 const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
@@ -71,6 +72,8 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const [canRedo, setCanRedo] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const wrongClickCountRef = useRef<number>(0);
+
+    const mistakeCountRef = useRef<number>(0);
 
     // Check completion status
     const checkCompletion = useCallback((): {
@@ -165,9 +168,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       };
     }, [palette]);
 
-    // Expose checkCompletion via ref
+    // Expose checkCompletion and getMistakeCount via ref
     useImperativeHandle(ref, () => ({
       checkCompletion,
+      getMistakeCount: () => mistakeCountRef.current,
     }));
 
     // Show message via callback
@@ -349,6 +353,8 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         }
 
         if (maskColor === "#ffffff") {
+          mistakeCountRef.current += 1;
+          showLimitedToast("Будаж болохгүй хэсэг байна 😊");
           wrongClickCountRef.current += 1;
           if (wrongClickCountRef.current >= 5) {
             if (onShowRelax) onShowRelax();
@@ -362,6 +368,8 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         }
 
         if (maskColor !== selectedColor.toLowerCase()) {
+          mistakeCountRef.current += 1;
+          showLimitedToast("Энэ хэсэгт өөр өнгө сонгоорой 🌈");
           wrongClickCountRef.current += 1;
           if (wrongClickCountRef.current >= 5) {
             if (onShowRelax) onShowRelax();

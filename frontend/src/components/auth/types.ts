@@ -5,6 +5,9 @@ export interface UserProfile {
   name: string;
   type: "adult" | "child";
   parentId?: string;
+  streak?: number;
+  xp?: number;
+  level?: number;
 }
 
 export interface AuthContextType {
@@ -19,4 +22,8 @@ export interface AuthContextType {
   purchaseTopic: (topicKey: string) => Promise<void>;
   markLessonCompleted: (topicKey: string, lessonId: string) => Promise<void>;
   getCompletedLessons: (topicKey: string) => Promise<string[]>;
+  lastPurchaseTime: number;
+  addXP: (
+    amount: number
+  ) => Promise<{ xp: number; level: number; leveled_up: boolean } | null>;
 }

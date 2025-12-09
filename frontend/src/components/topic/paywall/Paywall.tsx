@@ -65,8 +65,6 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
     }
 
     if (activeProfile?.type === "child") {
-      // Children cannot purchase directly
-      // Ideally show a modal saying "Ask your parent to buy this"
       alert("Эцэг эхээсээ худалдаж авч өгөхийг хүсээрэй!");
       return;
     }

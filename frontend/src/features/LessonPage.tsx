@@ -12,9 +12,12 @@ import Image from "next/image";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import { MessageTooltip, RelaxModal, useTutorial, lessonPageTutorial } from "@/src/components/tutorial";
 
+import { RewardModal } from "@/src/components/gamification/RewardModal";
+
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
+  const { markLessonCompleted, addXP } = useAuth();
   const { markLessonCompleted } = useAuth();
   const { startTutorial, isActive } = useTutorial();
 
@@ -31,6 +34,9 @@ export default function LessonPage() {
   const [characterMessage, setCharacterMessage] = useState<string | null>(null);
   const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
+  const toastQueue = useRef<Array<string | number>>([]);
+  const [showReward, setShowReward] = useState(false);
+  const [xpEarned, setXpEarned] = useState(0);
 
   // Convert string array to object array without labels for ColorPalette
   const paletteForDisplay = useMemo(
@@ -87,6 +93,25 @@ export default function LessonPage() {
 
     // Save to Supabase (with localStorage fallback)
     await markLessonCompleted("fractions", lesson.id);
+
+    // Calculate XP based on mistakes
+    const mistakes = canvasRef.current?.getMistakeCount() || 0;
+    const baseXP = 10;
+    const bonusXP = mistakes === 0 ? 5 : 0;
+    const totalXP = baseXP + bonusXP;
+
+    // Award XP
+    const result = await addXP(totalXP);
+    if (result) {
+      setXpEarned(totalXP);
+      setShowReward(true);
+    } else {
+      router.push("/topic/fractions");
+    }
+  };
+
+  const handleRewardClose = () => {
+    setShowReward(false);
     router.push("/topic/fractions");
   };
 
@@ -144,6 +169,14 @@ export default function LessonPage() {
         isVisible={showRelaxModal}
         onClose={() => setShowRelaxModal(false)}
         character="yellow"
+      />
+
+      <RewardModal
+        isOpen={showReward}
+        onClose={handleRewardClose}
+        xpEarned={xpEarned}
+        bonus={xpEarned === 15 ? "Perfect Lesson Bonus!" : undefined}
+        type="lesson"
       />
     </div>
   );
