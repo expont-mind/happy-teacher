@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState, useRef, useCallback } from "react";
+import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
 import ColoringCanvas, {
   ColoringCanvasRef,
 } from "@/src/components/coloring/ColoringCanvas";
@@ -11,11 +10,13 @@ import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import Image from "next/image";
 import { useAuth } from "@/src/components/auth/AuthProvider";
+import { MessageTooltip, RelaxModal, useTutorial, lessonPageTutorial } from "@/src/components/tutorial";
 
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
   const { markLessonCompleted } = useAuth();
+  const { startTutorial, isActive } = useTutorial();
 
   const lesson = useMemo(
     () => fractionLessons.find((l) => l.id === params.lessonId),
@@ -27,18 +28,23 @@ export default function LessonPage() {
   );
   const [helpOpen, setHelpOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [characterMessage, setCharacterMessage] = useState<string | null>(null);
+  const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
-  const toastQueue = useRef<Array<string | number>>([]);
 
-  // Toast function (same as ColoringCanvas)
-  const showLimitedToast = useCallback((message: string) => {
-    if (toastQueue.current.length >= 3) {
-      const firstId = toastQueue.current.shift();
-      toast.dismiss(firstId);
-    }
-    const id = toast(message, { duration: 3000 });
-    toastQueue.current.push(id);
+  const showCharacterMessage = useCallback((message: string) => {
+    setCharacterMessage(message);
   }, []);
+
+  // Start tutorial when image is loaded (first time only)
+  useEffect(() => {
+    if (imageLoaded && !isActive) {
+      const hasCompletedTutorial = localStorage.getItem(lessonPageTutorial.completionKey);
+      if (!hasCompletedTutorial) {
+        startTutorial(lessonPageTutorial);
+      }
+    }
+  }, [imageLoaded, isActive, startTutorial]);
 
   if (!lesson) {
     return <div className="text-center p-8">Энэ хичээл олдсонгүй.</div>;
@@ -67,8 +73,8 @@ export default function LessonPage() {
         .map((color) => colorNames[color.toLowerCase()] || color)
         .join(", ");
 
-      showLimitedToast(
-        `Дуусаагүй хэсэг байна! 😊\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
+      showCharacterMessage(
+        `Дуусаагүй хэсэг байна!\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
       );
       return;
     }
@@ -100,6 +106,8 @@ export default function LessonPage() {
           setHelpOpen={setHelpOpen}
           onMarkCompleted={markCompleted}
           imageLoaded={imageLoaded}
+          onShowMessage={showCharacterMessage}
+          onShowRelax={() => setShowRelaxModal(true)}
         />
 
         <ColorPalette
@@ -113,6 +121,22 @@ export default function LessonPage() {
         helpOpen={helpOpen}
         setHelpOpen={setHelpOpen}
         helpImage={lesson.helpImage}
+        helpVideoId={lesson.helpVideoId}
+      />
+
+      <MessageTooltip
+        message={characterMessage || ""}
+        character="yellow"
+        characterPosition="left"
+        isVisible={!!characterMessage}
+        onClose={() => setCharacterMessage(null)}
+        autoCloseDelay={8000}
+      />
+
+      <RelaxModal
+        isVisible={showRelaxModal}
+        onClose={() => setShowRelaxModal(false)}
+        character="yellow"
       />
     </div>
   );

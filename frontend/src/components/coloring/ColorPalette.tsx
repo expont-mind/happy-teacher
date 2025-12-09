@@ -10,7 +10,7 @@ export default function ColorPalette({
   setSelectedColor,
 }: ColorPaletteProps) {
   return (
-    <div className="absolute top-1/2 -translate-y-1/2 left-4">
+    <div className="absolute top-1/2 -translate-y-1/2 left-4" data-tutorial="color-palette">
       <div className="flex flex-col gap-2">
         {colors.map((c) => (
           <button

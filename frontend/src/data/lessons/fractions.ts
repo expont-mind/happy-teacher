@@ -5,6 +5,7 @@ export type FractionLesson = {
   maskImage: string;
   backgroundImage: string;
   helpImage: string;
+  helpVideoId?: string; // YouTube video ID (optional)
   palette: string[];
 };
 
@@ -16,6 +17,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_12_mask.png",
     backgroundImage: "/page_12_backgroun.png",
     helpImage: "/page_12_help.png",
+    helpVideoId: "5g7joUTVDiQ",
     palette: [
       "#6b3ab5",
       "#1066b4",
@@ -36,6 +38,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_13_mask.png",
     backgroundImage: "/page_13_background.png",
     helpImage: "/page_12_help.png",
+    helpVideoId: "3XF4jlmdKEk",
     palette: [
       "#ff914d",
       "#ff66c4",
@@ -58,6 +61,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_14_mask.png",
     backgroundImage: "/page_14_background.png",
     helpImage: "/page_12_help.png",
+    helpVideoId: "3XF4jlmdKEk",
     palette: [
       "#ff914d",
       "#8c52ff",
@@ -80,6 +84,7 @@ export const fractionLessons: FractionLesson[] = [
   //   maskImage: "/page_12_mask.png",
   //   backgroundImage: "/page_16_background.png",
   //   helpImage: "/page_16_help.png",
+  //   helpVideoId: "-94I0tG8NTo",
   //   palette: [
   //     "#6b3ab5",
   //     "#1066b4",
@@ -100,14 +105,15 @@ export const fractionLessons: FractionLesson[] = [
   //   maskImage: "/page_12_mask.png",
   //   backgroundImage: "/page_18_backgroun.png",
   //   helpImage: "/page_12_help.png",
+  //   helpVideoId: "U0fXqnrqGHs", // huvaah
   //   palette: [
-  // "#ff0000",
-  // "#fd7e00",
-  // "#ffef00",
-  // "#00c90e",
-  // "#0051ff",
-  // "#54008a",
-  // "#684530",
+  //     "#ff0000",
+  //     "#fd7e00",
+  //     "#ffef00",
+  //     "#00c90e",
+  //     "#0051ff",
+  //     "#54008a",
+  //     "#684530",
   //   ],
   // },
   {
@@ -117,6 +123,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_19_mask.png",
     backgroundImage: "/page_19_background.png",
     helpImage: "/page_12_help.png",
+    helpVideoId: "HvQ_vWdg0ac", // huvaah
     palette: [
       "#ff0000",
       "#fd7e00",
@@ -134,6 +141,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_20_mask.png",
     backgroundImage: "/page_20_background.png",
     helpImage: "/page_12_help.png",
+    helpVideoId: "U0fXqnrqGHs",
     palette: [
       "#fadb5e",
       "#004aad",
@@ -153,9 +161,10 @@ export const fractionLessons: FractionLesson[] = [
     id: "page-21",
     title: "21-р хуудас: Буддацгаая",
     mainImage: "/page_21.svg",
-    maskImage: "/page_12_mask.png",
+    maskImage: "/page_21_mask.png",
     backgroundImage: "/page_21_background.png",
     helpImage: "/page_21_help.png",
+    helpVideoId: "U0fXqnrqGHs",
     palette: [
       "#6b3ab5",
       "#1066b4",
@@ -176,6 +185,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_22_mask.png",
     backgroundImage: "/page_22_background.png",
     helpImage: "/page_22_help.png",
+    helpVideoId: "_KI9rMgW-mA",
     palette: [
       "#6b3ab5",
       "#1066b4",
@@ -196,6 +206,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_23_mask.png",
     backgroundImage: "/page_23_background.png",
     helpImage: "/page_23_help.png",
+    helpVideoId: "HvQ_vWdg0ac",
     palette: [
       "#6b3ab5",
       "#1066b4",
@@ -216,6 +227,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_12_mask.png",
     backgroundImage: "/page_12_backgroun.png",
     helpImage: "/page_12_help.png",
+    helpVideoId: "77FxIBmsSwg",
     palette: [
       "#6b3ab5",
       "#1066b4",
@@ -236,6 +248,7 @@ export const fractionLessons: FractionLesson[] = [
     maskImage: "/page_24_mask.png",
     backgroundImage: "/page_24_background.png",
     helpImage: "/page_24_help.png",
+    helpVideoId: "L8q5PnZTTMo",
     palette: [
       "#6b3ab5",
       "#1066b4",

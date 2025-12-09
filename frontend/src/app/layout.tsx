@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { Header } from "@/src/components/navigations/Header";
 import { Footer } from "@/src/components/navigations/Footer";
 import { AuthProvider } from "@/src/components/auth";
+import { TutorialProvider, TutorialOverlay } from "@/src/components/tutorial";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,14 +34,17 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <div className="w-full min-h-screen bg-white">
-            <Header />
+          <TutorialProvider>
+            <div className="w-full min-h-screen bg-white">
+              <Header />
 
-            <main>{children}</main>
+              <main>{children}</main>
 
-            <Footer />
-          </div>
-          <Toaster richColors position="top-right" />
+              <Footer />
+            </div>
+            <TutorialOverlay />
+            <Toaster richColors position="top-right" />
+          </TutorialProvider>
         </AuthProvider>
       </body>
     </html>

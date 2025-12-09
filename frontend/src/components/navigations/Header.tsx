@@ -51,7 +51,7 @@ export const Header = () => {
           ) : user ? (
             <div className="flex items-center gap-3">
               {/* User Stats */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200" data-tutorial="streak-stat">
                 <Flame
                   size={18}
                   className="text-(--duo-red)"
@@ -60,7 +60,7 @@ export const Header = () => {
                 <span className="text-sm font-bold text-gray-700">0</span>
               </div>
 
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200" data-tutorial="xp-stat">
                 <Zap
                   size={18}
                   className="text-(--duo-yellow-dark)"
@@ -131,7 +131,7 @@ export const Header = () => {
             <>
               {/* User Stats Mobile */}
               <div className="flex gap-2 mb-2">
-                <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200" data-tutorial="streak-stat">
                   <Flame
                     size={18}
                     className="text-(--duo-red)"
@@ -140,7 +140,7 @@ export const Header = () => {
                   <span className="text-sm font-bold text-gray-700">0</span>
                 </div>
 
-                <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200" data-tutorial="xp-stat">
                   <Zap
                     size={18}
                     className="text-(--duo-yellow-dark)"

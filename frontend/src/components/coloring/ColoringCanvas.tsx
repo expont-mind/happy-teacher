@@ -7,7 +7,6 @@ import {
   forwardRef,
   useState,
 } from "react";
-import { toast } from "sonner";
 import Image from "next/image";
 import {
   RotateCcw,
@@ -32,6 +31,8 @@ interface ColoringCanvasProps {
   setHelpOpen?: (open: boolean) => void;
   onMarkCompleted?: () => void;
   imageLoaded?: boolean;
+  onShowMessage?: (message: string) => void;
+  onShowRelax?: () => void;
 }
 
 export interface ColoringCanvasRef {
@@ -51,6 +52,8 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       setHelpOpen,
       onMarkCompleted,
       imageLoaded,
+      onShowMessage,
+      onShowRelax,
     },
     ref
   ) => {
@@ -65,8 +68,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
-
-    const toastQueue = useRef<Array<string | number>>([]);
+    const wrongClickCountRef = useRef<number>(0);
 
     // Check completion status
     const checkCompletion = useCallback((): {
@@ -166,15 +168,15 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       checkCompletion,
     }));
 
-    // Toast function
-    const showLimitedToast = useCallback((message: string) => {
-      if (toastQueue.current.length >= 3) {
-        const firstId = toastQueue.current.shift();
-        toast.dismiss(firstId);
-      }
-      const id = toast(message, { duration: 2000 });
-      toastQueue.current.push(id);
-    }, []);
+    // Show message via callback
+    const showMessage = useCallback(
+      (message: string) => {
+        if (onShowMessage) {
+          onShowMessage(message);
+        }
+      },
+      [onShowMessage]
+    );
 
     // Save state to history
     const saveToHistory = useCallback(() => {
@@ -345,20 +347,39 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         }
 
         if (maskColor === "#ffffff") {
-          showLimitedToast("Будаж болохгүй хэсэг байна 😊");
+          wrongClickCountRef.current += 1;
+          if (wrongClickCountRef.current >= 5) {
+            if (onShowRelax) onShowRelax();
+            wrongClickCountRef.current = 0;
+          } else {
+            showMessage(
+              "Будаж болохгүй хэсэг байна!\n\nЭнэ хэсэгт өөр өнгө сонгоорой."
+            );
+          }
           return;
         }
 
         if (maskColor !== selectedColor.toLowerCase()) {
-          showLimitedToast("Энэ хэсэгт өөр өнгө сонгоорой 🌈");
+          wrongClickCountRef.current += 1;
+          if (wrongClickCountRef.current >= 5) {
+            if (onShowRelax) onShowRelax();
+            wrongClickCountRef.current = 0;
+          } else {
+            showMessage(
+              "Энэ хэсэгт өөр өнгө сонгоорой!\n\nЗөв өнгө сонгоно уу."
+            );
+          }
           return;
         }
+
+        // Reset wrong click counter on successful fill
+        wrongClickCountRef.current = 0;
 
         // Use eraser mode (white) or selected color
         const fillColor = isEraserMode ? "#ffffff" : selectedColor;
         floodFill(x, y, fillColor);
       },
-      [selectedColor, floodFill, showLimitedToast, isEraserMode, palette]
+      [selectedColor, floodFill, showMessage, isEraserMode, palette, onShowRelax]
     );
 
     // Load images
@@ -527,6 +548,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             onClick={toggleFullScreen}
             className="cursor-pointer p-4 rounded-xl bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 border-2 border-gray-200"
             title={isFullScreen ? "Бүтэн дэлгэцээс гарах" : "Бүтэн дэлгэц"}
+            data-tutorial="fullscreen-btn"
           >
             {isFullScreen ? (
               <Minimize size={20} className="text-gray-700" />
@@ -544,6 +566,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
                 : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
             }`}
             title="Буцах"
+            data-tutorial="undo-btn"
           >
             <Undo
               size={20}
@@ -561,6 +584,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
                 : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
             }`}
             title="Урагшлах"
+            data-tutorial="redo-btn"
           >
             <Redo
               size={20}
@@ -573,6 +597,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             onClick={resetCanvas}
             className="cursor-pointer p-4 rounded-xl bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 border-2 border-gray-200"
             title="Дахин эхлэх"
+            data-tutorial="reset-btn"
           >
             <RotateCcw size={20} className="text-gray-700" />
           </button>
@@ -582,6 +607,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             onClick={downloadCanvas}
             className="cursor-pointer p-4 rounded-xl bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 border-2 border-gray-200"
             title="Татах"
+            data-tutorial="download-btn"
           >
             <Download size={20} className="text-gray-700" />
           </button>
@@ -595,6 +621,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
                 : "bg-white/90 hover:bg-white border-gray-200"
             }`}
             title="Бүдсэн хэсгийг арилгах"
+            data-tutorial="eraser-btn"
           >
             <Eraser
               size={20}
@@ -608,6 +635,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
               onClick={() => setHelpOpen(true)}
               className="cursor-pointer p-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-all hover:scale-110 border-2 border-purple-700"
               title="Тусламж"
+              data-tutorial="help-btn"
             >
               <HelpCircle size={20} />
             </button>
@@ -620,6 +648,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
               disabled={!imageLoaded}
               className="cursor-pointer p-4 rounded-xl bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all hover:scale-110 border-2 border-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
               title="Дууссан"
+              data-tutorial="done-btn"
             >
               <Check size={20} />
             </button>
