@@ -16,8 +16,7 @@ import {
   useTutorial,
   lessonPageTutorial,
 } from "@/src/components/tutorial";
-
-import { RewardModal } from "@/src/components/gamification/RewardModal";
+import { RewardModal } from "../components/gamification/RewardModal";
 
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
@@ -145,6 +144,10 @@ export default function LessonPage() {
           imageLoaded={imageLoaded}
           onShowMessage={showCharacterMessage}
           onShowRelax={() => setShowRelaxModal(true)}
+          characterMessage={characterMessage}
+          onCloseMessage={() => setCharacterMessage(null)}
+          showRelaxModal={showRelaxModal}
+          onCloseRelax={() => setShowRelaxModal(false)}
           renderColorPalette={
             <ColorPalette
               colors={paletteForDisplay}

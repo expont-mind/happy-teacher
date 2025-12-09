@@ -19,6 +19,7 @@ import {
   Maximize,
   Minimize,
 } from "lucide-react";
+import { MessageTooltip, RelaxModal } from "@/src/components/tutorial";
 
 interface ColoringCanvasProps {
   mainImage: string;
@@ -34,6 +35,10 @@ interface ColoringCanvasProps {
   onShowMessage?: (message: string) => void;
   onShowRelax?: () => void;
   renderColorPalette?: React.ReactNode;
+  characterMessage?: string | null;
+  onCloseMessage?: () => void;
+  showRelaxModal?: boolean;
+  onCloseRelax?: () => void;
 }
 
 export interface ColoringCanvasRef {
@@ -57,6 +62,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       onShowMessage,
       onShowRelax,
       renderColorPalette,
+      characterMessage,
+      onCloseMessage,
+      showRelaxModal,
+      onCloseRelax,
     },
     ref
   ) => {
@@ -672,6 +681,23 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             </button>
           )}
         </div>
+
+        {/* Character Message Tooltip - inside container for fullscreen visibility */}
+        <MessageTooltip
+          message={characterMessage || ""}
+          character="yellow"
+          characterPosition="left"
+          isVisible={!!characterMessage}
+          onClose={onCloseMessage || (() => {})}
+          autoCloseDelay={8000}
+        />
+
+        {/* Relax Modal - inside container for fullscreen visibility */}
+        <RelaxModal
+          isVisible={!!showRelaxModal}
+          onClose={onCloseRelax || (() => {})}
+          character="yellow"
+        />
       </div>
     );
   }
