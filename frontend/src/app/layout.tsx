@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "sonner";
 import { Header } from "@/src/components/navigations/Header";
 import { Footer } from "@/src/components/navigations/Footer";
 import { AuthProvider } from "@/src/components/auth";
-import { TutorialProvider, TutorialOverlay } from "@/src/components/tutorial";
+import { TutorialProvider, TutorialOverlay, GlobalMessageProvider } from "@/src/components/tutorial";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,19 +32,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <TutorialProvider>
-            <div className="w-full min-h-screen bg-white">
-              <Header />
+        <GlobalMessageProvider>
+          <AuthProvider>
+            <TutorialProvider>
+              <div className="w-full min-h-screen bg-white">
+                <Header />
 
-              <main>{children}</main>
+                <main>{children}</main>
 
-              <Footer />
-            </div>
-            <TutorialOverlay />
-            <Toaster richColors position="top-right" />
-          </TutorialProvider>
-        </AuthProvider>
+                <Footer />
+              </div>
+              <TutorialOverlay />
+            </TutorialProvider>
+          </AuthProvider>
+        </GlobalMessageProvider>
       </body>
     </html>
   );

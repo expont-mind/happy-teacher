@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/src/utils/supabase/client";
-import { toast } from "sonner";
+import { useGlobalMessage } from "../tutorial/GlobalMessageProvider";
 import { AuthContextType } from "./types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -12,6 +12,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const { showMessage } = useGlobalMessage();
 
   useEffect(() => {
     // Get initial session
@@ -36,10 +37,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
     });
     if (error) {
-      toast.error(error.message);
+      showMessage(error.message, "error");
       throw error;
     }
-    toast.success("Амжилттай нэвтэрлээ!");
+    showMessage("Амжилттай нэвтэрлээ!", "success");
   };
 
   const signUp = async (email: string, password: string, username: string) => {
@@ -54,19 +55,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     });
     if (error) {
-      toast.error(error.message);
+      showMessage(error.message, "error");
       throw error;
     }
-    toast.success("Бүртгэл амжилттай! Имэйлээ шалгана уу.");
+    showMessage("Бүртгэл амжилттай! Имэйлээ шалгана уу.", "success");
   };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toast.error(error.message);
+      showMessage(error.message, "error");
       throw error;
     }
-    toast.success("Гарах амжилттай!");
+    showMessage("Гарах амжилттай!", "success");
   };
 
   const checkPurchase = async (topicKey: string): Promise<boolean> => {
@@ -118,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Check if already purchased
       const alreadyPurchased = await checkPurchase(topicKey);
       if (alreadyPurchased) {
-        toast.info("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.");
+        showMessage("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.", "info");
         return;
       }
 
@@ -131,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Handle specific error cases
         if (error.code === "23505") {
           // Unique constraint violation - already purchased
-          toast.info("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.");
+          showMessage("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.", "info");
           return;
         }
         // Table doesn't exist errors
@@ -141,20 +142,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           error.message?.includes("does not exist") ||
           error.message?.includes("schema cache")
         ) {
-          toast.error(
+          showMessage(
             "Database table байхгүй байна. Supabase SQL Editor дээр SUPABASE_SETUP.sql файлыг ажиллуулна уу.",
-            { duration: 8000 }
+            "error"
           );
           console.error(
             "📋 Please run the SQL from SUPABASE_SETUP.sql in your Supabase SQL Editor"
           );
           throw error;
         }
-        toast.error(error.message || "Худалдан авалт амжилтгүй боллоо.");
+        showMessage(error.message || "Худалдан авалт амжилтгүй боллоо.", "error");
         throw error;
       }
 
-      toast.success("Худалдан авалт амжилттай!");
+      showMessage("Худалдан авалт амжилттай!", "success");
     } catch (err) {
       // Re-throw to let caller handle
       throw err;
