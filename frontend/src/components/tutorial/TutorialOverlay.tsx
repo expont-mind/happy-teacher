@@ -82,7 +82,8 @@ export default function TutorialOverlay() {
 
   return (
     <>
-      {/* Backdrop with spotlight effect */}
+      {/* Full-screen backdrop to block all clicks */}
+      <div className="fixed inset-0 z-60" />
 
       {/* Highlighted Element Spotlight - cuts through the backdrop */}
       {showHighlight && (

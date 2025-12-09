@@ -183,7 +183,7 @@ export default function CharacterTooltip({
           )}
           <button
             onClick={onNext}
-            className="duo-button duo-button-green text-sm px-4 py-2 flex items-center gap-2"
+            className="duo-button duo-button-green text-sm px-4 py-2 flex items-center gap-2 outline-none"
             autoFocus
           >
             <span>Дараах</span>

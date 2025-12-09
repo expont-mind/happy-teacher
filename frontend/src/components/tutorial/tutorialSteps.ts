@@ -58,7 +58,7 @@ export const homePageTutorial: TutorialConfig = {
       character: "yellow",
       characterPosition: "right",
       tooltipPosition: "bottom",
-      highlightTarget: false,
+      highlightTarget: true,
     },
   ],
 };
