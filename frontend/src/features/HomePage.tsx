@@ -18,9 +18,6 @@ import {
   BookOpen,
 } from "lucide-react";
 
-import Link from "next/link";
-import { useAuth } from "../components/auth";
-import { XPProgressBar } from "../components/gamification/XPProgressBar";
 import { useTutorial, homePageTutorial } from "@/src/components/tutorial";
 
 export const HomePage = () => {
@@ -58,7 +55,11 @@ export const HomePage = () => {
 
         {/* Main CTA Button - Duolingo Style */}
         <div className="flex justify-center mb-16">
-          <Link href="/topic" className="cursor-pointer" data-tutorial="main-cta">
+          <Link
+            href="/topic"
+            className="cursor-pointer"
+            data-tutorial="main-cta"
+          >
             <button className="duo-button duo-button-green px-12 py-5 text-xl md:text-2xl font-black flex items-center gap-3">
               <Sparkles size={28} />
               <span>Эхлэх</span>

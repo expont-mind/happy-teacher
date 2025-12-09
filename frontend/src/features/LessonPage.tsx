@@ -10,7 +10,12 @@ import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import Image from "next/image";
 import { useAuth } from "@/src/components/auth/AuthProvider";
-import { MessageTooltip, RelaxModal, useTutorial, lessonPageTutorial } from "@/src/components/tutorial";
+import {
+  MessageTooltip,
+  RelaxModal,
+  useTutorial,
+  lessonPageTutorial,
+} from "@/src/components/tutorial";
 
 import { RewardModal } from "@/src/components/gamification/RewardModal";
 
@@ -18,7 +23,6 @@ export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
   const { markLessonCompleted, addXP } = useAuth();
-  const { markLessonCompleted } = useAuth();
   const { startTutorial, isActive } = useTutorial();
 
   const lesson = useMemo(
@@ -51,7 +55,9 @@ export default function LessonPage() {
   // Start tutorial when image is loaded (first time only)
   useEffect(() => {
     if (imageLoaded && !isActive) {
-      const hasCompletedTutorial = localStorage.getItem(lessonPageTutorial.completionKey);
+      const hasCompletedTutorial = localStorage.getItem(
+        lessonPageTutorial.completionKey
+      );
       if (!hasCompletedTutorial) {
         startTutorial(lessonPageTutorial);
       }

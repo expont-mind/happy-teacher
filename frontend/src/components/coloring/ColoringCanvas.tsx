@@ -354,7 +354,6 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
         if (maskColor === "#ffffff") {
           mistakeCountRef.current += 1;
-          showLimitedToast("Будаж болохгүй хэсэг байна 😊");
           wrongClickCountRef.current += 1;
           if (wrongClickCountRef.current >= 5) {
             if (onShowRelax) onShowRelax();
@@ -369,7 +368,6 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
         if (maskColor !== selectedColor.toLowerCase()) {
           mistakeCountRef.current += 1;
-          showLimitedToast("Энэ хэсэгт өөр өнгө сонгоорой 🌈");
           wrongClickCountRef.current += 1;
           if (wrongClickCountRef.current >= 5) {
             if (onShowRelax) onShowRelax();
@@ -389,7 +387,14 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         const fillColor = isEraserMode ? "#ffffff" : selectedColor;
         floodFill(x, y, fillColor);
       },
-      [selectedColor, floodFill, showMessage, isEraserMode, palette, onShowRelax]
+      [
+        selectedColor,
+        floodFill,
+        showMessage,
+        isEraserMode,
+        palette,
+        onShowRelax,
+      ]
     );
 
     // Load images
@@ -573,10 +578,11 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           <button
             onClick={undo}
             disabled={!canUndo}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${canUndo
-              ? "bg-white/90 hover:bg-white border-gray-200"
-              : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
-              }`}
+            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
+              canUndo
+                ? "bg-white/90 hover:bg-white border-gray-200"
+                : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
+            }`}
             title="Буцах"
             data-tutorial="undo-btn"
           >
@@ -590,10 +596,11 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           <button
             onClick={redo}
             disabled={!canRedo}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${canRedo
-              ? "bg-white/90 hover:bg-white border-gray-200"
-              : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
-              }`}
+            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
+              canRedo
+                ? "bg-white/90 hover:bg-white border-gray-200"
+                : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
+            }`}
             title="Урагшлах"
             data-tutorial="redo-btn"
           >
@@ -626,10 +633,11 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           {/* Eraser Toggle Button */}
           <button
             onClick={() => setIsEraserMode(!isEraserMode)}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${isEraserMode
-              ? "bg-red-500 hover:bg-red-600 border-red-600"
-              : "bg-white/90 hover:bg-white border-gray-200"
-              }`}
+            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
+              isEraserMode
+                ? "bg-red-500 hover:bg-red-600 border-red-600"
+                : "bg-white/90 hover:bg-white border-gray-200"
+            }`}
             title="Бүдсэн хэсгийг арилгах"
             data-tutorial="eraser-btn"
           >
