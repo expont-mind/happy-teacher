@@ -33,6 +33,7 @@ interface ColoringCanvasProps {
   imageLoaded?: boolean;
   onShowMessage?: (message: string) => void;
   onShowRelax?: () => void;
+  renderColorPalette?: React.ReactNode;
 }
 
 export interface ColoringCanvasRef {
@@ -54,6 +55,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       imageLoaded,
       onShowMessage,
       onShowRelax,
+      renderColorPalette,
     },
     ref
   ) => {
@@ -541,6 +543,9 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           style={{ mixBlendMode: "multiply" }}
         />
 
+        {/* Color Palette - Rendered from parent */}
+        {renderColorPalette}
+
         {/* Toolbar Buttons - Right Side */}
         <div className="absolute top-1/2 -translate-y-1/2 right-4 flex flex-col gap-2 z-20">
           {/* Full Screen Button */}
@@ -560,11 +565,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           <button
             onClick={undo}
             disabled={!canUndo}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
-              canUndo
-                ? "bg-white/90 hover:bg-white border-gray-200"
-                : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
-            }`}
+            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${canUndo
+              ? "bg-white/90 hover:bg-white border-gray-200"
+              : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
+              }`}
             title="Буцах"
             data-tutorial="undo-btn"
           >
@@ -578,11 +582,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           <button
             onClick={redo}
             disabled={!canRedo}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
-              canRedo
-                ? "bg-white/90 hover:bg-white border-gray-200"
-                : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
-            }`}
+            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${canRedo
+              ? "bg-white/90 hover:bg-white border-gray-200"
+              : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
+              }`}
             title="Урагшлах"
             data-tutorial="redo-btn"
           >
@@ -615,11 +618,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           {/* Eraser Toggle Button */}
           <button
             onClick={() => setIsEraserMode(!isEraserMode)}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
-              isEraserMode
-                ? "bg-red-500 hover:bg-red-600 border-red-600"
-                : "bg-white/90 hover:bg-white border-gray-200"
-            }`}
+            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${isEraserMode
+              ? "bg-red-500 hover:bg-red-600 border-red-600"
+              : "bg-white/90 hover:bg-white border-gray-200"
+              }`}
             title="Бүдсэн хэсгийг арилгах"
             data-tutorial="eraser-btn"
           >
