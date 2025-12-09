@@ -323,7 +323,7 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         // Canvas click
         const handleClick = useCallback(
             (e: React.MouseEvent<HTMLCanvasElement>) => {
-                if (!canvasRef.current) return;
+                if (!canvasRef.current || !maskImageDataRef.current) return;
                 const rect = canvasRef.current.getBoundingClientRect();
                 const x = Math.floor(
                     ((e.clientX - rect.left) / rect.width) * canvasRef.current.width
@@ -334,9 +334,51 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
                 // Use eraser mode (white) or selected color
                 const fillColor = isEraserMode ? "#ffffff" : selectedColor;
+
+                // Check mask color at click position
+                const maskData = maskImageDataRef.current;
+                const pos = (y * canvasRef.current.width + x) * 4;
+                const r = maskData.data[pos];
+                const g = maskData.data[pos + 1];
+                const b = maskData.data[pos + 2];
+                const maskColor = `#${[r, g, b]
+                    .map((c) => c.toString(16).padStart(2, "0"))
+                    .join("")}`.toLowerCase();
+
+                // Get allowed colors from palette
+                const allowedColors = [
+                    ...palette.map((color) => color.toLowerCase()),
+                    "#ffffff",
+                ];
+
+                // If mask color is not in palette, just fill without checking
+                if (!allowedColors.includes(maskColor)) {
+                    floodFill(x, y, fillColor);
+                    return;
+                }
+
+                // If clicking on white area (non-colorable)
+                if (maskColor === "#ffffff") {
+                    showLimitedToast("Будаж болохгүй хэсэг байна 😊");
+                    return;
+                }
+
+                // If eraser mode, allow erasing
+                if (isEraserMode) {
+                    floodFill(x, y, fillColor);
+                    return;
+                }
+
+                // Check if selected color matches the mask color
+                if (maskColor !== selectedColor.toLowerCase()) {
+                    showLimitedToast("Энэ хэсэгт өөр өнгө сонгоорой 🌈");
+                    return;
+                }
+
+                // Correct color selected, fill it
                 floodFill(x, y, fillColor);
             },
-            [selectedColor, floodFill, isEraserMode]
+            [selectedColor, floodFill, isEraserMode, palette, showLimitedToast]
         );
 
         // Load images
