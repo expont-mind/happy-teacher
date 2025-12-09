@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { Header } from "@/src/components/navigations/Header";
 import { Footer } from "@/src/components/navigations/Footer";
 import { AuthProvider } from "@/src/components/auth";
+import { TutorialProvider, TutorialOverlay } from "@/src/components/tutorial";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -26,14 +27,17 @@ export default function RootLayout({
     <html lang="mn">
       <body className={` ${geistMono.variable} antialiased`}>
         <AuthProvider>
-          <div className="w-full min-h-screen bg-white">
-            <Header />
+          <TutorialProvider>
+            <div className="w-full min-h-screen bg-white">
+              <Header />
 
-            <main>{children}</main>
+              <main>{children}</main>
 
-            <Footer />
-          </div>
-          <Toaster richColors position="top-right" />
+              <Footer />
+            </div>
+            <TutorialOverlay />
+            <Toaster richColors position="top-right" />
+          </TutorialProvider>
         </AuthProvider>
       </body>
     </html>

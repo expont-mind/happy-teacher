@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState, useRef, useCallback } from "react";
+import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
 import ColoringCanvas, {
   ColoringCanvasRef,
 } from "@/src/components/coloring/ColoringCanvas";
@@ -11,6 +10,7 @@ import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import Image from "next/image";
 import { useAuth } from "@/src/components/auth/AuthProvider";
+import { MessageTooltip, RelaxModal, useTutorial, lessonPageTutorial } from "@/src/components/tutorial";
 
 import { RewardModal } from "@/src/components/gamification/RewardModal";
 
@@ -18,6 +18,8 @@ export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
   const { markLessonCompleted, addXP } = useAuth();
+  const { markLessonCompleted } = useAuth();
+  const { startTutorial, isActive } = useTutorial();
 
   const lesson = useMemo(
     () => fractionLessons.find((l) => l.id === params.lessonId),
@@ -29,54 +31,65 @@ export default function LessonPage() {
   );
   const [helpOpen, setHelpOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [characterMessage, setCharacterMessage] = useState<string | null>(null);
+  const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
   const toastQueue = useRef<Array<string | number>>([]);
   const [showReward, setShowReward] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
 
-  // Toast function (same as ColoringCanvas)
-  const showLimitedToast = useCallback((message: string) => {
-    if (toastQueue.current.length >= 3) {
-      const firstId = toastQueue.current.shift();
-      toast.dismiss(firstId);
-    }
-    const id = toast(message, { duration: 3000 });
-    toastQueue.current.push(id);
+  // Convert string array to object array without labels for ColorPalette
+  const paletteForDisplay = useMemo(
+    () => lesson?.palette.map((color) => ({ color })) || [],
+    [lesson]
+  );
+
+  const showCharacterMessage = useCallback((message: string) => {
+    setCharacterMessage(message);
   }, []);
+
+  // Start tutorial when image is loaded (first time only)
+  useEffect(() => {
+    if (imageLoaded && !isActive) {
+      const hasCompletedTutorial = localStorage.getItem(lessonPageTutorial.completionKey);
+      if (!hasCompletedTutorial) {
+        startTutorial(lessonPageTutorial);
+      }
+    }
+  }, [imageLoaded, isActive, startTutorial]);
 
   if (!lesson) {
     return <div className="text-center p-8">Энэ хичээл олдсонгүй.</div>;
   }
 
   const markCompleted = async () => {
-    // if (!canvasRef.current || !lesson) return;
+    if (!canvasRef.current || !lesson) return;
 
-    // const { isComplete, missingColors } = canvasRef.current.checkCompletion();
+    const { isComplete, missingColors } = canvasRef.current.checkCompletion();
 
-    // if (!isComplete) {
-    //   const colorNames: Record<string, string> = {
-    //     "#6b3ab5": "Нил ягаан",
-    //     "#1066b4": "Хөх",
-    //     "#3396c7": "Цэнхэр",
-    //     "#1a9742": "Ногоон",
-    //     "#fdf3dc": "Цагаан шар",
-    //     "#ffd200": "Шар",
-    //     "#ff7900": "Улбар шар",
-    //     "#ee3030": "Улаан",
-    //     "#603130": "Хүрэн",
-    //     "#95928d": "Саарал",
-    //   };
+    if (!isComplete) {
+      const colorNames: Record<string, string> = {
+        "#6b3ab5": "Нил ягаан",
+        "#1066b4": "Хөх",
+        "#3396c7": "Цэнхэр",
+        "#1a9742": "Ногоон",
+        "#fdf3dc": "Цагаан шар",
+        "#ffd200": "Шар",
+        "#ff7900": "Улбар шар",
+        "#ee3030": "Улаан",
+        "#603130": "Хүрэн",
+        "#95928d": "Саарал",
+      };
 
-    //   const missingColorNames = missingColors
-    //     .map((color) => colorNames[color.toLowerCase()] || color)
-    //     .join(", ");
+      const missingColorNames = missingColors
+        .map((color) => colorNames[color.toLowerCase()] || color)
+        .join(", ");
 
-    //   showLimitedToast(
-    //     `Дуусаагүй хэсэг байна! 😊\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
-    //   );
-    //   return;
-    //   return;
-    // }
+      showCharacterMessage(
+        `Дуусаагүй хэсэг байна!\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
+      );
+      return;
+    }
 
     // Save to Supabase (with localStorage fallback)
     await markLessonCompleted("fractions", lesson.id);
@@ -124,12 +137,15 @@ export default function LessonPage() {
           setHelpOpen={setHelpOpen}
           onMarkCompleted={markCompleted}
           imageLoaded={imageLoaded}
-        />
-
-        <ColorPalette
-          colors={lesson.palette}
-          selectedColor={selectedColor}
-          setSelectedColor={setSelectedColor}
+          onShowMessage={showCharacterMessage}
+          onShowRelax={() => setShowRelaxModal(true)}
+          renderColorPalette={
+            <ColorPalette
+              colors={paletteForDisplay}
+              selectedColor={selectedColor}
+              setSelectedColor={setSelectedColor}
+            />
+          }
         />
       </div>
 
@@ -137,6 +153,22 @@ export default function LessonPage() {
         helpOpen={helpOpen}
         setHelpOpen={setHelpOpen}
         helpImage={lesson.helpImage}
+        helpVideoId={lesson.helpVideoId}
+      />
+
+      <MessageTooltip
+        message={characterMessage || ""}
+        character="yellow"
+        characterPosition="left"
+        isVisible={!!characterMessage}
+        onClose={() => setCharacterMessage(null)}
+        autoCloseDelay={8000}
+      />
+
+      <RelaxModal
+        isVisible={showRelaxModal}
+        onClose={() => setShowRelaxModal(false)}
+        character="yellow"
       />
 
       <RewardModal
