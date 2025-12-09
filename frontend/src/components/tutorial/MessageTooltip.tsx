@@ -34,15 +34,19 @@ export default function MessageTooltip({
   if (!isVisible) return null;
 
   const characterSrc = `/character/${character}-${characterPosition}.png`;
-  const characterSize = typeof window !== "undefined" && window.innerWidth < 768 ? 100 : 140;
+  const characterSize =
+    typeof window !== "undefined" && window.innerWidth < 768 ? 100 : 140;
 
   return (
-    <div className="fixed top-8 right-8 z-50 flex items-start gap-4 tutorial-enter">
+    <div className="absolute top-8 right-8 z-100 flex items-start gap-4 tutorial-enter">
       {/* Speech Bubble */}
       <div
         className="bg-white border-2 border-gray-200 rounded-2xl shadow-lg p-5 relative"
         style={{
-          maxWidth: typeof window !== "undefined" && window.innerWidth < 768 ? "260px" : "320px",
+          maxWidth:
+            typeof window !== "undefined" && window.innerWidth < 768
+              ? "260px"
+              : "320px",
         }}
       >
         {/* Pointer Triangle - points to right */}

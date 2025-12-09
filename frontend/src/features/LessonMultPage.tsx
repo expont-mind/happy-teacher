@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
     ColoringCanvasRef,
 } from "@/src/components/coloring/ColoringCanvas";
@@ -27,22 +26,17 @@ export default function LessonMultPage() {
     );
     const [helpOpen, setHelpOpen] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [characterMessage, setCharacterMessage] = useState<string | null>(null);
+    const [showRelaxModal, setShowRelaxModal] = useState(false);
     const canvasRef = useRef<ColoringCanvasRef>(null);
-    const toastQueue = useRef<Array<string | number>>([]);
 
     const paletteColors = useMemo(
         () => lesson?.palette.map((p) => p.color) || [],
         [lesson]
     );
 
-    // Toast function (same as ColoringCanvas)
-    const showLimitedToast = useCallback((message: string) => {
-        if (toastQueue.current.length >= 3) {
-            const firstId = toastQueue.current.shift();
-            toast.dismiss(firstId);
-        }
-        const id = toast(message, { duration: 3000 });
-        toastQueue.current.push(id);
+    const showCharacterMessage = useCallback((message: string) => {
+        setCharacterMessage(message);
     }, []);
 
     if (!lesson) {
@@ -72,8 +66,8 @@ export default function LessonMultPage() {
                 .map((color) => colorNames[color.toLowerCase()] || color)
                 .join(", ");
 
-            showLimitedToast(
-                `Дуусаагүй хэсэг байна! 😊\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
+            showCharacterMessage(
+                `Дуусаагүй хэсэг байна!\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
             );
             return;
         }
@@ -108,6 +102,12 @@ export default function LessonMultPage() {
                     colors={lesson.palette}
                     setSelectedColor={setSelectedColor}
                     palettePosition="bottom"
+                    onShowMessage={showCharacterMessage}
+                    onShowRelax={() => setShowRelaxModal(true)}
+                    characterMessage={characterMessage}
+                    onCloseMessage={() => setCharacterMessage(null)}
+                    showRelaxModal={showRelaxModal}
+                    onCloseRelax={() => setShowRelaxModal(false)}
                 />
             </div>
 
