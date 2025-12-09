@@ -32,6 +32,12 @@ export default function LessonPage() {
   const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
 
+  // Convert string array to object array without labels for ColorPalette
+  const paletteForDisplay = useMemo(
+    () => lesson?.palette.map((color) => ({ color })) || [],
+    [lesson]
+  );
+
   const showCharacterMessage = useCallback((message: string) => {
     setCharacterMessage(message);
   }, []);
@@ -108,12 +114,13 @@ export default function LessonPage() {
           imageLoaded={imageLoaded}
           onShowMessage={showCharacterMessage}
           onShowRelax={() => setShowRelaxModal(true)}
-        />
-
-        <ColorPalette
-          colors={lesson.palette}
-          selectedColor={selectedColor}
-          setSelectedColor={setSelectedColor}
+          renderColorPalette={
+            <ColorPalette
+              colors={paletteForDisplay}
+              selectedColor={selectedColor}
+              setSelectedColor={setSelectedColor}
+            />
+          }
         />
       </div>
 

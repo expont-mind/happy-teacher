@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 import Paywall from "@/src/components/topic/paywall/Paywall";
+import Roadmap from "@/src/components/topic/roadmap/Roadmap";
 import { useAuth } from "@/src/components/auth";
-import { Construction, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Skeleton from "@/src/components/ui/Skeleton";
 
 export default function MultiplicationPage() {
@@ -102,31 +104,10 @@ export default function MultiplicationPage() {
         )}
 
         {paid && (
-          <div className="max-w-2xl mx-auto">
-            <div className="duo-card text-center p-12 bg-linear-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
-              <div className="flex justify-center mb-6">
-                <Construction
-                  size={80}
-                  className="text-(--duo-purple)"
-                  strokeWidth={2.5}
-                />
-              </div>
-              <h2
-                className="text-3xl font-black mb-4"
-                style={{ color: "var(--duo-purple)" }}
-              >
-                Тун удахгүй
-              </h2>
-              <p className="text-lg text-gray-700 font-semibold flex items-center justify-center gap-2">
-                Энэ сэдвийн хичээлүүд бэлтгэгдэж байна. Удахгүй нэмэгдэнэ!
-                <Sparkles
-                  size={24}
-                  className="text-(--duo-yellow)"
-                  strokeWidth={2.5}
-                />
-              </p>
-            </div>
-          </div>
+          <Roadmap
+            topicKey="multiplication"
+            items={multiplicationLessons.map((l) => ({ id: l.id, title: l.title }))}
+          />
         )}
       </div>
     </div>
