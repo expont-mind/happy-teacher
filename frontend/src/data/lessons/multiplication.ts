@@ -316,7 +316,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     {
         id: "page-16",
         title: "16-рхуудас: Буддацгаая",
-        mainImage: "/multiplication/page_16_test_1.svg",
+        mainImage: "/multiplication/page_16.svg",
         maskImage: "/multiplication/page_5_mask.png",
         backgroundImage: "/multiplication/page_16_background.png",
         helpImage: "/multiplication/page_12_help.png",
