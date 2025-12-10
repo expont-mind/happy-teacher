@@ -368,17 +368,9 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           return;
         }
 
-        // TEMPORARILY DISABLED: If clicking on white area (non-colorable)
+        // Цагаан хэсгийг ямар ч өнгөөр будаж болно
         if (maskColor === "#ffffff") {
-          wrongClickCountRef.current += 1;
-          if (wrongClickCountRef.current >= 5) {
-            if (onShowRelax) onShowRelax();
-            wrongClickCountRef.current = 0;
-          } else {
-            showMessage(
-              "Будаж болохгүй хэсэг байна!\n\nЭнэ хэсэгт өөр өнгө сонгоорой."
-            );
-          }
+          floodFill(x, y, fillColor);
           return;
         }
 
