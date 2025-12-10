@@ -361,17 +361,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           return;
         }
 
+        // Цагаан хэсгийг ямар ч өнгөөр будаж болно
         if (maskColor === "#ffffff") {
-          mistakeCountRef.current += 1;
-          wrongClickCountRef.current += 1;
-          if (wrongClickCountRef.current >= 5) {
-            if (onShowRelax) onShowRelax();
-            wrongClickCountRef.current = 0;
-          } else {
-            showMessage(
-              "Будаж болохгүй хэсэг байна!\n\nЭнэ хэсэгт өөр өнгө сонгоорой."
-            );
-          }
+          const fillColor = isEraserMode ? "#ffffff" : selectedColor;
+          floodFill(x, y, fillColor);
           return;
         }
 
