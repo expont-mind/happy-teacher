@@ -20,6 +20,7 @@ import {
   Minimize,
 } from "lucide-react";
 import { MessageTooltip, RelaxModal } from "@/src/components/tutorial";
+import ResetConfirmModal from "./ResetConfirmModal";
 
 interface ColoringCanvasProps {
   mainImage: string;
@@ -83,6 +84,7 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
     const wrongClickCountRef = useRef<number>(0);
 
     // Check completion status
@@ -674,7 +676,7 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
           {/* Reset Button */}
           <button
-            onClick={resetCanvas}
+            onClick={() => setShowResetConfirm(true)}
             className="cursor-pointer p-4 rounded-xl bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 border-2 border-gray-200"
             title="Дахин эхлэх"
           >
@@ -745,6 +747,16 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           isVisible={!!showRelaxModal}
           onClose={onCloseRelax || (() => {})}
           character="yellow"
+        />
+
+        {/* Reset Confirmation Modal */}
+        <ResetConfirmModal
+          isVisible={showResetConfirm}
+          onClose={() => setShowResetConfirm(false)}
+          onConfirm={() => {
+            resetCanvas();
+            setShowResetConfirm(false);
+          }}
         />
       </div>
     );
