@@ -383,18 +383,18 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         }
 
         // TEMPORARILY DISABLED: Check if selected color matches the mask color
-        // if (maskColor !== selectedColor.toLowerCase()) {
-        //   wrongClickCountRef.current += 1;
-        //   if (wrongClickCountRef.current >= 5) {
-        //     if (onShowRelax) onShowRelax();
-        //     wrongClickCountRef.current = 0;
-        //   } else {
-        //     showMessage(
-        //       "Энэ хэсэгт өөр өнгө сонгоорой!\n\nЗөв өнгө сонгоно уу."
-        //     );
-        //   }
-        //   return;
-        // }
+        if (maskColor !== selectedColor.toLowerCase()) {
+          wrongClickCountRef.current += 1;
+          if (wrongClickCountRef.current >= 5) {
+            if (onShowRelax) onShowRelax();
+            wrongClickCountRef.current = 0;
+          } else {
+            showMessage(
+              "Энэ хэсэгт өөр өнгө сонгоорой!\n\nЗөв өнгө сонгоно уу."
+            );
+          }
+          return;
+        }
 
         // TEMPORARILY DISABLED: Reset wrong click counter on successful fill
         wrongClickCountRef.current = 0;
@@ -593,7 +593,10 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
               {colors.map(({ color, label }, index) => (
                 <button
                   key={`${color}-${label || index}`}
-                  onClick={() => setSelectedColor(color)}
+                  onClick={() => {
+                    setSelectedColor(color);
+                    setIsEraserMode(false);
+                  }}
                   className={`group relative flex flex-col items-center gap-0.5 p-1 rounded-xl transition-all duration-200 shrink-0 ${
                     selectedColor === color
                       ? "bg-white shadow-md ring-2 ring-green-500 scale-105"
