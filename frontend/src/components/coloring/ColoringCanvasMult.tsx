@@ -383,18 +383,18 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         }
 
         // TEMPORARILY DISABLED: Check if selected color matches the mask color
-        if (maskColor !== selectedColor.toLowerCase()) {
-          wrongClickCountRef.current += 1;
-          if (wrongClickCountRef.current >= 5) {
-            if (onShowRelax) onShowRelax();
-            wrongClickCountRef.current = 0;
-          } else {
-            showMessage(
-              "Энэ хэсэгт өөр өнгө сонгоорой!\n\nЗөв өнгө сонгоно уу."
-            );
-          }
-          return;
-        }
+        // if (maskColor !== selectedColor.toLowerCase()) {
+        //   wrongClickCountRef.current += 1;
+        //   if (wrongClickCountRef.current >= 5) {
+        //     if (onShowRelax) onShowRelax();
+        //     wrongClickCountRef.current = 0;
+        //   } else {
+        //     showMessage(
+        //       "Энэ хэсэгт өөр өнгө сонгоорой!\n\nЗөв өнгө сонгоно уу."
+        //     );
+        //   }
+        //   return;
+        // }
 
         // TEMPORARILY DISABLED: Reset wrong click counter on successful fill
         wrongClickCountRef.current = 0;
