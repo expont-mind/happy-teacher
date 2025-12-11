@@ -555,7 +555,7 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     return (
       <div
         ref={containerRef}
-        className="relative w-full aspect-4/3 overflow-hidden rounded-lg bg-white"
+        className="relative w-full aspect-[4/4.5] min-h-[95vh] overflow-hidden rounded-lg bg-white"
       >
         {/* Background Image */}
         <Image
