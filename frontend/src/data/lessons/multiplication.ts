@@ -290,7 +290,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     id: "page-16",
     title: "16-рхуудас: Буддацгаая",
     mainImage: "/multiplication/page_16_test_5.svg",
-    maskImage: "/multiplication/page_5_mask.png",
+    maskImage: "/multiplication/page_16_mask.png",
     backgroundImage: "/multiplication/page_16_background_1.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
