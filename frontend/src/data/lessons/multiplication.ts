@@ -82,7 +82,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     id: "page-6",
     title: "6-р хуудас: Буддацгаая",
     mainImage: "/multiplication/page_6_test.svg",
-    maskImage: "/multiplication/page_5_mask.png",
+    maskImage: "/multiplication/page_6_mask.png",
     backgroundImage: "/multiplication/page_6_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
@@ -104,7 +104,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     id: "page-7",
     title: "7-р хуудас: Буддацгаая",
     mainImage: "/multiplication/page_7_test_1.svg",
-    maskImage: "/multiplication/page_5_mask.png",
+    maskImage: "/multiplication/page_7_mask.png",
     backgroundImage: "/multiplication/page_7_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
@@ -244,15 +244,13 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     id: "page-14",
     title: "14-рхуудас: Буддацгаая",
     mainImage: "/multiplication/page_14.svg",
-    maskImage: "/multiplication/page_5_mask.png",
+    maskImage: "/multiplication/page_14_mask.png",
     backgroundImage: "/multiplication/page_14_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#fff3c2", label: "12" },
       { color: "#9eff1f", label: "14" },
-      { color: "#38b6fe", label: "16" },
       { color: "#38b6ff", label: "18" },
-      { color: "#462c7a", label: "20" },
       { color: "#7940ed", label: "24" },
       { color: "#ff66c4", label: "25" },
       { color: "#4910bc", label: "28" },
@@ -263,6 +261,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
       { color: "#366cff", label: "42" },
       { color: "#af4c0f", label: "45" },
       { color: "#462c7a", label: "48" },
+      { color: "#a13ed4", label: "54" },
     ],
   },
   {
