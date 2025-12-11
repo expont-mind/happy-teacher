@@ -86,6 +86,11 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
     const mistakeCountRef = useRef<number>(0);
 
+    // Disable eraser mode when color changes
+    useEffect(() => {
+      setIsEraserMode(false);
+    }, [selectedColor]);
+
     // Check completion status
     const checkCompletion = useCallback((): {
       isComplete: boolean;
