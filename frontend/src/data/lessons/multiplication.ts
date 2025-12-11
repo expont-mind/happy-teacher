@@ -81,7 +81,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-6",
     title: "6-р хуудас: Буддацгаая",
-    mainImage: "/multiplication/page_6.svg",
+    mainImage: "/multiplication/page_6_test.svg",
     maskImage: "/multiplication/page_5_mask.png",
     backgroundImage: "/multiplication/page_6_background.png",
     helpImage: "/multiplication/page_12_help.png",
@@ -103,7 +103,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-7",
     title: "7-р хуудас: Буддацгаая",
-    mainImage: "/multiplication/page_7.svg",
+    mainImage: "/multiplication/page_7_test_1.svg",
     maskImage: "/multiplication/page_5_mask.png",
     backgroundImage: "/multiplication/page_7_background.png",
     helpImage: "/multiplication/page_12_help.png",
@@ -290,9 +290,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-16",
     title: "16-рхуудас: Буддацгаая",
-    mainImage: "/multiplication/page_16.svg",
+    mainImage: "/multiplication/page_16_test_5.svg",
     maskImage: "/multiplication/page_5_mask.png",
-    backgroundImage: "/multiplication/page_16_background.png",
+    backgroundImage: "/multiplication/page_16_background_1.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#9eff1f", label: "14" },
