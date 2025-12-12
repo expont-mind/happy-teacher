@@ -19,6 +19,8 @@ import {
   Maximize,
   Minimize,
 } from "lucide-react";
+import { MessageTooltip, RelaxModal } from "@/src/components/tutorial";
+import ResetConfirmModal from "./ResetConfirmModal";
 
 interface ColoringCanvasProps {
   mainImage: string;
@@ -34,6 +36,10 @@ interface ColoringCanvasProps {
   onShowMessage?: (message: string) => void;
   onShowRelax?: () => void;
   renderColorPalette?: React.ReactNode;
+  characterMessage?: string | null;
+  onCloseMessage?: () => void;
+  showRelaxModal?: boolean;
+  onCloseRelax?: () => void;
 }
 
 export interface ColoringCanvasRef {
@@ -57,6 +63,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       onShowMessage,
       onShowRelax,
       renderColorPalette,
+      characterMessage,
+      onCloseMessage,
+      showRelaxModal,
+      onCloseRelax,
     },
     ref
   ) => {
@@ -71,9 +81,15 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
     const wrongClickCountRef = useRef<number>(0);
 
     const mistakeCountRef = useRef<number>(0);
+
+    // Disable eraser mode when color changes
+    useEffect(() => {
+      setIsEraserMode(false);
+    }, [selectedColor]);
 
     // Check completion status
     const checkCompletion = useCallback((): {
@@ -352,17 +368,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           return;
         }
 
+        // Цагаан хэсгийг ямар ч өнгөөр будаж болно
         if (maskColor === "#ffffff") {
-          mistakeCountRef.current += 1;
-          wrongClickCountRef.current += 1;
-          if (wrongClickCountRef.current >= 5) {
-            if (onShowRelax) onShowRelax();
-            wrongClickCountRef.current = 0;
-          } else {
-            showMessage(
-              "Будаж болохгүй хэсэг байна!\n\nЭнэ хэсэгт өөр өнгө сонгоорой."
-            );
-          }
+          const fillColor = isEraserMode ? "#ffffff" : selectedColor;
+          floodFill(x, y, fillColor);
           return;
         }
 
@@ -612,7 +621,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
           {/* Reset Button */}
           <button
-            onClick={resetCanvas}
+            onClick={() => setShowResetConfirm(true)}
             className="cursor-pointer p-4 rounded-xl bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 border-2 border-gray-200"
             title="Дахин эхлэх"
             data-tutorial="reset-btn"
@@ -672,6 +681,33 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             </button>
           )}
         </div>
+
+        {/* Character Message Tooltip - inside container for fullscreen visibility */}
+        <MessageTooltip
+          message={characterMessage || ""}
+          character="yellow"
+          characterPosition="left"
+          isVisible={!!characterMessage}
+          onClose={onCloseMessage || (() => {})}
+          autoCloseDelay={8000}
+        />
+
+        {/* Relax Modal - inside container for fullscreen visibility */}
+        <RelaxModal
+          isVisible={!!showRelaxModal}
+          onClose={onCloseRelax || (() => {})}
+          character="yellow"
+        />
+
+        {/* Reset Confirmation Modal */}
+        <ResetConfirmModal
+          isVisible={showResetConfirm}
+          onClose={() => setShowResetConfirm(false)}
+          onConfirm={() => {
+            resetCanvas();
+            setShowResetConfirm(false);
+          }}
+        />
       </div>
     );
   }
