@@ -356,7 +356,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         const b = maskImageDataRef.current.data[pos + 2];
         const maskColor = `#${[r, g, b]
           .map((x) => x.toString(16).padStart(2, "0"))
-          .join("")}`;
+          .join("")}`.toLowerCase();
 
         const allowedColors = [
           ...palette.map((color) => color.toLowerCase()),
@@ -549,7 +549,9 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     return (
       <div
         ref={containerRef}
-        className="relative flex-1 overflow-hidden rounded-lg"
+        className={`relative flex-1 overflow-hidden rounded-lg ${
+          isFullScreen ? "bg-white" : ""
+        }`}
       >
         <Image
           src={backgroundImage}
