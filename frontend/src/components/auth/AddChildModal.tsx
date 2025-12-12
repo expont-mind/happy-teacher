@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { X, Baby, RefreshCw, Copy } from "lucide-react";
+import { X, CheckCircle } from "lucide-react";
+import Image from "next/image";
 import { createClient } from "@/src/utils/supabase/client";
 import { toast } from "sonner";
+import Loader from "@/src/components/ui/Loader";
+import { CHILD_ICONS } from "@/src/app/register/page";
 
 interface AddChildModalProps {
   isOpen: boolean;
@@ -19,6 +22,10 @@ export default function AddChildModal({
   onChildAdded,
 }: AddChildModalProps) {
   const [name, setName] = useState("");
+  const [childIcon, setChildIcon] = useState(CHILD_ICONS[0]);
+  const [childAge, setChildAge] = useState<number>(6);
+  const [childGrade, setChildGrade] = useState<number>(1);
+
   const [generatedPin, setGeneratedPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"input" | "success">("input");
@@ -42,6 +49,9 @@ export default function AddChildModal({
         parent_id: userId,
         name: name,
         pin_code: pin,
+        avatar: childIcon,
+        age: childAge,
+        class: childGrade,
       });
 
       if (error) throw error;
@@ -58,13 +68,11 @@ export default function AddChildModal({
     }
   };
 
-  const copyPin = () => {
-    navigator.clipboard.writeText(generatedPin);
-    toast.success("PIN код хуулагдлаа!");
-  };
-
   const handleClose = () => {
     setName("");
+    setChildIcon(CHILD_ICONS[0]);
+    setChildAge(6);
+    setChildGrade(1);
     setGeneratedPin("");
     setStep("input");
     onClose();
@@ -72,87 +80,146 @@ export default function AddChildModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-[382px] bg-[#FFFAF7] rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 overflow-y-auto">
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-black/5 transition-colors z-10"
         >
-          <X size={24} className="text-gray-500" />
+          <X size={24} className="text-[#333333]" />
         </button>
 
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-yellow-100 mb-4">
-              <Baby size={40} className="text-yellow-600" />
-            </div>
-            <h2 className="text-2xl font-black text-gray-800">
-              {step === "input" ? "Хүүхэд нэмэх" : "Амжилттай!"}
-            </h2>
-            <p className="text-gray-600 font-medium mt-2">
-              {step === "input"
-                ? "Хүүхдийнхээ нэрийг оруулаад PIN код үүсгээрэй"
-                : "Энэ кодыг хүүхэддээ өгч нэвтрүүлээрэй"}
-            </p>
-          </div>
-
-          {step === "input" ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Хүүхдийн нэр
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Жишээ: Ананд"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-100 outline-none transition-all font-bold text-lg"
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black rounded-xl shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <RefreshCw className="animate-spin" />
-                ) : (
-                  <>
-                    <span>Үүсгэх</span>
-                    <Baby size={20} />
-                  </>
-                )}
-              </button>
-            </form>
-          ) : (
-            <div className="space-y-6">
-              <div className="bg-gray-50 rounded-2xl p-6 text-center border-2 border-dashed border-gray-300">
-                <p className="text-sm font-bold text-gray-500 mb-2">
-                  Нэвтрэх PIN код
-                </p>
-                <div className="text-5xl font-black text-gray-800 tracking-widest mb-4">
-                  {generatedPin}
+        {step === "input" ? (
+          <form onSubmit={handleSubmit}>
+            <div className="border border-[#0C0A0126] w-full shadow-sm bg-white rounded-[18px] p-8 flex flex-col gap-8">
+              <div className="flex flex-col gap-6">
+                {/* Name Input */}
+                <div className="w-full flex flex-col gap-2">
+                  <label
+                    htmlFor="childName"
+                    className="text-base font-medium text-black font-nunito"
+                  >
+                    Хүүхдийн нэр
+                  </label>
+                  <input
+                    id="childName"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full p-3 bg-white border-[1.5px] border-[#0C0A0126] rounded-[10px] focus:outline-none outline-none focus:border-[#58CC02] transition-colors text-base font-normal text-[#0C0A0199] font-nunito"
+                    placeholder="Болд"
+                  />
                 </div>
+
+                <div className="w-full flex flex-col gap-2">
+                  <label className="text-base font-medium text-black font-nunito">
+                    Дуртай дүрсээ сонгоорой
+                  </label>
+                  <div className="grid grid-cols-4 gap-5">
+                    {CHILD_ICONS.map((icon) => (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() => setChildIcon(icon)}
+                        className={`relative w-[70.5px] h-[70.5px] flex justify-center items-center rounded-[10px] transition-all cursor-pointer overflow-hidden ${
+                          childIcon === icon
+                            ? "bg-[#2FC45124] border-[3px] border-[#58CC02] "
+                            : "bg-[#FFFAF7] hover:border-[#58CC02] border border-[#0C0A0126]"
+                        }`}
+                      >
+                        <Image
+                          src={icon}
+                          alt="child icon"
+                          width={32}
+                          height={32}
+                          className="object-contain object-center"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Age Selection */}
+                <div className="w-full flex flex-col gap-2">
+                  <label className="text-base font-medium text-black font-nunito">
+                    Нас
+                  </label>
+                  <div className="flex gap-2">
+                    {[6, 7, 8, 9, 10].map((age) => (
+                      <button
+                        key={age}
+                        type="button"
+                        onClick={() => setChildAge(age)}
+                        className={`w-[62px] h-12 flex items-center justify-center rounded-[10px] font-bold transition-all cursor-pointer ${
+                          childAge === age
+                            ? "bg-[#58CC02] border-b-4 border-[#46A302] text-white"
+                            : "bg-white hover:border-[#58CC02] border border-[#0C0A0126] text-[#333333]"
+                        }`}
+                      >
+                        {age}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Grade Selection */}
+                <div className="w-full flex flex-col gap-2">
+                  <label className="text-base font-medium text-black font-nunito">
+                    Анги
+                  </label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((grade) => (
+                      <button
+                        key={grade}
+                        type="button"
+                        onClick={() => setChildGrade(grade)}
+                        className={`w-[62px] h-12 flex items-center justify-center rounded-[10px] font-bold transition-all cursor-pointer ${
+                          childGrade === grade
+                            ? "bg-[#58CC02] border-b-4 border-[#46A302] text-white"
+                            : "bg-white hover:border-[#58CC02] border border-[#0C0A0126] text-[#333333]"
+                        }`}
+                      >
+                        {grade}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <button
-                  onClick={copyPin}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+                  type="submit"
+                  disabled={loading}
+                  className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
                 >
-                  <Copy size={16} />
-                  <span>Хуулах</span>
+                  {loading ? <Loader /> : "Бүртгэх"}
                 </button>
               </div>
-
-              <button
-                onClick={handleClose}
-                className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-black rounded-xl shadow-lg transform active:scale-95 transition-all"
-              >
-                Болсон
-              </button>
             </div>
-          )}
-        </div>
+          </form>
+        ) : (
+          <div className="flex flex-col items-center gap-8 p-8">
+            <div className="flex flex-col gap-[10px] items-center text-center">
+              <CheckCircle size={50} className="text-[#58CC02] mx-auto" />
+              <p className="text-2xl font-extrabold text-[#58CC02] leading-9 font-nunito">
+                Амжилттай нэмэгдлээ!
+              </p>
+            </div>
+
+            <p className="text-[#FFD700] font-bold text-5xl font-nunito">
+              {generatedPin}
+            </p>
+
+            <p className="text-sm font-semibold text-[#858480] font-nunito text-center">
+              Энэ кодыг хадгалж аваарай! Хүүхэд энэ кодоор нэвтрэх болно.
+            </p>
+
+            <button
+              onClick={handleClose}
+              className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
+            >
+              Үргэлжлүүлэх
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

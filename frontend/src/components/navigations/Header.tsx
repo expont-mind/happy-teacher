@@ -10,40 +10,43 @@ import {
   GraduationCap,
   Flame,
   Zap,
-  Baby,
-  Plus,
   Users,
   LayoutDashboard,
   Trophy,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/src/components/auth";
-import AuthModal from "@/src/components/auth/AuthModal";
 import Skeleton from "@/src/components/ui/Skeleton";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, loading, signOut, activeProfile } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const step = parseInt(searchParams.get("step") ?? "1");
+
+  const isAuthPage =
+    pathname === "/login" || (pathname === "/register" && step === 1);
+  const isRegisterStep2 = pathname === "/register" && step === 2;
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b-2 border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 cursor-pointer group">
-          <GraduationCap
-            size={32}
-            className="text-(--duo-green) group-hover:scale-110 transition-transform"
-            strokeWidth={2.5}
+    <header className="sticky top-0 z-5 w-full flex justify-center bg-white border-b border-[#0C0A0126]">
+      <div className="max-w-[1280px] w-full py-4 flex items-center justify-between ">
+        <Link href="/" className="flex gap-[10px] items-center py-1.5">
+          <Image
+            src="/svg/GraduationCap.svg"
+            alt="Logo"
+            width={30}
+            height={30}
           />
-          <span
-            className="text-xl font-black hidden sm:inline"
-            style={{ color: "var(--duo-green)" }}
-          >
-            Happy Teacher
-          </span>
+
+          <p className="text-base font-extrabold text-[#333333] font-nunito uppercase">
+            HAPPY TEACHER
+          </p>
         </Link>
 
         {/* Desktop Navigation */}
@@ -58,8 +61,10 @@ export const Header = () => {
           ) : user || activeProfile ? (
             <div className="flex items-center gap-3">
               {/* User Stats */}
-              {/* User Stats */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200" data-tutorial="streak-stat">
+              <div
+                className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
+                data-tutorial="streak-stat"
+              >
                 <Flame
                   size={18}
                   className="text-(--duo-red)"
@@ -70,7 +75,10 @@ export const Header = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200" data-tutorial="xp-stat">
+              <div
+                className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
+                data-tutorial="xp-stat"
+              >
                 <Zap
                   size={18}
                   className="text-(--duo-yellow-dark)"
@@ -136,13 +144,29 @@ export const Header = () => {
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="duo-button duo-button-blue px-6 py-3 text-sm cursor-pointer flex items-center gap-2"
-            >
-              <LogIn size={16} />
-              <span>Нэвтрэх</span>
-            </button>
+            <>
+              {isRegisterStep2 ? (
+                <button
+                  onClick={() => router.push("/register?step=1")}
+                  className="flex items-center gap-1.5 text-black font-extrabold font-nunito px-4 py-2 cursor-pointer"
+                >
+                  <ArrowLeft size={20} />
+                  Буцах
+                </button>
+              ) : !isAuthPage ? (
+                <div className="flex items-center gap-6">
+                  <p className="text-xs font-extrabold text-[#333333] font-nunito cursor-pointer">
+                    Тусламж
+                  </p>
+                  <button
+                    onClick={() => router.push("/login")}
+                    className="px-6 py-[10px] rounded-[10px] border-2 border-[#FFA239] text-sm font-extrabold text-[#FFA239] cursor-pointer uppercase font-nunito"
+                  >
+                    Нэвтрэх
+                  </button>
+                </div>
+              ) : null}
+            </>
           )}
         </div>
 
@@ -200,7 +224,10 @@ export const Header = () => {
 
               {/* User Stats Mobile */}
               <div className="flex gap-2 mb-2">
-                <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200" data-tutorial="streak-stat">
+                <div
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
+                  data-tutorial="streak-stat"
+                >
                   <Flame
                     size={18}
                     className="text-(--duo-red)"
@@ -211,7 +238,10 @@ export const Header = () => {
                   </span>
                 </div>
 
-                <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200" data-tutorial="xp-stat">
+                <div
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
+                  data-tutorial="xp-stat"
+                >
                   <Zap
                     size={18}
                     className="text-(--duo-yellow-dark)"
@@ -242,24 +272,35 @@ export const Header = () => {
               </button>
             </>
           ) : (
-            <button
-              onClick={() => {
-                setShowAuthModal(true);
-                setIsOpen(false);
-              }}
-              className="duo-button duo-button-blue w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
-            >
-              <LogIn size={16} />
-              <span>Нэвтрэх</span>
-            </button>
+            <>
+              {isRegisterStep2 ? (
+                <button
+                  onClick={() => router.push("/register?step=1")}
+                  className="flex items-center gap-2 text-[#333333] font-extrabold font-nunito w-full justify-center py-2"
+                >
+                  <ArrowLeft size={20} strokeWidth={3} />
+                  БУЦАХ
+                </button>
+              ) : !isAuthPage ? (
+                <div className="flex items-center gap-6">
+                  <p className="text-xs font-normal text-[#333333] font-nunito">
+                    Тусламж
+                  </p>
+                  <button
+                    onClick={() => {
+                      router.push("/login");
+                      setIsOpen(false);
+                    }}
+                    className="px-6 py-[10px] border-2 border-[#FFA239] text-sm cursor-pointer uppercase font-nunito"
+                  >
+                    Нэвтрэх
+                  </button>
+                </div>
+              ) : null}
+            </>
           )}
         </div>
       )}
-
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
-    </nav>
+    </header>
   );
 };

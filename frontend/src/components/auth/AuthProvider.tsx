@@ -6,6 +6,22 @@ import { createClient } from "@/src/utils/supabase/client";
 import { toast } from "sonner";
 import { AuthContextType, UserProfile } from "./types";
 
+const translateAuthError = (message: string) => {
+  if (message.includes("Email address") && message.includes("is invalid")) {
+    return "Имэйл хаяг буруу байна";
+  }
+  if (message.includes("Password should be at least 6 characters")) {
+    return "Нууц үг дор хаяж 6 оронтой байх ёстой";
+  }
+  if (message.includes("Invalid login credentials")) {
+    return "Нэвтрэх мэдээлэл буруу байна";
+  }
+  if (message.includes("User already registered")) {
+    return "Хэрэглэгч бүртгэлтэй байна";
+  }
+  return message;
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -80,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
     });
     if (error) {
-      toast.error(error.message);
+      toast.error(translateAuthError(error.message));
       throw error;
     }
 
@@ -101,8 +117,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     toast.success("Амжилттай нэвтэрлээ!");
   };
 
-  const signUp = async (email: string, password: string, username: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (
+    email: string,
+    password: string,
+    username: string,
+    showToast: boolean = true
+  ) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -113,16 +134,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     });
     if (error) {
-      toast.error(error.message);
+      toast.error(translateAuthError(error.message));
       throw error;
     }
-    toast.success("Бүртгэл амжилттай! Имэйлээ шалгана уу.");
+    if (showToast) {
+      toast.success("Бүртгэл амжилттай! Имэйлээ шалгана уу.");
+    }
+    return data;
   };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toast.error(error.message);
+      toast.error(translateAuthError(error.message));
       throw error;
     }
     setActiveProfile(null);
@@ -572,6 +596,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
+        supabase,
         user,
         activeProfile,
         loading,

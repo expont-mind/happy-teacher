@@ -11,11 +11,17 @@ export interface UserProfile {
 }
 
 export interface AuthContextType {
+  supabase: any;
   user: User | null;
   activeProfile: UserProfile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, username: string) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+    username: string,
+    showToast?: boolean
+  ) => Promise<{ user: any; session: any }>;
   signOut: () => Promise<void>;
   selectProfile: (profile: UserProfile) => void;
   checkPurchase: (topicKey: string) => Promise<boolean>;

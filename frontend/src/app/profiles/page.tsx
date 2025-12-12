@@ -8,11 +8,13 @@ import AddChildModal from "@/src/components/auth/AddChildModal";
 import DeleteChildModal from "@/src/components/auth/DeleteChildModal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface ChildProfile {
   id: string;
   name: string;
   pin_code: string;
+  avatar?: string;
 }
 
 export default function ProfilesPage() {
@@ -97,16 +99,32 @@ export default function ProfilesPage() {
 
   if (loading || isLoadingProfiles) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-500"></div>
+      <div className="w-full h-[calc(100vh-75px)] flex justify-center items-center bg-[#FFFAF7]">
+        <div className="max-w-[1280px] h-[436px] w-full flex flex-col items-center gap-12">
+          <div className="h-12 w-64 bg-gray-200 rounded-xl animate-pulse" />
+          <div className="flex flex-wrap justify-center gap-8 md:gap-12">
+            <div className="flex flex-col items-center gap-4 w-40 md:w-48">
+              <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] bg-gray-200 animate-pulse" />
+              <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse" />
+            </div>
+            <div className="flex flex-col items-center gap-4 w-40 md:w-48">
+              <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] bg-gray-200 animate-pulse" />
+              <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse" />
+            </div>
+            <div className="flex flex-col items-center gap-4 w-40 md:w-48">
+              <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] bg-gray-200 animate-pulse" />
+              <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 flex flex-col items-center justify-center p-8 font-sans">
-      <div className="max-w-[1280px] w-full">
-        <h1 className="text-4xl md:text-5xl font-black mb-12 text-center text-gray-700">
+    <div className="w-full h-[calc(100vh-75px)] flex justify-center items-center bg-[#FFFAF7]">
+      <div className="max-w-[1280px] w-full flex flex-col items-center gap-12">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-[#333333] font-nunito text-center">
           Хэрэглэгчид
         </h1>
 
@@ -116,10 +134,10 @@ export default function ProfilesPage() {
             onClick={handleAdultSelect}
             className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48"
           >
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-3xl overflow-hidden border-b-8 border-gray-200 active:border-b-0 active:translate-y-2 transition-all relative bg-blue-400 flex items-center justify-center shadow-xl hover:bg-blue-500">
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden border-b-8 border-[#0C0A0126] hover:border-[#0C0A0140] active:border-b-0 active:translate-y-2 transition-all relative bg-blue-500 flex items-center justify-center">
               <UserCircle size={80} className="text-white" strokeWidth={2.5} />
             </div>
-            <span className="text-gray-700 font-black text-xl text-center truncate w-full uppercase tracking-wide">
+            <span className="text-[#333333] font-extrabold text-xl text-center truncate w-full uppercase tracking-wide font-nunito">
               {user?.user_metadata?.full_name || "Том хүн"}
             </span>
           </div>
@@ -130,14 +148,24 @@ export default function ProfilesPage() {
               key={child.id}
               className="group flex flex-col items-center gap-4 cursor-default w-40 md:w-48 relative"
             >
-              <div className="w-40 h-40 md:w-48 md:h-48 flex flex-col gap-2 items-center justify-center rounded-3xl overflow-hidden border-b-8 border-gray-200 transition-all relative bg-yellow-400 shadow-xl">
+              <div className="w-40 h-40 md:w-48 md:h-48 flex flex-col gap-2 items-center justify-center rounded-[32px] overflow-hidden border-b-8 border-[#0C0A0126] transition-all relative bg-[#FFD700]">
                 <div className="h-7"></div>
-                <Baby size={80} className="text-white" strokeWidth={2.5} />
-                <p className="text-white font-bold font-mono text-xl tracking-widest">
+                {child.avatar && child.avatar.startsWith("/") ? (
+                  <Image
+                    src={child.avatar}
+                    alt={child.name}
+                    width={80}
+                    height={80}
+                    className="object-contain"
+                  />
+                ) : (
+                  <Baby size={80} className="text-white" strokeWidth={2.5} />
+                )}
+                <p className="text-white font-extrabold font-nunito text-xl tracking-widest text-shadow-sm">
                   {child.pin_code}
                 </p>
               </div>
-              <span className="text-gray-700 font-black text-xl text-center truncate w-full uppercase tracking-wide">
+              <span className="text-[#333333] font-extrabold text-xl text-center truncate w-full uppercase tracking-wide font-nunito">
                 {child.name}
               </span>
 
@@ -157,23 +185,23 @@ export default function ProfilesPage() {
             onClick={() => setShowAddModal(true)}
             className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48"
           >
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-3xl overflow-hidden border-4 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all relative flex items-center justify-center bg-transparent">
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden border-[3px] border-dashed border-[#0C0A0166] transition-all relative flex items-center justify-center bg-transparent">
               <Plus
                 size={64}
-                className="text-gray-300 group-hover:text-gray-400 transition-colors"
+                className="text-[#333333] transition-colors"
                 strokeWidth={2.5}
               />
             </div>
-            <span className="text-gray-400 font-black text-xl text-center uppercase tracking-wide group-hover:text-gray-500 transition-colors">
+            <span className="text-[#333333] font-extrabold text-xl text-center uppercase tracking-wide transition-colors font-nunito">
               Хүүхэд нэмэх
             </span>
           </div>
         </div>
 
-        <div className="mt-20 text-center">
+        <div className="mt-8 text-center">
           <button
             onClick={() => router.push("/")}
-            className="text-gray-400 font-bold hover:text-gray-600 transition-colors uppercase tracking-widest text-sm"
+            className="text-[#0C0A0166] font-extrabold hover:text-[#0C0A0199] transition-colors uppercase tracking-widest text-sm font-nunito cursor-pointer"
           >
             Нүүр хуудас руу буцах
           </button>
