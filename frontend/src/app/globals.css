@@ -50,11 +50,14 @@
   --radius-full: 9999px;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Nunito Font Family */
+  --font-nunito: var(--font-nunito), sans-serif;
 }
 
 /* Global Styles */
@@ -322,4 +325,39 @@ body {
 
 .text-shadow-lg {
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Nunito Font Utilities */
+.font-nunito {
+  font-family: var(--font-nunito);
+}
+
+.font-nunito-light {
+  font-family: var(--font-nunito);
+  font-weight: 300;
+}
+
+.font-nunito-normal {
+  font-family: var(--font-nunito);
+  font-weight: 400;
+}
+
+.font-nunito-medium {
+  font-family: var(--font-nunito);
+  font-weight: 500;
+}
+
+.font-nunito-semibold {
+  font-family: var(--font-nunito);
+  font-weight: 600;
+}
+
+.font-nunito-bold {
+  font-family: var(--font-nunito);
+  font-weight: 700;
+}
+
+.font-nunito-extrabold {
+  font-family: var(--font-nunito);
+  font-weight: 800;
 }
