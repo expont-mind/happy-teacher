@@ -23,28 +23,22 @@ interface CreateInvoiceRequest {
     extras?: InvoiceExtra[];
 }
 
-interface BonumInvoiceResponse {
-    invoiceId: string;
-    followUpLink: string;
-}
-
 interface BonumErrorResponse {
     message?: string;
     error?: string;
 }
 
 export async function POST(request: NextRequest) {
+    console.log('=== CREATE INVOICE START ===');
+
     try {
         const BONUM_BASE_URL = process.env.BONUM_BASE_URL;
-        const BONUM_TOKEN_BASE_URL = process.env.BONUM_TOKEN_BASE_URL;
         const BONUM_APP_SECRET = process.env.BONUM_APP_SECRET;
         const BONUM_DEFAULT_TERMINAL_ID = process.env.BONUM_DEFAULT_TERMINAL_ID;
 
-        if (!BONUM_BASE_URL || !BONUM_TOKEN_BASE_URL || !BONUM_APP_SECRET || !BONUM_DEFAULT_TERMINAL_ID) {
+        if (!BONUM_BASE_URL || !BONUM_APP_SECRET || !BONUM_DEFAULT_TERMINAL_ID) {
             return NextResponse.json(
-                {
-                    error: 'Missing required environment variables',
-                },
+                { error: 'Missing required environment variables' },
                 { status: 500 }
             );
         }
@@ -52,39 +46,24 @@ export async function POST(request: NextRequest) {
         const body: CreateInvoiceRequest = await request.json();
         const { amount, callback, transactionId, expiresIn, items, extras } = body;
 
+        console.log('Request:', { amount, callback, transactionId });
+
         if (!amount || amount <= 0) {
             return NextResponse.json(
-                {
-                    error: 'Invalid amount',
-                    message: 'Amount must be greater than 0'
-                },
+                { error: 'Invalid amount' },
                 { status: 400 }
             );
         }
 
-        if (!callback) {
+        if (!callback || !transactionId) {
             return NextResponse.json(
-                {
-                    error: 'Callback URL is required',
-                    message: 'Please provide a callback URL'
-                },
+                { error: 'Callback URL and transactionId are required' },
                 { status: 400 }
             );
         }
 
-        if (!transactionId) {
-            return NextResponse.json(
-                {
-                    error: 'Transaction ID is required',
-                    message: 'Please provide a transaction ID'
-                },
-                { status: 400 }
-            );
-        }
-
-        // Step 1: Get access token using GET request
+        // Step 1: Get access token
         const tokenUrl = `${BONUM_BASE_URL}/ecommerce/auth/create`;
-
         const tokenResponse = await fetch(tokenUrl, {
             method: 'GET',
             headers: {
@@ -95,13 +74,10 @@ export async function POST(request: NextRequest) {
         });
 
         if (!tokenResponse.ok) {
-            const tokenError = await tokenResponse.json();
+            const tokenError = await tokenResponse.text();
+            console.error('Token error:', tokenError);
             return NextResponse.json(
-                {
-                    error: 'Failed to get access token',
-                    message: tokenError.message || 'Token request failed',
-                    statusCode: tokenResponse.status
-                },
+                { error: 'Failed to get access token' },
                 { status: tokenResponse.status }
             );
         }
@@ -109,16 +85,25 @@ export async function POST(request: NextRequest) {
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.accessToken;
 
+        // Step 2: Create invoice with callback URL
+        // Bonum redirect хийхдээ бидний өгсөн callback URL ашигладаг
+        // invoiceId-г callback-д урьдчилан нэмэх боломжгүй учир transactionId ашиглана
         const invoiceUrl = `${BONUM_BASE_URL}/ecommerce/invoices`;
 
-        const invoicePayload: CreateInvoiceRequest = {
+        // Callback URL-д transactionId нэмэх (invoiceId-г дараа нь авна)
+        const separator = callback.includes('?') ? '&' : '?';
+        const callbackWithTransaction = `${callback}${separator}transactionId=${encodeURIComponent(transactionId)}`;
+
+        const invoicePayload = {
             amount,
-            callback,
+            callback: callbackWithTransaction,
             transactionId,
             expiresIn: expiresIn || 23000,
             items,
             extras,
         };
+
+        console.log('Creating invoice:', JSON.stringify(invoicePayload, null, 2));
 
         const response = await fetch(invoiceUrl, {
             method: 'POST',
@@ -131,26 +116,37 @@ export async function POST(request: NextRequest) {
         });
 
         const data = await response.json();
+        console.log('Invoice response:', JSON.stringify(data, null, 2));
 
-        // Handle non-successful responses
         if (!response.ok) {
             const errorData = data as BonumErrorResponse;
             return NextResponse.json(
                 {
                     error: 'Failed to create invoice',
                     message: errorData.message || errorData.error || 'Unknown error',
-                    statusCode: response.status
                 },
                 { status: response.status }
             );
         }
 
-        // Return successful response
-        const invoiceData = data as BonumInvoiceResponse;
-        return NextResponse.json(invoiceData, { status: 200 });
+        const invoiceId = data.invoiceId;
+        const followUpLink = data.followUpLink;
+
+        console.log('=== CREATE INVOICE SUCCESS ===');
+        console.log('Invoice ID:', invoiceId);
+        console.log('Follow Up Link:', followUpLink);
+
+        // invoiceId болон transactionId-г хамт буцаана
+        // Frontend localStorage-д хадгална
+        return NextResponse.json({
+            invoiceId,
+            followUpLink,
+            transactionId,
+        }, { status: 200 });
 
     } catch (error) {
-        console.error('Error creating Bonum invoice:', error);
+        console.error('=== CREATE INVOICE ERROR ===');
+        console.error('Error:', error);
 
         return NextResponse.json(
             {
