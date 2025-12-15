@@ -1,29 +1,50 @@
+"use client";
+
 import Link from "next/link";
-import { BookOpen, BookMarked, Zap, X } from "lucide-react";
+import {
+  BookOpen,
+  BookMarked,
+  X,
+  ChevronRight,
+  User,
+  Settings,
+} from "lucide-react";
 import Image from "next/image";
+import { fractionLessons } from "@/src/data/lessons/fractions";
+import { multiplicationLessons } from "@/src/data/lessons/multiplication";
+import { useAuth } from "@/src/components/auth";
+import { CHILD_ICONS } from "@/src/app/register/page";
 
 export default function TopicsPage() {
+  const { activeProfile, user } = useAuth();
+  const isChild = activeProfile?.type === "child";
+
   const topics = [
     {
       key: "fractions",
       title: "Бутархай",
       icon: BookOpen,
-      color: "var(--duo-blue)",
-      bgColor: "from-blue-100 to-blue-50",
-      borderColor: "border-blue-300",
+      totalLessons: fractionLessons.length,
     },
     {
       key: "multiplication",
       title: "Үржих",
       icon: X,
-      color: "var(--duo-purple)",
-      bgColor: "from-purple-100 to-purple-50",
-      borderColor: "border-purple-300",
+      totalLessons: multiplicationLessons.length,
     },
   ];
 
+  let displayAvatar = activeProfile?.avatar;
+  if (isChild && !displayAvatar) {
+    displayAvatar = CHILD_ICONS[0];
+  }
+
+  const displayName = isChild
+    ? activeProfile?.name
+    : user?.user_metadata?.full_name || "Эцэг эх";
+
   return (
-    <div className="w-full h-[calc(100vh-75px)] flex justify-center bg-[#FFFAF7]">
+    <div className="w-full h-[calc(100vh-77px)] flex justify-center bg-[#FFFAF7]">
       <div className="max-w-[1280px] w-full flex flex-col gap-14">
         <div className="mt-[50px] relative w-full bg-linear-to-r from-[#6FDC6F] to-[#32CD32] py-7 px-14 flex items-center gap-7 rounded-[20px]">
           <div className="absolute top-3 right-4 rotate-10">
@@ -34,63 +55,100 @@ export default function TopicsPage() {
               height={32}
             />
           </div>
-          <div className="w-[90px] h-[90px] rounded-full bg-white border-[3px] border-[#58CC02]">
-            {/* icon */}
+          <div className="w-[90px] h-[90px] rounded-full bg-white border-[3px] border-[#58CC02] overflow-hidden relative flex items-center justify-center text-3xl">
+            {displayAvatar ? (
+              <Image
+                src={displayAvatar}
+                alt="Avatar"
+                width={32}
+                height={32}
+                className="object-cover"
+              />
+            ) : (
+              <User size={32} color="black" />
+            )}
           </div>
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-1.5">
               <p className="text-white font-extrabold text-[24px] font-nunito">
-                Сайна уу, Болд!
+                Сайна уу, {displayName}!
               </p>
               <p className="text-white font-medium text-sm font-nunito">
-                Өнөөдөр юу сурах вэ?
+                {isChild
+                  ? "Өнөөдөр юу сурах вэ?"
+                  : "Хүүхдүүдийнхээ явцыг хянаарай"}
               </p>
             </div>
-            <div className="flex gap-5">
-              <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
-                <Image src="/svg/Fire.svg" alt="Fire" width={32} height={32} />
-                <div className="flex flex-col w-[64px]">
-                  <p className="text-white font-semibold text-sm font-nunito">
-                    Streak
-                  </p>
-                  <p className="text-white font-extrabold text-sm font-nunito">
-                    0 өдөр
-                  </p>
+
+            {isChild ? (
+              <div className="flex gap-5">
+                <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
+                  <Image
+                    src="/svg/Fire.svg"
+                    alt="Fire"
+                    width={32}
+                    height={32}
+                  />
+                  <div className="flex flex-col w-[64px]">
+                    <p className="text-white font-semibold text-sm font-nunito">
+                      Streak
+                    </p>
+                    <p className="text-white font-extrabold text-sm font-nunito">
+                      {activeProfile?.streak || 0} өдөр
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
+                  <Image
+                    src="/svg/Lightning.svg"
+                    alt="Lightning"
+                    width={32}
+                    height={32}
+                  />
+                  <div className="flex flex-col w-[64px]">
+                    <p className="text-white font-semibold text-sm font-nunito">
+                      XP
+                    </p>
+                    <p className="text-white font-extrabold text-sm font-nunito">
+                      {activeProfile?.xp || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
+                  <Image
+                    src="/svg/Medal.svg"
+                    alt="Medal"
+                    width={32}
+                    height={32}
+                  />
+                  <div className="flex flex-col w-[64px]">
+                    <p className="text-white font-semibold text-sm font-nunito">
+                      Level
+                    </p>
+                    <p className="text-white font-extrabold text-sm font-nunito">
+                      {activeProfile?.level || 1}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
-                <Image
-                  src="/svg/Lightning.svg"
-                  alt="Lightning"
-                  width={32}
-                  height={32}
-                />
-                <div className="flex flex-col w-[64px]">
-                  <p className="text-white font-semibold text-sm font-nunito">
-                    XP
+            ) : (
+              <div className="bg-[#FFFFFF40] rounded-[20px] px-6 py-3 flex items-center gap-4 border border-white/20">
+                <div className="p-2 bg-white/20 rounded-xl">
+                  <Settings size={24} className="text-white" />
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-white font-bold text-lg font-nunito leading-tight">
+                    Эцэг эхийн хэсэг
                   </p>
-                  <p className="text-white font-extrabold text-sm font-nunito">
-                    0
-                  </p>
+                  <Link
+                    href="/settings"
+                    className="text-white/90 text-sm font-bold font-nunito hover:text-white hover:underline transition-colors"
+                  >
+                    Тохиргоо руу очих →
+                  </Link>
                 </div>
               </div>
-              <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
-                <Image
-                  src="/svg/Medal.svg"
-                  alt="Medal"
-                  width={32}
-                  height={32}
-                />
-                <div className="flex flex-col w-[64px]">
-                  <p className="text-white font-semibold text-sm font-nunito">
-                    Level
-                  </p>
-                  <p className="text-white font-extrabold text-sm font-nunito">
-                    0
-                  </p>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -106,62 +164,42 @@ export default function TopicsPage() {
                 <Link
                   key={topic.key}
                   href={`/topic/${topic.key}`}
-                  className="cursor-pointer group"
+                  className="group relative"
                 >
-                  <div
-                    className={`duo-card bg-linear-to-br ${topic.bgColor} border-2 ${topic.borderColor} p-8`}
-                  >
-                    {/* Icon */}
-                    <div className="mb-4 flex justify-center">
-                      <div className="p-4 bg-white rounded-2xl group-hover:scale-110 transition-transform">
+                  <div className="h-full bg-white border-2 border-[#E5E5E5] rounded-[20px] p-6 hover:border-[#58CC02]  transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between gap-6">
+                    <div className="flex items-start justify-between">
+                      <div className="p-[10px] transition-transform duration-300 group-hover:scale-110 border rounded-[16px] border-[#58CC02]">
                         <IconComponent
-                          size={48}
-                          style={{ color: topic.color }}
+                          size={32}
+                          color="#58CC02"
                           strokeWidth={2.5}
                         />
                       </div>
+                      <div className="bg-[#58CC02] text-white text-xs font-bold px-3 py-1.5 rounded-full font-nunito uppercase tracking-wide">
+                        Шинэ
+                      </div>
                     </div>
 
-                    {/* Title */}
-                    <h2
-                      className="text-3xl font-black mb-3 text-center"
-                      style={{ color: topic.color }}
-                    >
-                      {topic.title}
-                    </h2>
-
-                    {/* Description */}
-                    <p className="text-gray-600 font-semibold mb-4 text-center">
-                      Хичээлүүд, дасгалууд болон тоглоомууд
-                    </p>
-
-                    {/* Progress */}
-                    <div className="duo-progress mb-4">
-                      <div
-                        className="duo-progress-fill"
-                        style={{ width: "0%" }}
-                      ></div>
+                    <div>
+                      <h3 className="text-2xl font-extrabold text-[#333333] font-nunito mb-2 group-hover:text-[#58CC02] transition-colors">
+                        {topic.title}
+                      </h3>
+                      <p className="text-[#777] font-semibold font-nunito text-sm leading-relaxed">
+                        Хичээлүүд, сонирхолтой дасгалууд болон тоглоомууд
+                        багтсан.
+                      </p>
                     </div>
 
-                    {/* Stats */}
-                    <div className="flex gap-4 text-sm justify-center">
-                      <div className="flex items-center gap-1">
-                        <BookMarked
-                          size={18}
-                          className="text-gray-600"
-                          strokeWidth={2}
-                        />
-                        <span className="font-bold text-gray-700">
-                          0/10 хичээл
+                    <div className="pt-6 border-t border-gray-100 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-[#777]">
+                        <BookMarked size={18} />
+                        <span className="font-bold text-sm font-nunito">
+                          0/{topic.totalLessons} хичээл
                         </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Zap
-                          size={18}
-                          className="text-(--duo-yellow-dark)"
-                          strokeWidth={2}
-                        />
-                        <span className="font-bold text-gray-700">0 XP</span>
+
+                      <div className="w-10 h-10 rounded-xl bg-[#58CC02] flex items-center justify-center text-white shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-[4px] transition-all">
+                        <ChevronRight size={24} strokeWidth={3} />
                       </div>
                     </div>
                   </div>

@@ -17,11 +17,12 @@ import {
   lessonPageTutorial,
 } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
+import { createClient } from "@/src/utils/supabase/client";
 
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted, addXP } = useAuth();
+  const { markLessonCompleted, addXP, activeProfile, user } = useAuth();
   const { startTutorial, isActive } = useTutorial();
 
   const lesson = useMemo(
@@ -37,7 +38,6 @@ export default function LessonPage() {
   const [characterMessage, setCharacterMessage] = useState<string | null>(null);
   const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
-  const toastQueue = useRef<Array<string | number>>([]);
   const [showReward, setShowReward] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
 
@@ -98,6 +98,43 @@ export default function LessonPage() {
 
     // Save to Supabase (with localStorage fallback)
     await markLessonCompleted("fractions", lesson.id);
+
+    // Check for notification trigger (Every 3 lessons)
+    try {
+      if (activeProfile?.id && user?.id) {
+        const supabase = createClient();
+        const { count, error } = await supabase
+          .from("child_progress")
+          .select("*", { count: "exact", head: true })
+          .eq("child_id", activeProfile.id);
+
+        if (error) {
+          console.error("Count fetch error:", error);
+        }
+
+        // Trigger if count is valid and multiple of 3
+        if (count !== null && count > 0 && count % 3 === 0) {
+          console.log("Triggering notification for count:", count);
+
+          await fetch("/api/send-notification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: user.id,
+              type: "lesson_report",
+              title: "Явцын тайлан",
+              message: `${activeProfile.name} ${count} хичээл амжилттай дуусгалаа!`,
+            }),
+          });
+        }
+      } else {
+        console.warn(
+          "User or ActiveProfile missing, cannot send notification."
+        );
+      }
+    } catch (err) {
+      console.error("Failed to trigger notification:", err);
+    }
 
     // Calculate XP based on mistakes
     const mistakes = canvasRef.current?.getMistakeCount() || 0;

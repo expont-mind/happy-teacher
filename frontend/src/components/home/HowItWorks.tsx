@@ -37,12 +37,7 @@ export const HowItWorks = () => {
             <div className="absolute top-[-25px] left-[50%] translate-x-[-50%] rounded-full w-[50px] h-[50px] bg-[#58CC02] border-b-[3px] border-[#46A302] flex justify-center items-center">
               <p className="text-lg font-extrabold text-white">2</p>
             </div>
-            <Image
-              src="/svg/NotePencil.svg"
-              alt="Icon"
-              width={60}
-              height={60}
-            />
+            <Image src="/svg/Palette.svg" alt="Icon" width={60} height={60} />
             <div className="flex flex-col gap-3 items-center">
               <p className="text-black font-bold text-[26px] text-center font-nunito">
                 Сурч эхлэх
@@ -57,12 +52,7 @@ export const HowItWorks = () => {
             <div className="absolute top-[-25px] left-[50%] translate-x-[-50%] rounded-full w-[50px] h-[50px] bg-[#58CC02] border-b-[3px] border-[#46A302] flex justify-center items-center">
               <p className="text-lg font-extrabold text-white">3</p>
             </div>
-            <Image
-              src="/svg/NotePencil.svg"
-              alt="Icon"
-              width={60}
-              height={60}
-            />
+            <Image src="/svg/Trophy.svg" alt="Icon" width={60} height={60} />
             <div className="flex flex-col gap-3 items-center">
               <p className="text-black font-bold text-[26px] text-center font-nunito">
                 Ахиц дэвшил
