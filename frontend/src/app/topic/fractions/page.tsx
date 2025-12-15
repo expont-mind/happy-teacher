@@ -1,61 +1,54 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
+
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import Paywall from "@/src/components/topic/paywall/Paywall";
-import Roadmap from "@/src/components/topic/roadmap/Roadmap";
+import TopicInfoCard from "@/src/components/topic/TopicInfoCard";
+import VerticalRoadmap from "@/src/components/topic/VerticalRoadmap";
 import { useAuth } from "@/src/components/auth";
-import { BookOpen, Target } from "lucide-react";
 import Skeleton from "@/src/components/ui/Skeleton";
 import { toast } from "sonner";
 
 export default function FractionsRoadmapPage() {
   const [paid, setPaid] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { user, activeProfile, checkPurchase } = useAuth();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    // Check payment status from URL params
-    const paymentStatus = searchParams.get("payment");
-    if (paymentStatus === "success") {
-      toast.success("Төлбөр амжилттай! Хичээлээ эхлүүлээрэй.");
-    } else if (paymentStatus === "error") {
-      const reason = searchParams.get("reason");
-      toast.error(`Төлбөр амжилтгүй: ${reason || "Алдаа гарлаа"}`);
-    } else if (paymentStatus === "pending") {
-      toast.info("Төлбөр хүлээгдэж байна...");
-    }
-  }, [searchParams]);
+  const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const { user, activeProfile, checkPurchase, getCompletedLessons } = useAuth();
 
   useEffect(() => {
     const checkPaid = async () => {
       if (user || activeProfile) {
         const isPurchased = await checkPurchase("fractions");
         setPaid(isPurchased);
+
+        // Load completed lessons
+        const completed = await getCompletedLessons("fractions");
+        setCompletedIds(completed);
       } else {
         setPaid(false);
       }
       setLoading(false);
     };
     checkPaid();
-  }, [user, activeProfile, checkPurchase]);
+  }, [user, activeProfile, checkPurchase, getCompletedLessons]);
+
+  const progressPercent = useMemo(() => {
+    if (fractionLessons.length === 0) return 0;
+    return Math.round((completedIds.length / fractionLessons.length) * 100);
+  }, [completedIds]);
+
+  const items = useMemo(
+    () => fractionLessons.map((l) => ({ id: l.id, title: l.title })),
+    []
+  );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-b from-blue-50 to-white py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <Skeleton className="w-16 h-16 rounded-full" />
-            </div>
-            <Skeleton className="h-12 w-48 mx-auto mb-4" />
-            <Skeleton className="h-6 w-64 mx-auto" />
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-32 w-full rounded-2xl" />
-            <Skeleton className="h-32 w-full rounded-2xl" />
-            <Skeleton className="h-32 w-full rounded-2xl" />
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Skeleton className="h-80 w-full rounded-3xl" />
+            <Skeleton className="h-96 w-full rounded-3xl" />
           </div>
         </div>
       </div>
@@ -63,47 +56,34 @@ export default function FractionsRoadmapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-blue-50 to-white py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4 animate-float">
-            <BookOpen
-              size={64}
-              className="text-(--duo-blue)"
-              strokeWidth={2.5}
-            />
-          </div>
-          <h1
-            className="text-4xl md:text-5xl font-black mb-3"
-            style={{ color: "var(--duo-blue)" }}
-          >
-            Бутархай
-          </h1>
-          <p className="text-lg text-gray-600 font-semibold flex items-center justify-center gap-2">
-            Бутархай тоонуудтай танилцаж, дасгал хийцгээе!
-            <Target
-              size={20}
-              className="text-(--duo-green)"
-              strokeWidth={2.5}
-            />
-          </p>
-        </div>
-
-        {!paid && (
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-7xl mx-auto">
+        {!paid ? (
           <Paywall
             topicKey="fractions"
             onUnlocked={() => {
               setPaid(true);
             }}
           />
-        )}
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start ">
+            {/* Left Column - Topic Info Card */}
+            <TopicInfoCard
+              title="Бутархай"
+              description="Бутархай тооны ухагдах, дасгал хийцгээе! 😊"
+              lessonCount={fractionLessons.length}
+              taskCount={fractionLessons.length}
+              progressPercent={progressPercent}
+            />
 
-        {paid && (
-          <Roadmap
-            topicKey="fractions"
-            items={fractionLessons.map((l) => ({ id: l.id, title: l.title }))}
-          />
+            {/* Right Column - Vertical Roadmap */}
+            <VerticalRoadmap
+              items={items}
+              topicKey="fractions"
+              completedIds={completedIds}
+              headerTitle="Энгийн бутархайг будацгаая"
+            />
+          </div>
         )}
       </div>
     </div>
