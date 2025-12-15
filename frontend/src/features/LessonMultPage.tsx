@@ -22,7 +22,7 @@ import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 export default function LessonMultPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted, addXP, checkPurchase, user, activeProfile } = useAuth();
+  const { markLessonCompleted, addXP, checkPurchase, user, activeProfile, loading: authLoading } = useAuth();
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
   const lesson = useMemo(
@@ -32,6 +32,9 @@ export default function LessonMultPage() {
 
   // Check if user has purchased this topic
   useEffect(() => {
+    // Auth ачаалал дуусахыг хүлээх
+    if (authLoading) return;
+
     const checkPayment = async () => {
       const purchased = await checkPurchase("multiplication");
       setIsPaid(purchased);
@@ -43,7 +46,7 @@ export default function LessonMultPage() {
     };
 
     checkPayment();
-  }, [checkPurchase, router, user, activeProfile]);
+  }, [authLoading, checkPurchase, router, user, activeProfile]);
 
   const [selectedColor, setSelectedColor] = useState(
     lesson?.palette[0]?.color || "#6b3ab5"
