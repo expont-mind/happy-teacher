@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
+
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import Paywall from "@/src/components/topic/paywall/Paywall";
 import TopicInfoCard from "@/src/components/topic/TopicInfoCard";
 import VerticalRoadmap from "@/src/components/topic/VerticalRoadmap";
 import { useAuth } from "@/src/components/auth";
 import Skeleton from "@/src/components/ui/Skeleton";
+import { toast } from "sonner";
 
 export default function FractionsRoadmapPage() {
   const [paid, setPaid] = useState(false);
