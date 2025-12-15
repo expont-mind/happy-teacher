@@ -19,10 +19,10 @@ export default function DeleteChildModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-[382px] bg-[#FFFAF7] rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-[382px] bg-[#FFFAF7] rounded-[20px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-black/5 transition-colors z-10"
+          className="absolute top-2 right-2 p-2 rounded-full hover:bg-black/5 transition-colors z-10"
         >
           <X size={24} className="text-[#333333]" />
         </button>

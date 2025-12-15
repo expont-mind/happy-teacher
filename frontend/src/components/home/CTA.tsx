@@ -7,7 +7,7 @@ export const CTA = () => {
         <p className="text-white font-extrabold text-[56px] font-nunito">
           Өнөөдөр л эхэлцгээе!
         </p>
-        <Link href="/sign-up">
+        <Link href="/topic">
           <button className="bg-white rounded-[16px] border-b-4 border-[#46A302] px-9 py-4 text-[#58CC02] font-bold text-base leading-6 font-nunito uppercase cursor-pointer">
             Эхлэх
           </button>

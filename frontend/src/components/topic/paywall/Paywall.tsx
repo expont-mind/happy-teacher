@@ -1,9 +1,12 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/src/components/auth";
 import { useRouter } from "next/navigation";
 import Loader from "@/src/components/ui/Loader";
-import { Lock, BookOpen, Gamepad2, Trophy } from "lucide-react";
+import { X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface PaywallProps {
   topicKey: string;
@@ -70,73 +73,75 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
   if (unlocked) return null;
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="duo-card text-center p-12 bg-linear-to-br from-yellow-50 to-orange-50 border-2 border-orange-200">
-        {/* Lock Icon */}
-        <div className="flex justify-center mb-6">
-          <Lock
-            size={80}
-            className="text-(--duo-yellow-dark)"
-            strokeWidth={2.5}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-[464px] bg-[#FFFAF7] rounded-[20px] flex flex-col gap-8 p-8 items-center overflow-hidden animate-in zoom-in-95 duration-200">
+        <Link
+          href="/topic"
+          prefetch={true}
+          className="absolute top-2 right-2 p-2 rounded-full hover:bg-black/5 transition-colors z-10"
+        >
+          <X size={24} className="text-[#333333]" />
+        </Link>
+
+        <div className="flex flex-col gap-8 items-center max-w-[236px] mt-9">
+          <Image
+            src="/svg/ShoppingCartSimple.svg"
+            alt="Shopping Cart"
+            width={50}
+            height={50}
           />
-        </div>
-
-        {/* Title */}
-        <h2
-          className="text-4xl font-black mb-4"
-          style={{ color: "var(--duo-yellow-dark)" }}
-        >
-          Сэдэв цоожтой байна
-        </h2>
-
-        {/* Description */}
-        <p className="text-lg text-gray-700 font-semibold mb-8 max-w-md mx-auto">
-          {user || activeProfile
-            ? "Энэ сэдвийг нээхийн тулд худалдаж аваарай!"
-            : "Энэ сэдвийг нээхийн тулд эхлээд нэвтэрнэ үү!"}
-        </p>
-
-        {/* Benefits */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="p-4 bg-white rounded-2xl border border-gray-200">
-            <div className="flex justify-center mb-2">
-              <BookOpen
-                size={32}
-                className="text-(--duo-blue)"
-                strokeWidth={2}
-              />
-            </div>
-            <p className="text-sm font-bold text-gray-700">10+ хичээл</p>
-          </div>
-          <div className="p-4 bg-white rounded-2xl border border-gray-200">
-            <div className="flex justify-center mb-2">
-              <Gamepad2
-                size={32}
-                className="text-(--duo-purple)"
-                strokeWidth={2}
-              />
-            </div>
-            <p className="text-sm font-bold text-gray-700">Интерактив дасгал</p>
-          </div>
-          <div className="p-4 bg-white rounded-2xl border border-gray-200">
-            <div className="flex justify-center mb-2">
-              <Trophy
-                size={32}
-                className="text-(--duo-yellow-dark)"
-                strokeWidth={2}
-              />
-            </div>
-            <p className="text-sm font-bold text-gray-700">Шагнал цуглуулах</p>
+          <div className="flex flex-col gap-2 items-center">
+            <p className="text-base font-bold text-black font-nunito text-center">
+              Хичээл худалдаж аваарай
+            </p>
+            <p className="text-xs font-semibold text-[#858480] font-nunito text-center">
+              Энэ хичээлийг үзэхийн тулд худалдаж авах шаардлагатай.
+            </p>
           </div>
         </div>
 
-        {/* CTA Button */}
-        <button
-          onClick={handlePurchase}
-          className="duo-button duo-button-yellow px-12 py-5 text-xl cursor-pointer"
-        >
-          {user || activeProfile ? "Худалдаж авах" : "Нэвтрэх"}
-        </button>
+        <div className="flex flex-col gap-[10px] px-5 py-6 bg-[#D6F5D6] rounded-[20px] max-w-[348px] w-full">
+          <div className="flex items-center gap-2">
+            <Image src="/svg/Palette.svg" alt="Icon" width={20} height={20} />
+            <p className="text-sm font-medium text-black font-nunito">
+              16 өнгөт зургийн даалгавар
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/svg/Calculator.svg"
+              alt="Icon"
+              width={20}
+              height={20}
+            />
+            <p className="text-sm font-medium text-black font-nunito">
+              Бутархай тооны дэлгэрэнгүй сургалт
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Image src="/svg/Trophy.svg" alt="Icon" width={20} height={20} />
+            <p className="text-sm font-medium text-black font-nunito">
+              Медаль болон шагнал авах боломж
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-6 w-full">
+          <button
+            onClick={handlePurchase}
+            className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer hover:bg-[#46A302] transition-colors tracking-wide"
+          >
+            {user || activeProfile ? "Худалдаж авах" : "Нэвтрэх"}
+          </button>
+
+          <Link
+            href="/topic"
+            prefetch={true}
+            className="max-w-[124px] w-full flex justify-center items-center text-[#333333] font-bold text-lg font-nunito cursor-pointer"
+          >
+            Цуцлах
+          </Link>
+        </div>
       </div>
     </div>
   );
