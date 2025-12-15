@@ -68,7 +68,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full h-[calc(100vh-75px)] flex justify-center items-center bg-[#FFFAF7]">
+    <div className="w-full h-[calc(100vh-77px)] flex justify-center items-center bg-[#FFFAF7]">
       <div className="max-w-[382px] w-full flex flex-col gap-9">
         <div className="flex p-1 bg-[#E5E5E5] rounded-[16px]">
           <button

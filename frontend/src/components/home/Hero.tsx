@@ -1,9 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export const Hero = () => {
   return (
     <div className="w-full flex justify-center bg-white py-[144px]">
-      <div className="max-w-[1280px] w-full flex flex-col items-start gap-6">
+      <div className="relative max-w-[1280px] w-full flex flex-col items-start gap-6">
         <p className="text-[#1F2937] font-extrabold text-[56px] font-nunito max-w-[410px] leading-16">
           Математикийг <span className="text-[#58CC02]">амархан</span> сур.
           Үргэлж.
@@ -17,6 +18,21 @@ export const Hero = () => {
             Эхлэх
           </button>
         </Link>
+
+        <Image
+          src="/svg/home1.png"
+          alt="Icon"
+          width={468}
+          height={400}
+          className="absolute -right-[50px] bottom-6"
+        />
+        <Image
+          src="/svg/home2.png"
+          alt="Icon"
+          width={330}
+          height={244}
+          className="absolute right-[450px] -bottom-6"
+        />
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { useTutorial, homePageTutorial } from "@/src/components/tutorial";
-import { Features, HowItWorks, CTA, Hero } from "../components/home";
+import { Features, HowItWorks, CTA, Hero, Lessons } from "../components/home";
 import { Footer } from "../components/navigations";
 
 export const HomePage = () => {
@@ -26,6 +26,7 @@ export const HomePage = () => {
     <div className="w-full">
       <Hero />
       <HowItWorks />
+      <Lessons />
       <Features />
       <CTA />
       <Footer />

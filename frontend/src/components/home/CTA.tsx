@@ -1,9 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export const CTA = () => {
   return (
     <div className="w-full flex justify-center bg-[#58CC02] py-20">
-      <div className="max-w-[1280px] flex flex-col gap-8 items-center">
+      <div className="relative max-w-[1280px] w-full flex flex-col gap-8 items-center">
         <p className="text-white font-extrabold text-[56px] font-nunito">
           Өнөөдөр л эхэлцгээе!
         </p>
@@ -12,6 +13,34 @@ export const CTA = () => {
             Эхлэх
           </button>
         </Link>
+        <Image
+          src="/svg/cloud.svg"
+          alt="Icon"
+          width={72}
+          height={72}
+          className="absolute right-[120px] bottom-2"
+        />
+        <Image
+          src="/svg/star.svg"
+          alt="Icon"
+          width={36}
+          height={36}
+          className="absolute right-[250px] -top-10"
+        />
+        <Image
+          src="/svg/star.svg"
+          alt="Icon"
+          width={36}
+          height={36}
+          className="absolute left-[280px] -bottom-4 rotate-135"
+        />
+        <Image
+          src="/svg/rainbow.svg"
+          alt="Icon"
+          width={72}
+          height={72}
+          className="absolute -left-[20px] -top-8"
+        />
       </div>
     </div>
   );
