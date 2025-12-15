@@ -265,8 +265,6 @@ export default function LessonMultPage() {
         isOpen={showReward}
         onClose={handleRewardClose}
         xpEarned={xpEarned}
-        bonus={xpEarned === 15 ? "Perfect Lesson Bonus!" : undefined}
-        type="lesson"
       />
     </div>
   );
