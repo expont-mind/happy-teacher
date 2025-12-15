@@ -1,23 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 import Paywall from "@/src/components/topic/paywall/Paywall";
-import Roadmap from "@/src/components/topic/roadmap/Roadmap";
+import TopicInfoCard from "@/src/components/topic/TopicInfoCard";
+import VerticalRoadmap from "@/src/components/topic/VerticalRoadmap";
 import { useAuth } from "@/src/components/auth";
-import { Sparkles } from "lucide-react";
 import Skeleton from "@/src/components/ui/Skeleton";
 
 export default function MultiplicationPage() {
   const [paid, setPaid] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { user, activeProfile, checkPurchase } = useAuth();
+  const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const { user, activeProfile, checkPurchase, getCompletedLessons } = useAuth();
 
   useEffect(() => {
     const checkPaid = async () => {
       if (user || activeProfile) {
         const isPurchased = await checkPurchase("multiplication");
         setPaid(isPurchased);
+
+        // Load completed lessons
+        const completed = await getCompletedLessons("multiplication");
+        setCompletedIds(completed);
       } else {
         setPaid(false);
       }
@@ -25,45 +30,25 @@ export default function MultiplicationPage() {
     };
 
     checkPaid();
-  }, [user, activeProfile, checkPurchase]);
+  }, [user, activeProfile, checkPurchase, getCompletedLessons]);
 
-  // Multiplication Icon Component
-  const MultiplyIcon = ({
-    size = 64,
-    className = "",
-  }: {
-    size?: number;
-    className?: string;
-  }) => (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
+  const progressPercent = useMemo(() => {
+    if (multiplicationLessons.length === 0) return 0;
+    return Math.round((completedIds.length / multiplicationLessons.length) * 100);
+  }, [completedIds]);
+
+  const items = useMemo(
+    () => multiplicationLessons.map((l) => ({ id: l.id, title: l.title })),
+    []
   );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-b from-purple-50 to-white py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <Skeleton className="w-16 h-16 rounded-full" />
-            </div>
-            <Skeleton className="h-12 w-48 mx-auto mb-4" />
-            <Skeleton className="h-6 w-64 mx-auto" />
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-64 w-full rounded-2xl" />
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Skeleton className="h-80 w-full rounded-3xl" />
+            <Skeleton className="h-96 w-full rounded-3xl" />
           </div>
         </div>
       </div>
@@ -71,43 +56,35 @@ export default function MultiplicationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-purple-50 to-white py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4 animate-float">
-            <MultiplyIcon size={64} className="text-(--duo-purple)" />
-          </div>
-          <h1
-            className="text-4xl md:text-5xl font-black mb-3"
-            style={{ color: "var(--duo-purple)" }}
-          >
-            Үржих
-          </h1>
-          <p className="text-lg text-gray-600 font-semibold flex items-center justify-center gap-2">
-            Үржих үйлдлийг эзэмшиж, дасгал хийцгээе!
-            <Sparkles
-              size={20}
-              className="text-(--duo-yellow)"
-              strokeWidth={2.5}
-            />
-          </p>
-        </div>
-
-        {!paid && (
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-7xl mx-auto">
+        {!paid ? (
           <Paywall
             topicKey="multiplication"
             onUnlocked={() => {
               setPaid(true);
             }}
           />
-        )}
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            {/* Left Column - Topic Info Card */}
+            <TopicInfoCard
+              title="Үржих"
+              description="Үржих үйлдлийг эзэмшиж, дасгал хийцгээе! ✨"
+              lessonCount={multiplicationLessons.length}
+              taskCount={multiplicationLessons.length}
+              progressPercent={progressPercent}
+              iconType="multiplication"
+            />
 
-        {paid && (
-          <Roadmap
-            topicKey="multiplication"
-            items={multiplicationLessons.map((l) => ({ id: l.id, title: l.title }))}
-          />
+            {/* Right Column - Vertical Roadmap */}
+            <VerticalRoadmap
+              items={items}
+              topicKey="multiplication"
+              completedIds={completedIds}
+              headerTitle="Үржүүлэх дасгал"
+            />
+          </div>
         )}
       </div>
     </div>
