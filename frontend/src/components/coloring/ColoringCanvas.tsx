@@ -264,7 +264,15 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         resetCanvas,
         downloadCanvas,
       }),
-      [checkCompletion, undo, redo, canUndo, canRedo, resetCanvas, downloadCanvas]
+      [
+        checkCompletion,
+        undo,
+        redo,
+        canUndo,
+        canRedo,
+        resetCanvas,
+        downloadCanvas,
+      ]
     );
 
     // Flood fill logic
@@ -400,7 +408,14 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         const fillColor = isEraserMode ? "#ffffff" : selectedColor;
         floodFill(x, y, fillColor);
       },
-      [selectedColor, floodFill, isEraserMode, palette, onShowRelax, showMessage]
+      [
+        selectedColor,
+        floodFill,
+        isEraserMode,
+        palette,
+        onShowRelax,
+        showMessage,
+      ]
     );
 
     // Load images

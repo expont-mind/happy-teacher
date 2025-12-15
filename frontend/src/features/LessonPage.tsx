@@ -18,7 +18,7 @@ import { RewardModal } from "../components/gamification/RewardModal";
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted, addXP } = useAuth();
+  const { markLessonCompleted } = useAuth();
 
   const lesson = useMemo(
     () => fractionLessons.find((l) => l.id === params.lessonId),
@@ -154,20 +154,10 @@ export default function LessonPage() {
     // Save to Supabase (with localStorage fallback)
     await markLessonCompleted("fractions", lesson.id);
 
-    // Calculate XP based on mistakes
-    const mistakes = canvasRef.current?.getMistakeCount() || 0;
-    const baseXP = 10;
-    const bonusXP = mistakes === 0 ? 5 : 0;
-    const totalXP = baseXP + bonusXP;
-
-    // Award XP
-    const result = await addXP(totalXP);
-    if (result) {
-      setXpEarned(totalXP);
-      setShowReward(true);
-    } else {
-      router.push("/topic/fractions");
-    }
+    // Mock XP for now
+    const mockXP = 50;
+    setXpEarned(mockXP);
+    setShowReward(true);
   };
 
   const handleRewardClose = () => {
@@ -252,8 +242,6 @@ export default function LessonPage() {
         isOpen={showReward}
         onClose={handleRewardClose}
         xpEarned={xpEarned}
-        bonus={xpEarned === 15 ? "Perfect Lesson Bonus!" : undefined}
-        type="lesson"
       />
     </div>
   );
