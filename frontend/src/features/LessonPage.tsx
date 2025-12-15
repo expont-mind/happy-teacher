@@ -8,12 +8,17 @@ import ColoringCanvas, {
 import ColorPalette from "@/src/components/coloring/ColorPalette";
 import LessonHeader from "@/src/components/coloring/LessonHeader";
 import ActionToolbar from "@/src/components/coloring/ActionToolbar";
-import FinishButton from "@/src/components/coloring/FinishButton";
 import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import { MessageTooltip, RelaxModal } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
+import {
+  RotateDevicePrompt,
+  useIsPortraitMobile,
+} from "@/src/components/ui/RotateDevicePrompt";
+import { MobileColorPalette } from "@/src/components/coloring/MobileColorPalette";
+import { MobileActionToolbar } from "@/src/components/coloring/MobileActionToolbar";
 import Loader from "@/src/components/ui/Loader";
 import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 
@@ -63,6 +68,11 @@ export default function LessonPage() {
   const [xpEarned, setXpEarned] = useState(0);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+
+  // Mobile state
+  const [colorPaletteOpen, setColorPaletteOpen] = useState(false);
+  const [actionToolbarOpen, setActionToolbarOpen] = useState(false);
+  const isPortraitMobile = useIsPortraitMobile();
 
   // Convert palette to the format needed by ColorPalette
   const paletteForDisplay = useMemo(() => {
@@ -210,51 +220,88 @@ export default function LessonPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-2 lg:p-6">
       {/* Main Box Container */}
-      <div className="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-w-7xl w-full">
+      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-xl overflow-hidden flex flex-col max-w-7xl w-full h-full lg:h-auto">
         {/* Header inside box */}
-        <LessonHeader title={lesson.title} onBack={handleBack} />
+        <LessonHeader
+          title={lesson.title}
+          onBack={handleBack}
+          selectedColor={selectedColor}
+          onOpenColorPalette={() => setColorPaletteOpen(true)}
+          onOpenActions={() => setActionToolbarOpen(true)}
+        />
 
-        {/* Main Content - 3 column layout */}
-        <div className="flex-1 flex items-stretch justify-center p-6 gap-6">
-          {/* Left - Color Palette */}
-          <ColorPalette
-            colors={paletteForDisplay}
-            selectedColor={selectedColor}
-            setSelectedColor={setSelectedColor}
-          />
+        {/* Show Rotate Prompt in Portrait Mode */}
+        {isPortraitMobile ? (
+          <RotateDevicePrompt />
+        ) : (
+          /* Main Content - 3 column layout on desktop, single column on mobile */
+          <div className="flex-1 flex items-stretch justify-center p-2 lg:p-6 gap-2 lg:gap-6">
+            {/* Left - Color Palette (Desktop only) */}
+            <div className="hidden lg:flex">
+              <ColorPalette
+                colors={paletteForDisplay}
+                selectedColor={selectedColor}
+                setSelectedColor={setSelectedColor}
+              />
+            </div>
 
-          {/* Center - Canvas */}
-          <div className="flex-1 max-w-5xl ">
-            <ColoringCanvas
-              ref={canvasRef}
-              mainImage={lesson.mainImage}
-              maskImage={lesson.maskImage}
-              backgroundImage={lesson.backgroundImage}
-              selectedColor={selectedColor}
-              setImageLoaded={setImageLoaded}
-              palette={rawPalette}
-              onShowMessage={showCharacterMessage}
-              onShowRelax={() => setShowRelaxModal(true)}
-            />
+            {/* Center - Canvas */}
+            <div className="flex-1 max-w-5xl">
+              <ColoringCanvas
+                ref={canvasRef}
+                mainImage={lesson.mainImage}
+                maskImage={lesson.maskImage}
+                backgroundImage={lesson.backgroundImage}
+                selectedColor={selectedColor}
+                setImageLoaded={setImageLoaded}
+                palette={rawPalette}
+                onShowMessage={showCharacterMessage}
+                onShowRelax={() => setShowRelaxModal(true)}
+              />
+            </div>
+
+            {/* Right - Action Toolbar (Desktop only) */}
+            <div className="hidden lg:flex">
+              <ActionToolbar
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                onHelp={handleHelp}
+                onDownload={handleDownload}
+                onEnd={markCompleted}
+                canUndo={canUndo}
+                canRedo={canRedo}
+              />
+            </div>
           </div>
+        )}
 
-          {/* Right - Action Toolbar */}
-          <ActionToolbar
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            onHelp={handleHelp}
-            onDownload={handleDownload}
-            onEnd={markCompleted}
-            canUndo={canUndo}
-            canRedo={canRedo}
-          />
-        </div>
-
-        {/* Footer - Finish Button */}
-        <div className="p-6 flex justify-end border-t border-gray-100"></div>
+        {/* Footer (Desktop only) */}
+        <div className="hidden lg:flex p-6 justify-end border-t border-gray-100"></div>
       </div>
+
+      {/* Mobile Color Palette */}
+      <MobileColorPalette
+        isOpen={colorPaletteOpen}
+        onClose={() => setColorPaletteOpen(false)}
+        colors={paletteForDisplay}
+        selectedColor={selectedColor}
+        onSelectColor={setSelectedColor}
+      />
+
+      {/* Mobile Action Toolbar */}
+      <MobileActionToolbar
+        isOpen={actionToolbarOpen}
+        onClose={() => setActionToolbarOpen(false)}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onHelp={handleHelp}
+        onDownload={handleDownload}
+        onEnd={markCompleted}
+        canUndo={canUndo}
+        canRedo={canRedo}
+      />
 
       {/* Help Panel */}
       <HelpPanel
