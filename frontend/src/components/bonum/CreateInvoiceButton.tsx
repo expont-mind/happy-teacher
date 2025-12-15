@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { CreateInvoiceButtonProps, BonumExtra, BonumInvoiceItem } from './type';
 
-
-
 export function CreateInvoiceButton({
     amount,
     callback,
@@ -47,13 +45,26 @@ export function CreateInvoiceButton({
                 throw new Error(data.message || 'Failed to create invoice');
             }
 
-            console.log('✅ Invoice created successfully:', data);
+            console.log('Invoice created:', data);
 
-            // Auto open followUpLink if available
-            const paymentLink = data.followUpLink || data.deeplink;
-            if (autoOpenDeeplink && paymentLink) {
-                console.log('🔗 Opening payment link:', paymentLink);
-                window.location.href = paymentLink;
+            const invoiceId = data.invoiceId;
+            const followUpLink = data.followUpLink;
+
+            if (!invoiceId) {
+                throw new Error('No invoiceId returned');
+            }
+
+            // transactionId -> invoiceId mapping хадгалах
+            // Callback ирэхэд transactionId-аар invoiceId авна
+            localStorage.setItem(`bonum_invoice_${transactionId}`, invoiceId);
+            localStorage.setItem('bonum_latest_invoice', invoiceId);
+            localStorage.setItem('bonum_latest_transaction', transactionId);
+            console.log('Saved mapping:', transactionId, '->', invoiceId);
+
+            // Bonum payment page руу redirect
+            if (autoOpenDeeplink && followUpLink) {
+                console.log('Opening payment link:', followUpLink);
+                window.location.href = followUpLink;
             }
 
             if (onSuccess) {
@@ -61,7 +72,7 @@ export function CreateInvoiceButton({
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-            console.error('❌ Error creating invoice:', errorMessage);
+            console.error('Error creating invoice:', errorMessage);
             if (onError) {
                 onError(errorMessage);
             }
@@ -76,7 +87,7 @@ export function CreateInvoiceButton({
             disabled={loading || amount <= 0}
             className={`px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition disabled:bg-gray-300 disabled:cursor-not-allowed ${className}`}
         >
-            {loading ? 'Creating Invoice...' : children}
+            {loading ? 'Уншиж байна...' : children}
         </button>
     );
 }

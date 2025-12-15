@@ -325,11 +325,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error.code === "PGRST116") return false;
         if (
           error.code === "42P01" ||
+          error.code === "PGRST204" ||
           error.message?.includes("relation") ||
           error.message?.includes("does not exist") ||
           error.message?.includes("schema cache")
         ) {
-          console.warn("⚠️ Purchases table not found.");
+          console.warn("⚠️ Purchases table issue:", error.message);
           return false;
         }
         console.warn("Error checking purchase:", error.message || error);
