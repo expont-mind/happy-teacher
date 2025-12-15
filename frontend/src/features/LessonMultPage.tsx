@@ -16,16 +16,37 @@ import {
   RelaxModal,
 } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
+import Loader from "@/src/components/ui/Loader";
+import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 
 export default function LessonMultPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted, addXP } = useAuth();
+  const { markLessonCompleted, addXP, checkPurchase, user, activeProfile, loading: authLoading } = useAuth();
+  const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
   const lesson = useMemo(
     () => multiplicationLessons.find((l) => l.id === params.lessonId),
     [params.lessonId]
   );
+
+  // Check if user has purchased this topic
+  useEffect(() => {
+    // Auth ачаалал дуусахыг хүлээх
+    if (authLoading) return;
+
+    const checkPayment = async () => {
+      const purchased = await checkPurchase("multiplication");
+      setIsPaid(purchased);
+
+      if (!purchased) {
+        showCharacterToast("Та эхлээд хичээлийг худалдаж авах ёстой.");
+        router.replace("/topic/multiplication");
+      }
+    };
+
+    checkPayment();
+  }, [authLoading, checkPurchase, router, user, activeProfile]);
 
   const [selectedColor, setSelectedColor] = useState(
     lesson?.palette[0]?.color || "#6b3ab5"
@@ -66,6 +87,24 @@ export default function LessonMultPage() {
   const showCharacterMessage = useCallback((message: string) => {
     setCharacterMessage(message);
   }, []);
+
+  // Show loading while checking payment
+  if (isPaid === null) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  // If not paid, show loader while redirecting
+  if (!isPaid) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   if (!lesson) {
     return <div className="text-center p-8">Энэ хичээл олдсонгүй.</div>;
