@@ -1,16 +1,32 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import Paywall from "@/src/components/topic/paywall/Paywall";
 import Roadmap from "@/src/components/topic/roadmap/Roadmap";
 import { useAuth } from "@/src/components/auth";
 import { BookOpen, Target } from "lucide-react";
 import Skeleton from "@/src/components/ui/Skeleton";
+import { toast } from "sonner";
 
 export default function FractionsRoadmapPage() {
   const [paid, setPaid] = useState(false);
   const [loading, setLoading] = useState(true);
   const { user, activeProfile, checkPurchase } = useAuth();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check payment status from URL params
+    const paymentStatus = searchParams.get("payment");
+    if (paymentStatus === "success") {
+      toast.success("Төлбөр амжилттай! Хичээлээ эхлүүлээрэй.");
+    } else if (paymentStatus === "error") {
+      const reason = searchParams.get("reason");
+      toast.error(`Төлбөр амжилтгүй: ${reason || "Алдаа гарлаа"}`);
+    } else if (paymentStatus === "pending") {
+      toast.info("Төлбөр хүлээгдэж байна...");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const checkPaid = async () => {

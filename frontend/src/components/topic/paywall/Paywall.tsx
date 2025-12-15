@@ -7,16 +7,19 @@ import Loader from "@/src/components/ui/Loader";
 import { X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { CreateInvoiceButton } from "@/src/components/bonum";
 
 interface PaywallProps {
   topicKey: string;
   onUnlocked?: () => void;
 }
 
+const TOPIC_PRICE = 3; // 3₮
+
 export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
   const [unlocked, setUnlocked] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { user, activeProfile, checkPurchase, purchaseTopic } = useAuth();
+  const { user, activeProfile, checkPurchase } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -34,32 +37,28 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
     checkUnlocked();
   }, [user, activeProfile, topicKey, checkPurchase]);
 
-  const handlePurchase = async () => {
-    if (!user && !activeProfile) {
-      router.push("/login");
-      return;
-    }
+  const handleLoginRedirect = () => {
+    router.push("/login");
+  };
 
-    if (activeProfile?.type === "child") {
-      alert("Эцэг эхээсээ худалдаж авч өгөхийг хүсээрэй!");
-      return;
-    }
+  const generateTransactionId = () => {
+    return `${topicKey}_${user?.id || "guest"}_${Date.now()}`;
+  };
 
-    if (!user) {
-      router.push("/login");
-      return;
-    }
+  const getCallbackUrl = () => {
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+    return `${baseUrl}/api/bonum/callback?topicKey=${topicKey}&userId=${user?.id}`;
+  };
 
-    try {
-      await purchaseTopic(topicKey);
-      const isPurchased = await checkPurchase(topicKey);
-      setUnlocked(isPurchased);
-      if (isPurchased) {
-        onUnlocked?.();
-      }
-    } catch (error) {
-      // Error is handled in AuthProvider
-    }
+  const handlePaymentSuccess = (data: any) => {
+    console.log("Payment initiated:", data);
+    // User will be redirected to Bonum payment page
+    // After payment, Bonum will call our callback URL
+  };
+
+  const handlePaymentError = (error: string) => {
+    console.error("Payment error:", error);
+    alert("Төлбөр үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.");
   };
 
   if (loading) {
@@ -97,6 +96,9 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
             <p className="text-xs font-semibold text-[#858480] font-nunito text-center">
               Энэ хичээлийг үзэхийн тулд худалдаж авах шаардлагатай.
             </p>
+            <p className="text-2xl font-black text-[#58CC02] font-nunito mt-2">
+              {TOPIC_PRICE}₮
+            </p>
           </div>
         </div>
 
@@ -127,12 +129,42 @@ export default function Paywall({ topicKey, onUnlocked }: PaywallProps) {
         </div>
 
         <div className="flex gap-6 w-full">
-          <button
-            onClick={handlePurchase}
-            className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer hover:bg-[#46A302] transition-colors tracking-wide"
-          >
-            {user || activeProfile ? "Худалдаж авах" : "Нэвтрэх"}
-          </button>
+          {user || activeProfile ? (
+            activeProfile?.type === "child" ? (
+              <button
+                onClick={() => alert("Эцэг эхээсээ худалдаж авч өгөхийг хүсээрэй!")}
+                className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer hover:bg-[#46A302] transition-colors tracking-wide"
+              >
+                Худалдаж авах
+              </button>
+            ) : (
+              <CreateInvoiceButton
+                amount={TOPIC_PRICE}
+                callback={getCallbackUrl()}
+                transactionId={generateTransactionId()}
+                items={[
+                  {
+                    title: `${topicKey} хичээл`,
+                    remark: "Happy Teacher сургалтын хичээл",
+                    amount: TOPIC_PRICE,
+                    count: 1,
+                  },
+                ]}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+                className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer hover:bg-[#46A302] transition-colors tracking-wide"
+              >
+                Худалдаж авах
+              </CreateInvoiceButton>
+            )
+          ) : (
+            <button
+              onClick={handleLoginRedirect}
+              className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer hover:bg-[#46A302] transition-colors tracking-wide"
+            >
+              Нэвтрэх
+            </button>
+          )}
 
           <Link
             href="/topic"
