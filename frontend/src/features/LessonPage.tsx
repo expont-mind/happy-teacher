@@ -20,7 +20,7 @@ import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted, addXP, checkPurchase, user, activeProfile } = useAuth();
+  const { markLessonCompleted, addXP, checkPurchase, user, activeProfile, loading: authLoading } = useAuth();
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
   const lesson = useMemo(
@@ -30,8 +30,16 @@ export default function LessonPage() {
 
   // Check if user has purchased this topic
   useEffect(() => {
+    // Auth ачаалал дуусахыг хүлээх
+    if (authLoading) return;
+
     const checkPayment = async () => {
+      console.log("LessonPage: Checking purchase for fractions...");
+      console.log("LessonPage: user =", user?.id, "activeProfile =", activeProfile?.id);
+
       const purchased = await checkPurchase("fractions");
+      console.log("LessonPage: purchased =", purchased);
+
       setIsPaid(purchased);
 
       if (!purchased) {
@@ -41,7 +49,7 @@ export default function LessonPage() {
     };
 
     checkPayment();
-  }, [checkPurchase, router, user, activeProfile]);
+  }, [authLoading, checkPurchase, router, user, activeProfile]);
 
   const [selectedColor, setSelectedColor] = useState(
     lesson?.palette[0] || "#6b3ab5"
