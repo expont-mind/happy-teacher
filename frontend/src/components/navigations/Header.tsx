@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import {
   Menu,
   X,
@@ -23,7 +23,7 @@ import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import LogoutModal from "@/src/components/auth/LogoutModal";
 
-export const Header = () => {
+function HeaderContent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -365,5 +365,26 @@ export const Header = () => {
         onConfirm={confirmSignOut}
       />
     </>
+  );
+}
+
+export const Header = () => {
+  return (
+    <Suspense fallback={
+      <header className="sticky top-0 z-5 w-full flex justify-center bg-white border-b border-[#0C0A0126]">
+        <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
+          <div className="flex gap-[10px] items-center py-1.5">
+            <Skeleton className="w-[30px] h-[30px]" />
+            <Skeleton className="w-32 h-5" />
+          </div>
+          <div className="hidden md:flex items-center gap-3">
+            <Skeleton className="w-16 h-10" />
+            <Skeleton className="w-24 h-10" />
+          </div>
+        </div>
+      </header>
+    }>
+      <HeaderContent />
+    </Suspense>
   );
 };

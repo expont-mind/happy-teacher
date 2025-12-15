@@ -7,6 +7,7 @@ import ParentInfoForm from "@/src/components/auth/forms/ParentInfoForm";
 import ChildInfoForm from "@/src/components/auth/forms/ChildInfoForm";
 import RegistrationSuccess from "@/src/components/auth/forms/RegistrationSuccess";
 import { toast } from "sonner";
+import Skeleton from "@/src/components/ui/Skeleton";
 
 export const CHILD_ICONS = [
   "/svg/BirdBlack.svg",
@@ -182,8 +183,11 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <div className="w-full h-screen flex justify-center items-center">
-          Loading...
+        <div className="w-full h-[calc(100vh-75px)] flex justify-center items-center bg-[#FFFAF7]">
+          <div className="max-w-[382px] w-full flex flex-col gap-9">
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-96 w-full rounded-2xl" />
+          </div>
         </div>
       }
     >

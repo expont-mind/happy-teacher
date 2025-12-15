@@ -8,19 +8,6 @@ import {
   useState,
 } from "react";
 import Image from "next/image";
-import {
-  RotateCcw,
-  Download,
-  Eraser,
-  Undo,
-  Redo,
-  HelpCircle,
-  Check,
-  Maximize,
-  Minimize,
-} from "lucide-react";
-import { MessageTooltip, RelaxModal } from "@/src/components/tutorial";
-import ResetConfirmModal from "./ResetConfirmModal";
 
 interface ColoringCanvasProps {
   mainImage: string;
@@ -29,22 +16,20 @@ interface ColoringCanvasProps {
   selectedColor: string;
   setImageLoaded: (loaded: boolean) => void;
   palette: string[];
-  helpOpen?: boolean;
-  setHelpOpen?: (open: boolean) => void;
-  onMarkCompleted?: () => void;
-  imageLoaded?: boolean;
+  isEraserMode?: boolean;
   onShowMessage?: (message: string) => void;
   onShowRelax?: () => void;
-  renderColorPalette?: React.ReactNode;
-  characterMessage?: string | null;
-  onCloseMessage?: () => void;
-  showRelaxModal?: boolean;
-  onCloseRelax?: () => void;
 }
 
 export interface ColoringCanvasRef {
   checkCompletion: () => { isComplete: boolean; missingColors: string[] };
   getMistakeCount: () => number;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  resetCanvas: () => void;
+  downloadCanvas: () => void;
 }
 
 const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
@@ -56,40 +41,33 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       selectedColor,
       setImageLoaded,
       palette,
-      helpOpen,
-      setHelpOpen,
-      onMarkCompleted,
-      imageLoaded,
+      isEraserMode = false,
       onShowMessage,
       onShowRelax,
-      renderColorPalette,
-      characterMessage,
-      onCloseMessage,
-      showRelaxModal,
-      onCloseRelax,
     },
     ref
   ) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const containerRef = useRef<HTMLDivElement | null>(null);
     const originalImageDataRef = useRef<ImageData | null>(null);
     const maskImageDataRef = useRef<ImageData | null>(null);
     const historyRef = useRef<ImageData[]>([]);
     const historyIndexRef = useRef<number>(-1);
+    const wrongClickCountRef = useRef<number>(0);
 
-    const [isEraserMode, setIsEraserMode] = useState(false);
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
-    const [isFullScreen, setIsFullScreen] = useState(false);
-    const [showResetConfirm, setShowResetConfirm] = useState(false);
-    const wrongClickCountRef = useRef<number>(0);
 
     const mistakeCountRef = useRef<number>(0);
 
-    // Disable eraser mode when color changes
-    useEffect(() => {
-      setIsEraserMode(false);
-    }, [selectedColor]);
+    // Show message via callback
+    const showMessage = useCallback(
+      (message: string) => {
+        if (onShowMessage) {
+          onShowMessage(message);
+        }
+      },
+      [onShowMessage]
+    );
 
     // Check completion status
     const checkCompletion = useCallback((): {
@@ -184,22 +162,6 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       };
     }, [palette]);
 
-    // Expose checkCompletion and getMistakeCount via ref
-    useImperativeHandle(ref, () => ({
-      checkCompletion,
-      getMistakeCount: () => mistakeCountRef.current,
-    }));
-
-    // Show message via callback
-    const showMessage = useCallback(
-      (message: string) => {
-        if (onShowMessage) {
-          onShowMessage(message);
-        }
-      },
-      [onShowMessage]
-    );
-
     // Save state to history
     const saveToHistory = useCallback(() => {
       const canvas = canvasRef.current;
@@ -266,6 +228,53 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
     }, []);
 
+    // Reset canvas
+    const resetCanvas = useCallback(() => {
+      const ctx = canvasRef.current?.getContext("2d");
+      if (!ctx || !originalImageDataRef.current) return;
+      ctx.putImageData(originalImageDataRef.current, 0, 0);
+
+      // Reset history
+      historyRef.current = [originalImageDataRef.current];
+      historyIndexRef.current = 0;
+      setCanUndo(false);
+      setCanRedo(false);
+    }, []);
+
+    // Download canvas as image
+    const downloadCanvas = useCallback(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const link = document.createElement("a");
+      link.download = "coloring.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }, []);
+
+    // Expose methods via ref
+    useImperativeHandle(
+      ref,
+      () => ({
+        checkCompletion,
+        getMistakeCount: () => mistakeCountRef.current,
+        undo,
+        redo,
+        canUndo,
+        canRedo,
+        resetCanvas,
+        downloadCanvas,
+      }),
+      [
+        checkCompletion,
+        undo,
+        redo,
+        canUndo,
+        canRedo,
+        resetCanvas,
+        downloadCanvas,
+      ]
+    );
+
     // Flood fill logic
     const floodFill = useCallback(
       (startX: number, startY: number, fillColor: string) => {
@@ -290,6 +299,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         const tolerance = 30;
         const isBlack = (r: number, g: number, b: number) =>
           r < 50 && g < 50 && b < 50;
+        // Always block black pixels (SVG outlines) - both for painting and erasing
         if (isBlack(startR, startG, startB)) return;
 
         const stack: Array<[number, number]> = [[startX, startY]];
@@ -299,6 +309,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           const r = pixels[pos];
           const g = pixels[pos + 1];
           const b = pixels[pos + 2];
+          // Always treat black pixels as boundaries (SVG outlines)
           if (isBlack(r, g, b)) return false;
           return (
             Math.abs(r - startR) <= tolerance &&
@@ -355,7 +366,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         const g = maskImageDataRef.current.data[pos + 1];
         const b = maskImageDataRef.current.data[pos + 2];
         const maskColor = `#${[r, g, b]
-          .map((x) => x.toString(16).padStart(2, "0"))
+          .map((c) => c.toString(16).padStart(2, "0"))
           .join("")}`.toLowerCase();
 
         const allowedColors = [
@@ -364,7 +375,8 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         ];
 
         if (!allowedColors.includes(maskColor)) {
-          floodFill(x, y, selectedColor);
+          const fillColor = isEraserMode ? "#ffffff" : selectedColor;
+          floodFill(x, y, fillColor);
           return;
         }
 
@@ -399,10 +411,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       [
         selectedColor,
         floodFill,
-        showMessage,
         isEraserMode,
         palette,
         onShowRelax,
+        showMessage,
       ]
     );
 
@@ -453,106 +465,8 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       };
     }, [mainImage, maskImage, setImageLoaded]);
 
-    const resetCanvas = useCallback(() => {
-      const ctx = canvasRef.current?.getContext("2d");
-      if (!ctx || !originalImageDataRef.current) return;
-      ctx.putImageData(originalImageDataRef.current, 0, 0);
-
-      // Reset history
-      historyRef.current = [originalImageDataRef.current];
-      historyIndexRef.current = 0;
-      setCanUndo(false);
-      setCanRedo(false);
-      setIsEraserMode(false);
-    }, []);
-
-    const downloadCanvas = useCallback(() => {
-      const dataUrl = canvasRef.current?.toDataURL("image/png");
-      if (!dataUrl) return;
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = "coloring_result.png";
-      link.click();
-    }, []);
-
-    const toggleFullScreen = useCallback(() => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      if (!isFullScreen) {
-        // Enter fullscreen
-        if (container.requestFullscreen) {
-          container.requestFullscreen();
-        } else if ((container as any).webkitRequestFullscreen) {
-          (container as any).webkitRequestFullscreen();
-        } else if ((container as any).mozRequestFullScreen) {
-          (container as any).mozRequestFullScreen();
-        } else if ((container as any).msRequestFullscreen) {
-          (container as any).msRequestFullscreen();
-        }
-        setIsFullScreen(true);
-      } else {
-        // Exit fullscreen
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if ((document as any).webkitExitFullscreen) {
-          (document as any).webkitExitFullscreen();
-        } else if ((document as any).mozCancelFullScreen) {
-          (document as any).mozCancelFullScreen();
-        } else if ((document as any).msExitFullscreen) {
-          (document as any).msExitFullscreen();
-        }
-        setIsFullScreen(false);
-      }
-    }, [isFullScreen]);
-
-    // Listen for fullscreen changes
-    useEffect(() => {
-      const handleFullscreenChange = () => {
-        const isCurrentlyFullscreen = !!(
-          document.fullscreenElement ||
-          (document as any).webkitFullscreenElement ||
-          (document as any).mozFullScreenElement ||
-          (document as any).msFullscreenElement
-        );
-        setIsFullScreen(isCurrentlyFullscreen);
-      };
-
-      document.addEventListener("fullscreenchange", handleFullscreenChange);
-      document.addEventListener(
-        "webkitfullscreenchange",
-        handleFullscreenChange
-      );
-      document.addEventListener("mozfullscreenchange", handleFullscreenChange);
-      document.addEventListener("MSFullscreenChange", handleFullscreenChange);
-
-      return () => {
-        document.removeEventListener(
-          "fullscreenchange",
-          handleFullscreenChange
-        );
-        document.removeEventListener(
-          "webkitfullscreenchange",
-          handleFullscreenChange
-        );
-        document.removeEventListener(
-          "mozfullscreenchange",
-          handleFullscreenChange
-        );
-        document.removeEventListener(
-          "MSFullscreenChange",
-          handleFullscreenChange
-        );
-      };
-    }, []);
-
     return (
-      <div
-        ref={containerRef}
-        className={`relative flex-1 overflow-hidden rounded-lg ${
-          isFullScreen ? "bg-white" : ""
-        }`}
-      >
+      <div className="relative flex-1 overflow-hidden rounded-3xl">
         <Image
           src={backgroundImage}
           alt="background"
@@ -565,150 +479,6 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           onClick={handleClick}
           className="relative w-full h-auto cursor-crosshair"
           style={{ mixBlendMode: "multiply" }}
-        />
-
-        {/* Color Palette - Rendered from parent */}
-        {renderColorPalette}
-
-        {/* Toolbar Buttons - Right Side */}
-        <div className="absolute top-1/2 -translate-y-1/2 right-4 flex flex-col gap-2 z-20">
-          {/* Full Screen Button */}
-          <button
-            onClick={toggleFullScreen}
-            className="cursor-pointer p-4 rounded-xl bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 border-2 border-gray-200"
-            title={isFullScreen ? "Бүтэн дэлгэцээс гарах" : "Бүтэн дэлгэц"}
-            data-tutorial="fullscreen-btn"
-          >
-            {isFullScreen ? (
-              <Minimize size={20} className="text-gray-700" />
-            ) : (
-              <Maximize size={20} className="text-gray-700" />
-            )}
-          </button>
-
-          <button
-            onClick={undo}
-            disabled={!canUndo}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
-              canUndo
-                ? "bg-white/90 hover:bg-white border-gray-200"
-                : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
-            }`}
-            title="Буцах"
-            data-tutorial="undo-btn"
-          >
-            <Undo
-              size={20}
-              className={canUndo ? "text-gray-700" : "text-gray-400"}
-            />
-          </button>
-
-          {/* Redo Button */}
-          <button
-            onClick={redo}
-            disabled={!canRedo}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
-              canRedo
-                ? "bg-white/90 hover:bg-white border-gray-200"
-                : "bg-gray-200 border-gray-300 opacity-50 cursor-not-allowed"
-            }`}
-            title="Урагшлах"
-            data-tutorial="redo-btn"
-          >
-            <Redo
-              size={20}
-              className={canRedo ? "text-gray-700" : "text-gray-400"}
-            />
-          </button>
-
-          {/* Reset Button */}
-          <button
-            onClick={() => setShowResetConfirm(true)}
-            className="cursor-pointer p-4 rounded-xl bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 border-2 border-gray-200"
-            title="Дахин эхлэх"
-            data-tutorial="reset-btn"
-          >
-            <RotateCcw size={20} className="text-gray-700" />
-          </button>
-
-          {/* Download Button */}
-          <button
-            onClick={downloadCanvas}
-            className="cursor-pointer p-4 rounded-xl bg-white/90 hover:bg-white shadow-lg transition-all hover:scale-110 border-2 border-gray-200"
-            title="Татах"
-            data-tutorial="download-btn"
-          >
-            <Download size={20} className="text-gray-700" />
-          </button>
-
-          {/* Eraser Toggle Button */}
-          <button
-            onClick={() => setIsEraserMode(!isEraserMode)}
-            className={`cursor-pointer p-4 rounded-xl shadow-lg transition-all hover:scale-110 border-2 ${
-              isEraserMode
-                ? "bg-red-500 hover:bg-red-600 border-red-600"
-                : "bg-white/90 hover:bg-white border-gray-200"
-            }`}
-            title="Бүдсэн хэсгийг арилгах"
-            data-tutorial="eraser-btn"
-          >
-            <Eraser
-              size={20}
-              className={isEraserMode ? "text-white" : "text-gray-700"}
-            />
-          </button>
-
-          {/* Help Button */}
-          {setHelpOpen && (
-            <button
-              onClick={() => setHelpOpen(true)}
-              className="cursor-pointer p-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-all hover:scale-110 border-2 border-purple-700"
-              title="Тусламж"
-              data-tutorial="help-btn"
-            >
-              <HelpCircle size={20} />
-            </button>
-          )}
-
-          {/* Done Button */}
-          {onMarkCompleted && (
-            <button
-              onClick={onMarkCompleted}
-              disabled={!imageLoaded}
-              className="cursor-pointer p-4 rounded-xl bg-green-600 hover:bg-green-700 text-white shadow-lg transition-all hover:scale-110 border-2 border-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
-              title="Дууссан"
-              data-tutorial="done-btn"
-            >
-              <Check size={20} />
-            </button>
-          )}
-        </div>
-
-        {/* Character Message Tooltip - inside container for fullscreen visibility */}
-        <MessageTooltip
-          message={characterMessage || ""}
-          character="yellow"
-          characterPosition="left"
-          isVisible={!!characterMessage}
-          onClose={onCloseMessage || (() => {})}
-          autoCloseDelay={8000}
-        />
-
-        {/* Relax Modal - inside container for fullscreen visibility */}
-        <RelaxModal
-          isVisible={!!showRelaxModal}
-          onClose={onCloseRelax || (() => {})}
-          character="yellow"
-        />
-
-        {/* Reset Confirmation Modal */}
-        <ResetConfirmModal
-          isVisible={showResetConfirm}
-          onClose={() => setShowResetConfirm(false)}
-          onConfirm={() => {
-            resetCanvas();
-            setShowResetConfirm(false);
-          }}
         />
       </div>
     );

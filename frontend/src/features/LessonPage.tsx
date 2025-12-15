@@ -6,66 +6,145 @@ import ColoringCanvas, {
   ColoringCanvasRef,
 } from "@/src/components/coloring/ColoringCanvas";
 import ColorPalette from "@/src/components/coloring/ColorPalette";
+import LessonHeader from "@/src/components/coloring/LessonHeader";
+import ActionToolbar from "@/src/components/coloring/ActionToolbar";
 import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { fractionLessons } from "@/src/data/lessons/fractions";
-import Image from "next/image";
 import { useAuth } from "@/src/components/auth/AuthProvider";
-import {
-  MessageTooltip,
-  RelaxModal,
-  useTutorial,
-  lessonPageTutorial,
-} from "@/src/components/tutorial";
+import { MessageTooltip, RelaxModal } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
 import { createClient } from "@/src/utils/supabase/client";
+import {
+  RotateDevicePrompt,
+  useIsPortraitMobile,
+} from "@/src/components/ui/RotateDevicePrompt";
+import { MobileColorPalette } from "@/src/components/coloring/MobileColorPalette";
+import { MobileActionToolbar } from "@/src/components/coloring/MobileActionToolbar";
+import Loader from "@/src/components/ui/Loader";
+import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted, addXP, activeProfile, user } = useAuth();
   const { startTutorial, isActive } = useTutorial();
+  const { markLessonCompleted, addXP, checkPurchase, user, activeProfile, loading: authLoading } = useAuth();
+  const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
   const lesson = useMemo(
     () => fractionLessons.find((l) => l.id === params.lessonId),
     [params.lessonId]
   );
 
+  // Check if user has purchased this topic
+  useEffect(() => {
+    // Auth ачаалал дуусахыг хүлээх
+    if (authLoading) return;
+
+    const checkPayment = async () => {
+      console.log("LessonPage: Checking purchase for fractions...");
+      console.log("LessonPage: user =", user?.id, "activeProfile =", activeProfile?.id);
+
+      const purchased = await checkPurchase("fractions");
+      console.log("LessonPage: purchased =", purchased);
+
+      setIsPaid(purchased);
+
+      if (!purchased) {
+        showCharacterToast("Та эхлээд хичээлийг худалдаж авах ёстой.");
+        router.replace("/topic/fractions");
+      }
+    };
+
+    checkPayment();
+  }, [authLoading, checkPurchase, router, user, activeProfile]);
+
   const [selectedColor, setSelectedColor] = useState(
     lesson?.palette[0] || "#6b3ab5"
   );
   const [helpOpen, setHelpOpen] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [, setImageLoaded] = useState(false);
   const [characterMessage, setCharacterMessage] = useState<string | null>(null);
   const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
   const [showReward, setShowReward] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
-  // Convert string array to object array without labels for ColorPalette
-  const paletteForDisplay = useMemo(
-    () => lesson?.palette.map((color) => ({ color })) || [],
-    [lesson]
-  );
+  // Mobile state
+  const [colorPaletteOpen, setColorPaletteOpen] = useState(false);
+  const [actionToolbarOpen, setActionToolbarOpen] = useState(false);
+  const isPortraitMobile = useIsPortraitMobile();
+
+  // Convert palette to the format needed by ColorPalette
+  const paletteForDisplay = useMemo(() => {
+    if (!lesson) return [];
+    // Convert string array to object format for ColorPalette
+    return lesson.palette.map((color) => ({ color }));
+  }, [lesson]);
+
+  // Get raw palette colors for ColoringCanvas
+  const rawPalette = useMemo(() => {
+    if (!lesson) return [];
+    return lesson.palette;
+  }, [lesson]);
+
+  // Update canUndo/canRedo from canvas ref
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (canvasRef.current) {
+        setCanUndo(canvasRef.current.canUndo);
+        setCanRedo(canvasRef.current.canRedo);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   const showCharacterMessage = useCallback((message: string) => {
     setCharacterMessage(message);
   }, []);
 
-  // Start tutorial when image is loaded (first time only)
-  useEffect(() => {
-    if (imageLoaded && !isActive) {
-      const hasCompletedTutorial = localStorage.getItem(
-        lessonPageTutorial.completionKey
-      );
-      if (!hasCompletedTutorial) {
-        startTutorial(lessonPageTutorial);
-      }
-    }
-  }, [imageLoaded, isActive, startTutorial]);
+  // Show loading while checking payment
+  if (isPaid === null) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  // If not paid, show loader while redirecting
+  if (!isPaid) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   if (!lesson) {
     return <div className="text-center p-8">Энэ хичээл олдсонгүй.</div>;
   }
+
+  const handleBack = () => {
+    router.push("/topic/fractions");
+  };
+
+  const handleUndo = () => {
+    canvasRef.current?.undo();
+  };
+
+  const handleRedo = () => {
+    canvasRef.current?.redo();
+  };
+
+  const handleHelp = () => {
+    setHelpOpen(true);
+  };
+
+  const handleDownload = () => {
+    canvasRef.current?.downloadCanvas();
+  };
 
   const markCompleted = async () => {
     if (!canvasRef.current || !lesson) return;
@@ -74,6 +153,7 @@ export default function LessonPage() {
 
     if (!isComplete) {
       const colorNames: Record<string, string> = {
+        // Basic colors from page-12, 16, 21-23, 28, 30, 31, 33
         "#6b3ab5": "Нил ягаан",
         "#1066b4": "Хөх",
         "#3396c7": "Цэнхэр",
@@ -84,6 +164,37 @@ export default function LessonPage() {
         "#ee3030": "Улаан",
         "#603130": "Хүрэн",
         "#95928d": "Саарал",
+        // Additional colors from page-13, 14
+        "#ff914d": "Улбар шар",
+        "#ff66c4": "Ягаан",
+        "#7ed957": "Цайвар ногоон",
+        "#00bf63": "Ногоон",
+        "#ffde59": "Шар",
+        "#ff3131": "Улаан",
+        "#004aad": "Хар хөх",
+        "#38b6ff": "Тэнгэрийн хөх",
+        "#a85e31": "Хүрэн",
+        "#fee8c0": "Цайвар шар",
+        "#000000": "Хар",
+        "#a6a6a6": "Саарал",
+        "#8c52ff": "Ягаан",
+        // Colors from page-19
+        "#ff0000": "Улаан",
+        "#fd7e00": "Улбар шар",
+        "#ffef00": "Шар",
+        "#00c90e": "Ногоон",
+        "#0051ff": "Хөх",
+        "#54008a": "Нил ягаан",
+        "#684530": "Хүрэн",
+        // Colors from page-20
+        "#fadb5e": "Шар",
+        "#ef5d06": "Улбар шар",
+        "#fffbd7": "Цайвар шар",
+        // Colors from page-22
+        "#c1ff72": "Цайвар ногоон",
+        "#323232": "Хар саарал",
+        // Colors from page-28
+        "#6fbe03": "Ногоон",
       };
 
       const missingColorNames = missingColors
@@ -150,6 +261,10 @@ export default function LessonPage() {
     } else {
       router.push("/topic/fractions");
     }
+    // Mock XP for now
+    const mockXP = 50;
+    setXpEarned(mockXP);
+    setShowReward(true);
   };
 
   const handleRewardClose = () => {
@@ -158,43 +273,90 @@ export default function LessonPage() {
   };
 
   return (
-    <div className="w-full flex flex-col items-center py-12 relative">
-      <Image
-        src={"/background.png"}
-        alt="background"
-        fill
-        className="absolute top-0 left-0 w-full h-full object-cover"
-      />
-
-      <div className="max-w-[70vw] w-full border-4 border-slate-700 rounded-3xl z-10 relative overflow-hidden">
-        <ColoringCanvas
-          ref={canvasRef}
-          mainImage={lesson.mainImage}
-          maskImage={lesson.maskImage}
-          backgroundImage={lesson.backgroundImage}
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-2 lg:p-6">
+      {/* Main Box Container */}
+      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-xl overflow-hidden flex flex-col max-w-7xl w-full h-full lg:h-auto">
+        {/* Header inside box */}
+        <LessonHeader
+          title={lesson.title}
+          onBack={handleBack}
           selectedColor={selectedColor}
-          setImageLoaded={setImageLoaded}
-          palette={lesson.palette}
-          helpOpen={helpOpen}
-          setHelpOpen={setHelpOpen}
-          onMarkCompleted={markCompleted}
-          imageLoaded={imageLoaded}
-          onShowMessage={showCharacterMessage}
-          onShowRelax={() => setShowRelaxModal(true)}
-          characterMessage={characterMessage}
-          onCloseMessage={() => setCharacterMessage(null)}
-          showRelaxModal={showRelaxModal}
-          onCloseRelax={() => setShowRelaxModal(false)}
-          renderColorPalette={
-            <ColorPalette
-              colors={paletteForDisplay}
-              selectedColor={selectedColor}
-              setSelectedColor={setSelectedColor}
-            />
-          }
+          onOpenColorPalette={() => setColorPaletteOpen(true)}
+          onOpenActions={() => setActionToolbarOpen(true)}
         />
+
+        {/* Show Rotate Prompt in Portrait Mode */}
+        {isPortraitMobile ? (
+          <RotateDevicePrompt />
+        ) : (
+          /* Main Content - 3 column layout on desktop, single column on mobile */
+          <div className="flex-1 flex items-stretch justify-center p-2 lg:p-6 gap-2 lg:gap-6">
+            {/* Left - Color Palette (Desktop only) */}
+            <div className="hidden lg:flex">
+              <ColorPalette
+                colors={paletteForDisplay}
+                selectedColor={selectedColor}
+                setSelectedColor={setSelectedColor}
+              />
+            </div>
+
+            {/* Center - Canvas */}
+            <div className="flex-1 max-w-5xl">
+              <ColoringCanvas
+                ref={canvasRef}
+                mainImage={lesson.mainImage}
+                maskImage={lesson.maskImage}
+                backgroundImage={lesson.backgroundImage}
+                selectedColor={selectedColor}
+                setImageLoaded={setImageLoaded}
+                palette={rawPalette}
+                onShowMessage={showCharacterMessage}
+                onShowRelax={() => setShowRelaxModal(true)}
+              />
+            </div>
+
+            {/* Right - Action Toolbar (Desktop only) */}
+            <div className="hidden lg:flex">
+              <ActionToolbar
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                onHelp={handleHelp}
+                onDownload={handleDownload}
+                onEnd={markCompleted}
+                canUndo={canUndo}
+                canRedo={canRedo}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Footer (Desktop only) */}
+        <div className="hidden lg:flex p-6 justify-end border-t border-gray-100"></div>
       </div>
 
+      {/* Mobile Color Palette */}
+      <MobileColorPalette
+        isOpen={colorPaletteOpen}
+        onClose={() => setColorPaletteOpen(false)}
+        colors={paletteForDisplay}
+        selectedColor={selectedColor}
+        onSelectColor={setSelectedColor}
+      />
+
+      {/* Mobile Action Toolbar */}
+      <MobileActionToolbar
+        isOpen={actionToolbarOpen}
+        onClose={() => setActionToolbarOpen(false)}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onHelp={handleHelp}
+        onDownload={handleDownload}
+        onEnd={markCompleted}
+        canUndo={canUndo}
+        canRedo={canRedo}
+      />
+
+      {/* Help Panel */}
       <HelpPanel
         helpOpen={helpOpen}
         setHelpOpen={setHelpOpen}
@@ -202,6 +364,7 @@ export default function LessonPage() {
         helpVideoId={lesson.helpVideoId}
       />
 
+      {/* Character Message */}
       <MessageTooltip
         message={characterMessage || ""}
         character="yellow"
@@ -211,18 +374,18 @@ export default function LessonPage() {
         autoCloseDelay={8000}
       />
 
+      {/* Relax Modal */}
       <RelaxModal
         isVisible={showRelaxModal}
         onClose={() => setShowRelaxModal(false)}
         character="yellow"
       />
 
+      {/* Reward Modal */}
       <RewardModal
         isOpen={showReward}
         onClose={handleRewardClose}
         xpEarned={xpEarned}
-        bonus={xpEarned === 15 ? "Perfect Lesson Bonus!" : undefined}
-        type="lesson"
       />
     </div>
   );
