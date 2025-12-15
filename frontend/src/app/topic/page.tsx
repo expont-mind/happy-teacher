@@ -175,9 +175,6 @@ export default function TopicsPage() {
                           strokeWidth={2.5}
                         />
                       </div>
-                      <div className="bg-[#58CC02] text-white text-xs font-bold px-3 py-1.5 rounded-full font-nunito uppercase tracking-wide">
-                        Шинэ
-                      </div>
                     </div>
 
                     <div>
