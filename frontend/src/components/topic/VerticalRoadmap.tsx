@@ -18,7 +18,6 @@ interface VerticalRoadmapProps {
   onShowPaywall?: () => void;
 }
 
-
 export default function VerticalRoadmap({
   items,
   topicKey,
@@ -51,8 +50,8 @@ export default function VerticalRoadmap({
   return (
     <div className="relative  flex flex-col items-center pt-10">
       {/* Header with title and purchase button */}
-      <div className="mb-6 flex items-center gap-3">
-        <div className="inline-block px-6 py-3 bg-white border-2 border-(--duo-green) text-gray-700 font-bold rounded-full shadow-sm">
+      <div className="mb-9 flex items-center gap-3">
+        <div className="inline-block px-12 py-4 bg-white border border-b-4 border-[#46A302] text-[#333333] font-semibold rounded-[16px] shadow-sm">
           {headerTitle || items[0]?.title || "Хичээл"}
         </div>
       </div>
@@ -72,17 +71,19 @@ export default function VerticalRoadmap({
                 {/* Node with label */}
                 <div
                   onClick={() => handleLessonClick(item, unlocked)}
-                  className={`flex items-center gap-4 ${unlocked ? "cursor-pointer" : "cursor-not-allowed"
-                    }`}
+                  className={`flex items-center gap-4 ${
+                    unlocked ? "cursor-pointer" : "cursor-not-allowed"
+                  }`}
                 >
                   {/* Node icon */}
                   <div
-                    className={`duo-button w-14 h-14 rounded-2xl flex items-center justify-center ${done
-                      ? "duo-button-green"
-                      : isCurrent
+                    className={`duo-button w-14 h-14 rounded-2xl flex items-center justify-center ${
+                      done
+                        ? "duo-button-green"
+                        : isCurrent
                         ? "duo-button-green"
                         : "duo-button-gray"
-                      }`}
+                    }`}
                   >
                     {done ? (
                       <Check size={24} className="text-white" strokeWidth={3} />
@@ -99,8 +100,9 @@ export default function VerticalRoadmap({
 
                   {/* Label */}
                   <span
-                    className={`font-medium text-sm ${done || isCurrent ? "text-gray-800" : "text-gray-400"
-                      }`}
+                    className={`font-medium text-sm ${
+                      done || isCurrent ? "text-gray-800" : "text-gray-400"
+                    }`}
                   >
                     {item.title}
                   </span>

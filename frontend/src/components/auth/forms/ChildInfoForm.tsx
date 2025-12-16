@@ -106,7 +106,7 @@ export default function ChildInfoForm({
                   onClick={() => onAgeChange(age)}
                   className={`w-[62px] h-12 flex items-center justify-center rounded-[10px] font-bold transition-all cursor-pointer ${
                     childAge === age
-                      ? "bg-[#58CC02] border-b-4 border-[#46A302] text-white"
+                      ? "bg-[#58CC02] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 text-white"
                       : "bg-white hover:border-[#58CC02] border border-[#0C0A0126] text-[#333333]"
                   }`}
                 >
@@ -128,7 +128,7 @@ export default function ChildInfoForm({
                   onClick={() => onGradeChange(grade)}
                   className={`w-[62px] h-12 flex items-center justify-center rounded-[10px] font-bold transition-all cursor-pointer ${
                     childGrade === grade
-                      ? "bg-[#58CC02] border-b-4 border-[#46A302] text-white"
+                      ? "bg-[#58CC02] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 text-white"
                       : "bg-white hover:border-[#58CC02] border border-[#0C0A0126] text-[#333333]"
                   }`}
                 >
@@ -141,7 +141,7 @@ export default function ChildInfoForm({
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
+            className="bg-[#58CC02] w-full shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
           >
             {loading ? <Loader /> : "Бүртгэх"}
           </button>

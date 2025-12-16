@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const twoDaysAgo = new Date();
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-  const { data: inactiveChildren, error } = await supabase
+  const { data: inactiveChildren } = await supabase
     .from("children")
     .select("id, name, parent_id, last_active_at")
     .lt("last_active_at", twoDaysAgo.toISOString());

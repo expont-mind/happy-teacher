@@ -93,7 +93,7 @@ body {
 }
 
 .duo-button:active {
-  transform: translateY(2px);
+  transform: translateY(4px);
 }
 
 .duo-button:disabled {
@@ -114,7 +114,7 @@ body {
 }
 
 .duo-button-green:active:not(:disabled) {
-  box-shadow: 0 2px 0 var(--duo-green-dark);
+  box-shadow: none;
 }
 
 /* Blue Button (Secondary) */
@@ -130,7 +130,7 @@ body {
 }
 
 .duo-button-blue:active:not(:disabled) {
-  box-shadow: 0 2px 0 var(--duo-blue-dark);
+  box-shadow: none;
 }
 
 /* Red Button (Danger) */
@@ -146,7 +146,7 @@ body {
 }
 
 .duo-button-red:active:not(:disabled) {
-  box-shadow: 0 2px 0 var(--duo-red-dark);
+  box-shadow: none;
 }
 
 /* Yellow Button (Warning/Special) */
@@ -162,7 +162,7 @@ body {
 }
 
 .duo-button-yellow:active:not(:disabled) {
-  box-shadow: 0 2px 0 var(--duo-yellow-dark);
+  box-shadow: none;
 }
 
 /* Gray Button (Neutral) */
@@ -178,7 +178,7 @@ body {
 }
 
 .duo-button-gray:active:not(:disabled) {
-  box-shadow: 0 2px 0 var(--duo-gray-200);
+  box-shadow: none;
 }
 
 /* Card Styles */

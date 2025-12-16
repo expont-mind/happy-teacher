@@ -9,7 +9,7 @@ export const CTA = () => {
           Өнөөдөр л эхэлцгээе!
         </p>
         <Link href="/topic">
-          <button className="bg-white rounded-[16px] border-b-4 border-[#46A302] px-9 py-4 text-[#58CC02] font-bold text-base leading-6 font-nunito uppercase cursor-pointer">
+          <button className="bg-white rounded-[16px] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all px-9 py-4 text-[#58CC02] font-bold text-base leading-6 font-nunito uppercase cursor-pointer">
             Эхлэх
           </button>
         </Link>

@@ -9,6 +9,9 @@ import VerticalRoadmap from "@/src/components/topic/VerticalRoadmap";
 import { useAuth } from "@/src/components/auth";
 import Skeleton from "@/src/components/ui/Skeleton";
 import { showCharacterToast } from "@/src/components/ui/CharacterToast";
+import { TOPICS_DATA } from "@/src/data/topics";
+
+const fractionsData = TOPICS_DATA.find((t) => t.link === "/topic/fractions")!;
 
 function FractionsRoadmapContent() {
   const [paid, setPaid] = useState(false);
@@ -38,15 +41,24 @@ function FractionsRoadmapContent() {
     } else if (paymentStatus === "error") {
       const reason = searchParams.get("reason");
       if (reason === "no_invoice") {
-        showCharacterToast("Төлбөр баталгаажуулалт амжилтгүй. Дахин оролдоно уу.", "red");
+        showCharacterToast(
+          "Төлбөр баталгаажуулалт амжилтгүй. Дахин оролдоно уу.",
+          "red"
+        );
       } else if (reason === "save_failed") {
         showCharacterToast("Худалдан авалт хадгалахад алдаа гарлаа.", "red");
       } else {
-        showCharacterToast("Төлбөр амжилтгүй боллоо. Дахин оролдоно уу.", "red");
+        showCharacterToast(
+          "Төлбөр амжилтгүй боллоо. Дахин оролдоно уу.",
+          "red"
+        );
       }
     } else if (paymentStatus === "failed") {
       const status = searchParams.get("status");
-      showCharacterToast(`Төлбөр төлөгдөөгүй байна. (${status || "PENDING"})`, "red");
+      showCharacterToast(
+        `Төлбөр төлөгдөөгүй байна. (${status || "PENDING"})`,
+        "red"
+      );
     } else if (paymentStatus === "pending") {
       showCharacterToast("Төлбөр хүлээгдэж байна. Түр хүлээнэ үү.", "yellow");
     }
@@ -81,7 +93,7 @@ function FractionsRoadmapContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-white py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Skeleton className="h-80 w-full rounded-3xl" />
@@ -93,16 +105,18 @@ function FractionsRoadmapContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start ">
           {/* Left Column - Topic Info Card */}
           <TopicInfoCard
-            title="Бутархай"
-            description="Бутархай тооны ухагдах, дасгал хийцгээе! 😊"
+            title={fractionsData.title}
+            description={fractionsData.description}
             lessonCount={fractionLessons.length}
             taskCount={fractionLessons.length}
             progressPercent={progressPercent}
+            icon={fractionsData.icon}
+            price={fractionsData.price}
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
           />
@@ -138,7 +152,7 @@ export default function FractionsRoadmapPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="min-h-screen bg-white py-12 px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <Skeleton className="h-80 w-full rounded-3xl" />

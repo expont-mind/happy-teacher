@@ -43,7 +43,7 @@ export default function RelaxModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
+      className="fixed inset-0 z-100 flex items-center justify-center"
       style={{
         backgroundColor: "rgba(0, 0, 0, 0.7)",
         backdropFilter: "blur(4px)",
@@ -52,7 +52,7 @@ export default function RelaxModal({
       <div className="flex items-center gap-6 tutorial-enter">
         {/* Character */}
         <div
-          className="animate-float flex-shrink-0"
+          className="animate-float shrink-0"
           style={{
             width: `${characterSize}px`,
             height: `${characterSize}px`,
@@ -102,7 +102,9 @@ export default function RelaxModal({
           {/* Countdown */}
           <div className="flex justify-center">
             <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-              <span className="text-2xl font-bold text-gray-700">{countdown}</span>
+              <span className="text-2xl font-bold text-gray-700">
+                {countdown}
+              </span>
             </div>
           </div>
         </div>

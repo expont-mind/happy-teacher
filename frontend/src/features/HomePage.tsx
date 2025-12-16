@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 
-import { useTutorial, childHomePageTutorial, adultHomePageTutorial } from "@/src/components/tutorial";
+import {
+  useTutorial,
+  childHomePageTutorial,
+  adultHomePageTutorial,
+} from "@/src/components/tutorial";
 import { useAuth } from "@/src/components/auth";
 import { Features, HowItWorks, CTA, Hero, Lessons } from "../components/home";
 import { Footer } from "../components/navigations";
@@ -12,7 +16,6 @@ export const HomePage = () => {
   const { activeProfile } = useAuth();
 
   useEffect(() => {
-    // Add small delay to ensure DOM elements are ready
     const timer = setTimeout(() => {
       if (activeProfile?.type === "child") {
         startTutorial(childHomePageTutorial);

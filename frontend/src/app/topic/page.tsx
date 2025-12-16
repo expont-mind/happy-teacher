@@ -1,38 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import {
-  BookOpen,
-  BookMarked,
-  X,
-  ChevronRight,
-  User,
-  Settings,
-} from "lucide-react";
+import { BookMarked, ChevronRight, User, Settings } from "lucide-react";
 import Image from "next/image";
-import { fractionLessons } from "@/src/data/lessons/fractions";
-import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 import { useAuth } from "@/src/components/auth";
 import { CHILD_ICONS } from "@/src/app/register/page";
+import { TOPICS_DATA } from "@/src/data/topics";
 
 export default function TopicsPage() {
   const { activeProfile, user } = useAuth();
   const isChild = activeProfile?.type === "child";
-
-  const topics = [
-    {
-      key: "fractions",
-      title: "Бутархай",
-      icon: BookOpen,
-      totalLessons: fractionLessons.length,
-    },
-    {
-      key: "multiplication",
-      title: "Үржих",
-      icon: X,
-      totalLessons: multiplicationLessons.length,
-    },
-  ];
 
   let displayAvatar = activeProfile?.avatar;
   if (isChild && !displayAvatar) {
@@ -158,44 +135,44 @@ export default function TopicsPage() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {topics.map((topic) => {
-              const IconComponent = topic.icon;
+            {TOPICS_DATA.map((topic, index) => {
               return (
-                <Link
-                  key={topic.key}
-                  href={`/topic/${topic.key}`}
-                  className="group relative"
-                >
-                  <div className="h-full bg-white border-2 border-[#E5E5E5] rounded-[20px] p-6 hover:border-[#58CC02]  transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between gap-6">
-                    <div className="flex items-start justify-between">
-                      <div className="p-[10px] transition-transform duration-300 group-hover:scale-110 border rounded-[16px] border-[#58CC02]">
-                        <IconComponent
-                          size={32}
-                          color="#58CC02"
-                          strokeWidth={2.5}
+                <Link key={index} href={topic.link} className="group relative">
+                  <div className="h-full bg-white border-2 border-[#E5E5E5] rounded-[20px] p-6 hover:border-[#58CC02]  transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-[10px] border rounded-[16px] border-[#58CC02]">
+                        <Image
+                          src={topic.icon}
+                          alt={topic.title}
+                          width={32}
+                          height={32}
                         />
                       </div>
-                    </div>
 
-                    <div>
-                      <h3 className="text-2xl font-extrabold text-[#333333] font-nunito mb-2 group-hover:text-[#58CC02] transition-colors">
-                        {topic.title}
-                      </h3>
-                      <p className="text-[#777] font-semibold font-nunito text-sm leading-relaxed">
-                        Хичээлүүд, сонирхолтой дасгалууд болон тоглоомууд
-                        багтсан.
-                      </p>
-                    </div>
-
-                    <div className="pt-6 border-t border-gray-100 flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-[#777]">
-                        <BookMarked size={18} />
-                        <span className="font-bold text-sm font-nunito">
-                          0/{topic.totalLessons} хичээл
-                        </span>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-[#333333] font-extrabold font-nunito text-[20px]">
+                          {topic.title}
+                        </p>
+                        <div className="flex gap-1.5 items-center bg-[#F3F4F6] rounded-[10px] px-[10px] py-1">
+                          <Image
+                            src="/svg/Notepad.svg"
+                            width={16}
+                            height={16}
+                            alt="Notepad"
+                          />
+                          <p className="text-[#1F2937] font-medium text-xs font-nunito leading-[18px]">
+                            {topic.lessonCount} хичээл
+                          </p>
+                        </div>
                       </div>
+                    </div>
 
-                      <div className="w-10 h-10 rounded-xl bg-[#58CC02] flex items-center justify-center text-white shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-[4px] transition-all">
+                    <p className="text-[#777] font-semibold font-nunito text-sm leading-relaxed">
+                      {topic.description}
+                    </p>
+
+                    <div className="pt-4 border-t border-[#0C0A0126] flex justify-end">
+                      <div className="w-12 h-10 rounded-xl bg-[#58CC02] flex items-center justify-center text-white shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-[4px] transition-all">
                         <ChevronRight size={24} strokeWidth={3} />
                       </div>
                     </div>

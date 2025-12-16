@@ -1,22 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-
-const LESSONS_DATA = [
-  {
-    title: "Бутархай",
-    description: "Бутархай тоонуудтай танилцаж, хөгжилтэй аргаар суралцаарай.",
-    icon: "/svg/Strategy.svg",
-    link: "/topic/fractions",
-    lessonCount: 15,
-  },
-  {
-    title: "Үржих",
-    description: "Үржих хүрдээ цээжилж, тоо бодох хурдаа нэмэгдүүлээрэй.",
-    icon: "/svg/Calculator.svg",
-    link: "/topic/multiplication",
-    lessonCount: 14,
-  },
-];
+import { TOPICS_DATA } from "@/src/data/topics";
 
 export const Lessons = () => {
   return (
@@ -32,7 +16,7 @@ export const Lessons = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-full">
-          {LESSONS_DATA.map((lesson, index) => (
+          {TOPICS_DATA.map((lesson, index) => (
             <Link href={lesson.link} key={index} className="w-full">
               <div className="w-full h-full border-2 border-[#0C0A0126] hover:border-[#58CC02] hover:bg-[#58CC02]/5 transition-all duration-300 rounded-[20px] py-8 pl-8 pr-8 md:pr-16 flex flex-col gap-8 cursor-pointer group relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-6">

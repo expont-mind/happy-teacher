@@ -9,6 +9,11 @@ import VerticalRoadmap from "@/src/components/topic/VerticalRoadmap";
 import { useAuth } from "@/src/components/auth";
 import Skeleton from "@/src/components/ui/Skeleton";
 import { showCharacterToast } from "@/src/components/ui/CharacterToast";
+import { TOPICS_DATA } from "@/src/data/topics";
+
+const multiplicationData = TOPICS_DATA.find(
+  (t) => t.link === "/topic/multiplication"
+)!;
 
 function MultiplicationContent() {
   const [paid, setPaid] = useState(false);
@@ -38,15 +43,24 @@ function MultiplicationContent() {
     } else if (paymentStatus === "error") {
       const reason = searchParams.get("reason");
       if (reason === "no_invoice") {
-        showCharacterToast("Төлбөр баталгаажуулалт амжилтгүй. Дахин оролдоно уу.", "red");
+        showCharacterToast(
+          "Төлбөр баталгаажуулалт амжилтгүй. Дахин оролдоно уу.",
+          "red"
+        );
       } else if (reason === "save_failed") {
         showCharacterToast("Худалдан авалт хадгалахад алдаа гарлаа.", "red");
       } else {
-        showCharacterToast("Төлбөр амжилтгүй боллоо. Дахин оролдоно уу.", "red");
+        showCharacterToast(
+          "Төлбөр амжилтгүй боллоо. Дахин оролдоно уу.",
+          "red"
+        );
       }
     } else if (paymentStatus === "failed") {
       const status = searchParams.get("status");
-      showCharacterToast(`Төлбөр төлөгдөөгүй байна. (${status || "PENDING"})`, "red");
+      showCharacterToast(
+        `Төлбөр төлөгдөөгүй байна. (${status || "PENDING"})`,
+        "red"
+      );
     } else if (paymentStatus === "pending") {
       showCharacterToast("Төлбөр хүлээгдэж байна. Түр хүлээнэ үү.", "yellow");
     }
@@ -72,7 +86,9 @@ function MultiplicationContent() {
 
   const progressPercent = useMemo(() => {
     if (multiplicationLessons.length === 0) return 0;
-    return Math.round((completedIds.length / multiplicationLessons.length) * 100);
+    return Math.round(
+      (completedIds.length / multiplicationLessons.length) * 100
+    );
   }, [completedIds]);
 
   const items = useMemo(
@@ -82,7 +98,7 @@ function MultiplicationContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Skeleton className="h-80 w-full rounded-3xl" />
@@ -94,17 +110,18 @@ function MultiplicationContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Left Column - Topic Info Card */}
           <TopicInfoCard
-            title="Үржих"
-            description="Үржих үйлдлийг эзэмшиж, дасгал хийцгээе! ✨"
+            title={multiplicationData.title}
+            description={multiplicationData.description}
             lessonCount={multiplicationLessons.length}
             taskCount={multiplicationLessons.length}
             progressPercent={progressPercent}
-            iconType="multiplication"
+            icon={multiplicationData.icon}
+            price={multiplicationData.price}
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
           />
@@ -140,7 +157,7 @@ export default function MultiplicationPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="min-h-screen bg-white py-12 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <Skeleton className="h-80 w-full rounded-3xl" />

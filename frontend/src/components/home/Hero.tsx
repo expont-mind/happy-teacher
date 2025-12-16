@@ -14,7 +14,7 @@ export const Hero = () => {
           математикийг амархан эзэмшээрэй.
         </p>
         <Link href="/topic" className="cursor-pointer" data-tutorial="main-cta">
-          <button className="bg-[#58CC02] rounded-[16px] border-b-4 border-[#46A302] px-9 py-4 text-white font-bold text-base leading-6 font-nunito uppercase">
+          <button className="bg-[#58CC02] rounded-[16px] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all px-9 py-4 text-white font-bold text-base leading-6 font-nunito uppercase cursor-pointer">
             Эхлэх
           </button>
         </Link>

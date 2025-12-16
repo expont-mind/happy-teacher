@@ -11,7 +11,12 @@ import ActionToolbar from "@/src/components/coloring/ActionToolbar";
 import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import { useAuth } from "@/src/components/auth/AuthProvider";
-import { MessageTooltip, RelaxModal, useTutorial, lessonPageTutorial } from "@/src/components/tutorial";
+import {
+  MessageTooltip,
+  RelaxModal,
+  useTutorial,
+  lessonPageTutorial,
+} from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
 import { createClient } from "@/src/utils/supabase/client";
 import {

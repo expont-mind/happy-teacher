@@ -61,29 +61,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
 
       if (!session) {
+        // Handle logout
+        setActiveProfile(null);
+        activeProfileRef.current = null;
+        localStorage.removeItem("activeProfile");
+      } else {
+        // Check if we have a saved profile in localStorage first
         const savedProfileStr = localStorage.getItem("activeProfile");
+        let profileToSet: UserProfile | null = null;
+
         if (savedProfileStr) {
-          const savedProfile = JSON.parse(savedProfileStr);
-          if (savedProfile.type === "child") {
-            setActiveProfile(savedProfile);
-            return;
+          try {
+            profileToSet = JSON.parse(savedProfileStr);
+          } catch (e) {
+            console.error("Error parsing saved profile", e);
           }
         }
 
-        setActiveProfile(null);
-        localStorage.removeItem("activeProfile");
-      } else if (!activeProfile) {
-        // If logging in and no profile set, default to adult
-        const newProfile: UserProfile = {
-          id: session.user.id,
-          name:
-            session.user.user_metadata.full_name ||
-            session.user.email?.split("@")[0] ||
-            "Adult",
-          type: "adult",
-        };
-        setActiveProfile(newProfile);
-        localStorage.setItem("activeProfile", JSON.stringify(newProfile));
+        // If no saved profile, or if effective profile is missing, default to adult
+        if (!profileToSet && !activeProfileRef.current) {
+          profileToSet = {
+            id: session.user.id,
+            name:
+              session.user.user_metadata.full_name ||
+              session.user.email?.split("@")[0] ||
+              "Adult",
+            type: "adult",
+          };
+        }
+
+        if (profileToSet) {
+          // Validate if the saved child profile belongs to the current user (if it's a child)
+          if (
+            profileToSet.type === "child" &&
+            profileToSet.parentId !== session.user.id
+          ) {
+            // Dangerous: The saved child profile doesn't belong to the signed-in parent.
+            // Fallback to adult.
+            profileToSet = {
+              id: session.user.id,
+              name:
+                session.user.user_metadata.full_name ||
+                session.user.email?.split("@")[0] ||
+                "Adult",
+              type: "adult",
+            };
+          }
+
+          setActiveProfile(profileToSet);
+          activeProfileRef.current = profileToSet;
+          localStorage.setItem("activeProfile", JSON.stringify(profileToSet));
+        }
       }
     });
 

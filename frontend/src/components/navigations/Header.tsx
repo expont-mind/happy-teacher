@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import {
   Menu,
   X,
@@ -27,6 +27,7 @@ function HeaderContent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
   const { user, loading, signOut, activeProfile } = useAuth();
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
     useNotifications();
@@ -38,6 +39,23 @@ function HeaderContent() {
   const isAuthPage =
     pathname === "/login" || (pathname === "/register" && step === 1);
   const isRegisterStep2 = pathname === "/register" && step === 2;
+
+  // Close notifications when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogoutClick = () => {
     setIsLogoutModalOpen(true);
@@ -54,7 +72,11 @@ function HeaderContent() {
   };
 
   const NotificationButton = () => (
-    <div className="relative" data-tutorial="notifications-btn">
+    <div
+      className="relative"
+      data-tutorial="notifications-btn"
+      ref={notificationRef}
+    >
       <button
         onClick={() => setShowNotifications(!showNotifications)}
         className={`px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300 ${
@@ -104,31 +126,45 @@ function HeaderContent() {
           <div className="hidden md:flex items-center gap-3">
             {loading ? (
               <div className="flex items-center gap-3">
-                <Skeleton className="w-16 h-10" />
-                <Skeleton className="w-16 h-10" />
-                <Skeleton className="w-40 h-10" />
-                <Skeleton className="w-24 h-10" />
+                <Skeleton className="w-12 h-11 rounded-[10px]" />
+                <Skeleton className="w-12 h-11 rounded-[10px]" />
+                <Skeleton className="w-12 h-11 rounded-[10px]" />
+                <Skeleton className="w-12 h-11 rounded-[10px]" />
               </div>
             ) : user || activeProfile ? (
               <div className="flex items-center gap-3">
                 {activeProfile?.type === "child" ? (
                   <>
                     {/* Child View: Stats, Notifications, Help, Logout */}
-
-                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5" data-tutorial="streak-stat">
+                    <div
+                      className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5"
+                      data-tutorial="streak-stat"
+                    >
                       <Flame size={20} color="#ff4b4b" />
                       {activeProfile?.streak || 0}
                     </div>
 
-                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5" data-tutorial="xp-stat">
+                    <div
+                      className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5"
+                      data-tutorial="xp-stat"
+                    >
                       <Zap size={20} color="#FBBF24" />
                       {activeProfile.xp || 0}
                     </div>
 
-                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5" data-tutorial="level-stat">
+                    <div
+                      className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5"
+                      data-tutorial="level-stat"
+                    >
                       <Trophy size={20} color="#FBBF24" />
                       {activeProfile.level || 1}
                     </div>
+
+                    <Link href="/profiles" data-tutorial="profiles-btn">
+                      <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
+                        <Users size={20} color="#58CC02" />
+                      </button>
+                    </Link>
 
                     <NotificationButton />
 
@@ -189,9 +225,11 @@ function HeaderContent() {
                   </button>
                 ) : !isAuthPage ? (
                   <div className="flex items-center gap-6">
-                    <p className="text-xs font-extrabold text-[#333333] font-nunito cursor-pointer">
-                      Тусламж
-                    </p>
+                    <Link href="/help" prefetch={true}>
+                      <p className="text-xs font-extrabold text-[#333333] font-nunito cursor-pointer">
+                        Тусламж
+                      </p>
+                    </Link>
                     <button
                       onClick={() => router.push("/login")}
                       className="px-6 py-[10px] rounded-[10px] border-2 border-[#FFA239] text-sm font-extrabold text-[#FFA239] cursor-pointer uppercase font-nunito"
@@ -339,9 +377,11 @@ function HeaderContent() {
                   </button>
                 ) : !isAuthPage ? (
                   <div className="flex items-center gap-6">
-                    <p className="text-xs font-normal text-[#333333] font-nunito">
-                      Тусламж
-                    </p>
+                    <Link href="/help" prefetch={true}>
+                      <p className="text-xs font-normal text-[#333333] font-nunito">
+                        Тусламж
+                      </p>
+                    </Link>
                     <button
                       onClick={() => {
                         router.push("/login");
@@ -370,20 +410,22 @@ function HeaderContent() {
 
 export const Header = () => {
   return (
-    <Suspense fallback={
-      <header className="sticky top-0 z-5 w-full flex justify-center bg-white border-b border-[#0C0A0126]">
-        <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
-          <div className="flex gap-[10px] items-center py-1.5">
-            <Skeleton className="w-[30px] h-[30px]" />
-            <Skeleton className="w-32 h-5" />
+    <Suspense
+      fallback={
+        <header className="sticky top-0 z-5 w-full flex justify-center bg-white border-b border-[#0C0A0126]">
+          <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
+            <div className="flex gap-[10px] items-center py-1.5">
+              <Skeleton className="w-[30px] h-[30px]" />
+              <Skeleton className="w-32 h-5" />
+            </div>
+            <div className="hidden md:flex items-center gap-3">
+              <Skeleton className="w-16 h-10" />
+              <Skeleton className="w-24 h-10" />
+            </div>
           </div>
-          <div className="hidden md:flex items-center gap-3">
-            <Skeleton className="w-16 h-10" />
-            <Skeleton className="w-24 h-10" />
-          </div>
-        </div>
-      </header>
-    }>
+        </header>
+      }
+    >
       <HeaderContent />
     </Suspense>
   );

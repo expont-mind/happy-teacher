@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Check, X } from "lucide-react";
+import { Bell, X } from "lucide-react";
 import { Notification } from "@/src/hooks/useNotifications";
 import Image from "next/image";
 

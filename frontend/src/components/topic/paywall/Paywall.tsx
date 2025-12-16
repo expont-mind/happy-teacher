@@ -16,7 +16,11 @@ interface PaywallProps {
 
 const TOPIC_PRICE = 3;
 
-export default function Paywall({ topicKey, onUnlocked, onClose }: PaywallProps) {
+export default function Paywall({
+  topicKey,
+  onUnlocked,
+  onClose,
+}: PaywallProps) {
   const [unlocked, setUnlocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const { user, activeProfile, checkPurchase } = useAuth();
@@ -115,8 +119,13 @@ export default function Paywall({ topicKey, onUnlocked, onClose }: PaywallProps)
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Image src="/svg/Calculator.svg" alt="Icon" width={20} height={20} />
-            <p className="text-sm font-medium text-black">
+            <Image
+              src="/svg/Calculator.svg"
+              alt="Icon"
+              width={20}
+              height={20}
+            />
+            <p className="text-sm font-medium text-black font-nunito">
               Бутархай тооны дэлгэрэнгүй сургалт
             </p>
           </div>
@@ -137,8 +146,10 @@ export default function Paywall({ topicKey, onUnlocked, onClose }: PaywallProps)
           {user || activeProfile ? (
             activeProfile?.type === "child" ? (
               <button
-                onClick={() => alert("Эцэг эхээсээ худалдаж авч өгөхийг хүсээрэй!")}
-                className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg leading-7 cursor-pointer hover:bg-[#46A302] transition-colors tracking-wide"
+                onClick={() =>
+                  alert("Эцэг эхээсээ худалдаж авч өгөхийг хүсээрэй!")
+                }
+                className="bg-[#58CC02] w-full shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all rounded-2xl px-6 py-[10px] text-white font-bold text-lg leading-7 cursor-pointer hover:bg-[#46A302] tracking-wide"
               >
                 Худалдаж авах
               </button>

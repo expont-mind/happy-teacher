@@ -65,7 +65,7 @@ export default function CodeLoginForm({
           <button
             type="submit"
             disabled={loading || pin.length !== 4}
-            className="bg-[#58CC02] w-full border-b-4 border-[#46A302] rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
+            className="bg-[#58CC02] w-full shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
           >
             {loading ? <Loader /> : "Нэвтрэх"}
           </button>

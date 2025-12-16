@@ -79,7 +79,7 @@ export default function MessageTooltip({
 
       {/* Character on right */}
       <div
-        className="animate-float flex-shrink-0"
+        className="animate-float shrink-0"
         style={{
           width: `${characterSize}px`,
           height: `${characterSize}px`,

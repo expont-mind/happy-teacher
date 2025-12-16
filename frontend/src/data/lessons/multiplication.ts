@@ -11,7 +11,7 @@ export type MultiplicationLesson = {
 export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-3",
-    title: "3-р хуудас: Буддацгаая",
+    title: "3-р хуудас: Будацгаая",
     mainImage: "/multiplication/page_3.svg",
     maskImage: "/multiplication/page_3_mask.png",
     backgroundImage: "/multiplication/page_3_background_test.png",
@@ -33,7 +33,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-4",
-    title: "4-р хуудас: Буддацгаая",
+    title: "4-р хуудас: Будацгаая",
     mainImage: "/multiplication/page_4.svg",
     maskImage: "/multiplication/page_4_mask.png",
     backgroundImage: "/multiplication/page_4_background.png",
@@ -56,7 +56,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-5",
-    title: "5-р хуудас: Буддацгаая",
+    title: "5-р хуудас: Будацгаая",
     mainImage: "/multiplication/page_5.svg",
     maskImage: "/multiplication/page_5_mask.png",
     backgroundImage: "/multiplication/page_5_background.png",
@@ -80,7 +80,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-6",
-    title: "6-р хуудас: Буддацгаая",
+    title: "6-р хуудас: Будацгаая",
     mainImage: "/multiplication/page_6_test.svg",
     maskImage: "/multiplication/page_6_mask.png",
     backgroundImage: "/multiplication/page_6_background.png",
@@ -102,7 +102,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-7",
-    title: "7-р хуудас: Буддацгаая",
+    title: "7-р хуудас: Будацгаая",
     mainImage: "/multiplication/page_7_test_1.svg",
     maskImage: "/multiplication/page_7_mask.png",
     backgroundImage: "/multiplication/page_7_background.png",
@@ -125,7 +125,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-8",
-    title: "8-рхуудас: Буддацгаая",
+    title: "8-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_8.svg",
     maskImage: "/multiplication/page_5_mask.png",
     backgroundImage: "/multiplication/page_8_background.png",
@@ -144,7 +144,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-9",
-    title: "9-рхуудас: Буддацгаая",
+    title: "9-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_9.svg",
     maskImage: "/multiplication/page_9_mask.png",
     backgroundImage: "/multiplication/page_9_background.png",
@@ -164,7 +164,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
 
   {
     id: "page-10",
-    title: "10-рхуудас: Буддацгаая",
+    title: "10-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_10.svg",
     maskImage: "/multiplication/page_10_mask.png",
     backgroundImage: "/multiplication/page_10_background.png",
@@ -180,7 +180,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-11",
-    title: "11-рхуудас: Буддацгаая",
+    title: "11-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_11.svg",
     maskImage: "/multiplication/page_11_mask.png",
     backgroundImage: "/multiplication/page_11_background.png",
@@ -200,7 +200,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-12",
-    title: "12-рхуудас: Буддацгаая",
+    title: "12-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_12.svg",
     maskImage: "/multiplication/page_12_mask.png",
     backgroundImage: "/multiplication/page_12_background.png",
@@ -225,7 +225,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-13",
-    title: "12-рхуудас: Буддацгаая",
+    title: "12-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_13.svg",
     maskImage: "/multiplication/page_13_mask.png",
     backgroundImage: "/multiplication/page_13_background.png",
@@ -242,7 +242,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-14",
-    title: "14-рхуудас: Буддацгаая",
+    title: "14-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_14.svg",
     maskImage: "/multiplication/page_14_mask.png",
     backgroundImage: "/multiplication/page_14_background.png",
@@ -266,7 +266,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-15",
-    title: "15-рхуудас: Буддацгаая",
+    title: "15-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_15.svg",
     maskImage: "/multiplication/page_15_mask.png",
     backgroundImage: "/multiplication/page_15_background.png",
@@ -288,7 +288,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-16",
-    title: "16-рхуудас: Буддацгаая",
+    title: "16-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_16_test_5.svg",
     maskImage: "/multiplication/page_16_mask.png",
     backgroundImage: "/multiplication/page_16_background_1.png",
@@ -307,7 +307,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
   {
     id: "page-17",
-    title: "17-рхуудас: Буддацгаая",
+    title: "17-рхуудас: Будацгаая",
     mainImage: "/multiplication/page_17.svg",
     maskImage: "/multiplication/page_17_mask.png",
     backgroundImage: "/multiplication/page_17_background.png",

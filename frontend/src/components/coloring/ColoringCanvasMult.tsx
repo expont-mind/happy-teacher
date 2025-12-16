@@ -35,7 +35,7 @@ interface ColoringCanvasProps {
   imageLoaded?: boolean;
   colors?: { color: string; label?: string }[];
   setSelectedColor?: (c: string) => void;
-  palettePosition?: "left" | "bottom"; // New prop for palette position
+  palettePosition?: "left" | "bottom";
   onShowMessage?: (message: string) => void;
   onShowRelax?: () => void;
   characterMessage?: string | null;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/src/components/auth";
 import { createClient } from "@/src/utils/supabase/client";
-import { UserCircle, Baby, Plus, Trash2 } from "lucide-react";
+import { UserCircle, Baby, Plus, Trash2, Pencil } from "lucide-react";
 import AddChildModal from "@/src/components/auth/AddChildModal";
 import EditChildModal from "@/src/components/auth/EditChildModal";
 import DeleteChildModal from "@/src/components/auth/DeleteChildModal";
@@ -36,10 +36,6 @@ export default function ProfilesPage() {
         router.push("/");
         return;
       }
-      if (activeProfile?.type === "child") {
-        router.push("/");
-        return;
-      }
     }
 
     if (user) {
@@ -62,6 +58,17 @@ export default function ProfilesPage() {
     } finally {
       setIsLoadingProfiles(false);
     }
+  };
+
+  const handleChildSelect = (child: ChildProfile) => {
+    selectProfile({
+      id: child.id,
+      name: child.name,
+      type: "child",
+      avatar: child.avatar,
+      parentId: user?.id,
+    });
+    router.push("/");
   };
 
   const handleDeleteClick = (child: ChildProfile, e: React.MouseEvent) => {
@@ -138,7 +145,7 @@ export default function ProfilesPage() {
             onClick={handleAdultSelect}
             className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48"
           >
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden border-b-8 border-[#0C0A0126] hover:border-[#0C0A0140] active:border-b-0 active:translate-y-2 transition-all relative bg-blue-500 flex items-center justify-center">
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden shadow-[0_8px_0_#0C0A0126] hover:shadow-[0_8px_0_#0C0A0140] active:shadow-none active:translate-y-2 transition-all relative bg-blue-500 flex items-center justify-center duration-200">
               <UserCircle size={80} className="text-white" strokeWidth={2.5} />
             </div>
             <span className="text-[#333333] font-extrabold text-xl text-center truncate w-full uppercase tracking-wide font-nunito">
@@ -150,10 +157,10 @@ export default function ProfilesPage() {
           {children.map((child) => (
             <div
               key={child.id}
-              onClick={() => setChildToEdit(child)}
+              onClick={() => handleChildSelect(child)}
               className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48 relative"
             >
-              <div className="w-40 h-40 md:w-48 md:h-48 flex flex-col gap-2 items-center justify-center rounded-[32px] overflow-hidden border-b-8 border-[#0C0A0126] transition-all relative bg-[#FFD700]">
+              <div className="w-40 h-40 md:w-48 md:h-48 flex flex-col gap-2 items-center justify-center rounded-[32px] overflow-hidden shadow-[0_8px_0_#0C0A0126] hover:shadow-[0_8px_0_#0C0A0140] active:shadow-none active:translate-y-2 transition-all relative bg-[#FFD700] duration-200">
                 <div className="h-7"></div>
                 {child.avatar && child.avatar.startsWith("/") ? (
                   <Image
@@ -164,7 +171,7 @@ export default function ProfilesPage() {
                     className="object-contain"
                   />
                 ) : (
-                  <Baby size={80} className="text-white" strokeWidth={2.5} />
+                  <Baby size={80} className="text-black" strokeWidth={2} />
                 )}
                 <p className="text-white font-extrabold font-nunito text-xl tracking-widest text-shadow-sm">
                   {child.pin_code}
@@ -174,14 +181,27 @@ export default function ProfilesPage() {
                 {child.name}
               </span>
 
-              {/* Delete Button (visible on hover) */}
-              <button
-                onClick={(e) => handleDeleteClick(child, e)}
-                className="absolute -top-2 -right-2 bg-red-500 w-10 h-10 flex justify-center items-center rounded-xl border-b-4 border-red-700 active:border-b-0 active:translate-y-1 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 z-10 text-white cursor-pointer"
-                title="Устгах"
-              >
-                <Trash2 size={20} />
-              </button>
+              {/* Action Buttons */}
+              <div className="absolute -top-2 -right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setChildToEdit(child);
+                  }}
+                  className="bg-blue-500 w-10 h-10 flex justify-center items-center rounded-xl shadow-[0_4px_0_#1d4ed8] active:shadow-none active:translate-y-1 hover:bg-blue-600 text-white cursor-pointer duration-200"
+                  title="Засах"
+                >
+                  <Pencil size={18} />
+                </button>
+
+                <button
+                  onClick={(e) => handleDeleteClick(child, e)}
+                  className="bg-red-500 w-10 h-10 flex justify-center items-center rounded-xl shadow-[0_4px_0_#b91c1c] active:shadow-none active:translate-y-1 hover:bg-red-600 text-white cursor-pointer duration-200"
+                  title="Устгах"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
           ))}
 
@@ -190,7 +210,7 @@ export default function ProfilesPage() {
             onClick={() => setShowAddModal(true)}
             className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48"
           >
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden border-[3px] border-dashed border-[#0C0A0166] transition-all relative flex items-center justify-center bg-transparent">
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden border-[3px] border-dashed border-[#0C0A0166] transition-all relative flex items-center justify-center bg-transparent hover:bg-[#0C0A0105]">
               <Plus
                 size={64}
                 className="text-[#333333] transition-colors"

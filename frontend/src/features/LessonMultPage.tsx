@@ -24,7 +24,14 @@ import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 export default function LessonMultPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted, addXP, checkPurchase, user, activeProfile, loading: authLoading } = useAuth();
+  const {
+    markLessonCompleted,
+    addXP,
+    checkPurchase,
+    user,
+    activeProfile,
+    loading: authLoading,
+  } = useAuth();
   const { startTutorial } = useTutorial();
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
 

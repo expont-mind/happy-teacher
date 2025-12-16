@@ -60,13 +60,13 @@ export const RewardModal = ({
         <div className="flex gap-3">
           <button
             onClick={onNextLesson || onClose}
-            className="flex-1 py-3 px-4 rounded-full bg-green-500 hover:bg-green-600 text-white font-bold transition-transform active:scale-95 cursor-pointer whitespace-nowrap"
+            className="duo-button duo-button-green flex-1 py-3 px-4 text-white font-bold whitespace-nowrap"
           >
             Дараагийн даалгавар
           </button>
           <button
             onClick={onClose}
-            className="flex-1 py-3 rounded-full text-gray-600 font-bold hover:bg-gray-100 transition-transform active:scale-95 cursor-pointer"
+            className="duo-button duo-button-gray flex-1 py-3 text-gray-700 font-bold"
           >
             Буцах
           </button>

@@ -12,7 +12,7 @@ export type FractionLesson = {
 export const fractionLessons: FractionLesson[] = [
   {
     id: "page-12",
-    title: "12-р хуудас: Буддацгаая",
+    title: "12-р хуудас: Будацгаая",
     mainImage: "/page_12.svg",
     maskImage: "/page_12_mask.png",
     backgroundImage: "/page_12_backgroun.png",
@@ -33,7 +33,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-13",
-    title: "13-р хуудас: Буддацгаая",
+    title: "13-р хуудас: Будацгаая",
     mainImage: "/page_13.svg",
     maskImage: "/page_13_mask.png",
     backgroundImage: "/page_13_background.png",
@@ -56,7 +56,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-14",
-    title: "14-р хуудас: Буддацгаая",
+    title: "14-р хуудас: Будацгаая",
     mainImage: "/page_14.svg",
     maskImage: "/page_14_mask.png",
     backgroundImage: "/page_14_background.png",
@@ -79,7 +79,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-16",
-    title: "16-р хуудас: Буддацгаая",
+    title: "16-р хуудас: Будацгаая",
     mainImage: "/page_16.svg",
     maskImage: "/page_12_mask.png",
     backgroundImage: "/page_16_background.png",
@@ -100,7 +100,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-18",
-    title: "18-р хуудас: Буддацгаая",
+    title: "18-р хуудас: Будацгаая",
     mainImage: "/page_18.svg",
     maskImage: "/page_18_mask.png",
     backgroundImage: "/page_18_background.png",
@@ -118,7 +118,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-19",
-    title: "19-р хуудас: Буддацгаая",
+    title: "19-р хуудас: Будацгаая",
     mainImage: "/page_19.svg",
     maskImage: "/page_19_mask.png",
     backgroundImage: "/page_19_background.png",
@@ -136,7 +136,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-20",
-    title: "20-р хуудас: Буддацгаая",
+    title: "20-р хуудас: Будацгаая",
     mainImage: "/page_20.svg",
     maskImage: "/page_20_mask.png",
     backgroundImage: "/page_20_background.png",
@@ -159,7 +159,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-21",
-    title: "21-р хуудас: Буддацгаая",
+    title: "21-р хуудас: Будацгаая",
     mainImage: "/page_21.svg",
     maskImage: "/page_21_mask.png",
     backgroundImage: "/page_21_background.png",
@@ -182,7 +182,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-22",
-    title: "22-р хуудас: Буддацгаая",
+    title: "22-р хуудас: Будацгаая",
     mainImage: "/page_22.svg",
     maskImage: "/page_22_mask.png",
     backgroundImage: "/page_22_background.png",
@@ -206,7 +206,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-23",
-    title: "23-р хуудас: Буддацгаая",
+    title: "23-р хуудас: Будацгаая",
     mainImage: "/page_23.svg",
     maskImage: "/page_23_mask.png",
     backgroundImage: "/page_23_background.png",
@@ -228,7 +228,7 @@ export const fractionLessons: FractionLesson[] = [
 
   {
     id: "page-28",
-    title: "28-р хуудас: Буддацгаая",
+    title: "28-р хуудас: Будацгаая",
     mainImage: "/page_28.svg",
     maskImage: "/page_28_mask.png",
     backgroundImage: "/page_28_background.png",
@@ -251,7 +251,7 @@ export const fractionLessons: FractionLesson[] = [
 
   {
     id: "page-30",
-    title: "30-р хуудас: Буддацгаая",
+    title: "30-р хуудас: Будацгаая",
     mainImage: "/page_30.svg",
     maskImage: "/page_30_mask.png",
     backgroundImage: "/page_30_background.png",
@@ -274,7 +274,7 @@ export const fractionLessons: FractionLesson[] = [
 
   {
     id: "page-31",
-    title: "31-р хуудас: Буддацгаая",
+    title: "31-р хуудас: Будацгаая",
     mainImage: "/page_31.svg",
     maskImage: "/page_31_mask.png",
     backgroundImage: "/page_31_background.png",
@@ -296,7 +296,7 @@ export const fractionLessons: FractionLesson[] = [
   },
   {
     id: "page-33",
-    title: "33-р хуудас: Буддацгаая",
+    title: "33-р хуудас: Будацгаая",
     mainImage: "/page_33.svg",
     maskImage: "/page_33_mask.png",
     backgroundImage: "/page_33_background.png",

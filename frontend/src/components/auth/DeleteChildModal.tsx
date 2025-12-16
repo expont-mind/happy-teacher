@@ -52,13 +52,13 @@ export default function DeleteChildModal({
           <div className="flex gap-4">
             <button
               onClick={onClose}
-              className="flex-1 py-[10px] bg-white border border-[#0C0A0126] hover:bg-[#F7F7F7] border-b-4 text-[#333333] font-bold text-lg font-nunito rounded-2xl transition-colors uppercase tracking-wide cursor-pointer"
+              className="flex-1 py-[10px] bg-white border border-[#0C0A0126] hover:bg-[#F7F7F7] shadow-[0_4px_0_#E5E5E5] active:shadow-none active:translate-y-1 text-[#333333] font-bold text-lg font-nunito rounded-2xl transition-all uppercase tracking-wide cursor-pointer"
             >
               Болих
             </button>
             <button
               onClick={onConfirm}
-              className="flex-1 py-[10px] bg-[#FF4B4B] hover:bg-[#FF3B3B] border-b-4 border-[#D93030] text-white font-bold text-lg font-nunito rounded-2xl shadow-lg transition-colors uppercase tracking-wide cursor-pointer"
+              className="flex-1 py-[10px] bg-[#FF4B4B] hover:bg-[#FF3B3B] shadow-[0_4px_0_#D93030] active:shadow-none active:translate-y-1 text-white font-bold text-lg font-nunito rounded-2xl transition-all uppercase tracking-wide cursor-pointer"
             >
               Устгах
             </button>
