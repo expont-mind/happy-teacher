@@ -40,6 +40,15 @@ export default function LessonMultPage() {
     [params.lessonId]
   );
 
+  // Find the next lesson
+  const nextLesson = useMemo(() => {
+    const currentIndex = multiplicationLessons.findIndex((l) => l.id === params.lessonId);
+    if (currentIndex === -1 || currentIndex === multiplicationLessons.length - 1) {
+      return null;
+    }
+    return multiplicationLessons[currentIndex + 1];
+  }, [params.lessonId]);
+
   // Check if user has purchased this topic
   useEffect(() => {
     // Auth ачаалал дуусахыг хүлээх
@@ -233,19 +242,28 @@ export default function LessonMultPage() {
     const bonusXP = mistakes === 0 ? 5 : 0;
     const totalXP = baseXP + bonusXP;
 
-    // Award XP
-    const result = await addXP(totalXP);
-    if (result) {
-      setXpEarned(totalXP);
-      setShowReward(true);
-    } else {
-      router.push("/topic/multiplication");
+    // Award XP and show reward modal
+    try {
+      await addXP(totalXP);
+    } catch (err) {
+      console.error("Failed to add XP:", err);
     }
+    setXpEarned(totalXP);
+    setShowReward(true);
   };
 
   const handleRewardClose = () => {
     setShowReward(false);
     router.push("/topic/multiplication");
+  };
+
+  const handleNextLesson = () => {
+    setShowReward(false);
+    if (nextLesson) {
+      router.push(`/topic/multiplication/${nextLesson.id}`);
+    } else {
+      router.push("/topic/multiplication");
+    }
   };
 
   return (
@@ -320,6 +338,7 @@ export default function LessonMultPage() {
       <RewardModal
         isOpen={showReward}
         onClose={handleRewardClose}
+        onNextLesson={handleNextLesson}
         xpEarned={xpEarned}
       />
     </div>

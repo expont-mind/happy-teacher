@@ -47,6 +47,15 @@ export default function LessonPage() {
     [params.lessonId]
   );
 
+  // Find the next lesson
+  const nextLesson = useMemo(() => {
+    const currentIndex = fractionLessons.findIndex((l) => l.id === params.lessonId);
+    if (currentIndex === -1 || currentIndex === fractionLessons.length - 1) {
+      return null;
+    }
+    return fractionLessons[currentIndex + 1];
+  }, [params.lessonId]);
+
   // Check if user has purchased this topic
   useEffect(() => {
     // Auth ачаалал дуусахыг хүлээх
@@ -83,7 +92,7 @@ export default function LessonPage() {
   }, [isPaid, startTutorial]);
 
   const [selectedColor, setSelectedColor] = useState(
-    lesson?.palette[0] || "#6b3ab5"
+    lesson?.palette[0]?.color || "#6b3ab5"
   );
   const [helpOpen, setHelpOpen] = useState(false);
   const [, setImageLoaded] = useState(false);
@@ -100,17 +109,16 @@ export default function LessonPage() {
   const [actionToolbarOpen, setActionToolbarOpen] = useState(false);
   const isPortraitMobile = useIsPortraitMobile();
 
-  // Convert palette to the format needed by ColorPalette
+  // Palette is already in the correct format for ColorPalette
   const paletteForDisplay = useMemo(() => {
     if (!lesson) return [];
-    // Convert string array to object format for ColorPalette
-    return lesson.palette.map((color) => ({ color }));
+    return lesson.palette;
   }, [lesson]);
 
   // Get raw palette colors for ColoringCanvas
   const rawPalette = useMemo(() => {
     if (!lesson) return [];
-    return lesson.palette;
+    return lesson.palette.map((p) => p.color);
   }, [lesson]);
 
   // Update canUndo/canRedo from canvas ref
@@ -277,23 +285,28 @@ export default function LessonPage() {
     const bonusXP = mistakes === 0 ? 5 : 0;
     const totalXP = baseXP + bonusXP;
 
-    // Award XP
-    const result = await addXP(totalXP);
-    if (result) {
-      setXpEarned(totalXP);
-      setShowReward(true);
-    } else {
-      router.push("/topic/fractions");
+    // Award XP and show reward modal
+    try {
+      await addXP(totalXP);
+    } catch (err) {
+      console.error("Failed to add XP:", err);
     }
-    // Mock XP for now
-    const mockXP = 50;
-    setXpEarned(mockXP);
+    setXpEarned(totalXP);
     setShowReward(true);
   };
 
   const handleRewardClose = () => {
     setShowReward(false);
     router.push("/topic/fractions");
+  };
+
+  const handleNextLesson = () => {
+    setShowReward(false);
+    if (nextLesson) {
+      router.push(`/topic/fractions/${nextLesson.id}`);
+    } else {
+      router.push("/topic/fractions");
+    }
   };
 
   return (
@@ -409,6 +422,7 @@ export default function LessonPage() {
       <RewardModal
         isOpen={showReward}
         onClose={handleRewardClose}
+        onNextLesson={handleNextLesson}
         xpEarned={xpEarned}
       />
     </div>

@@ -17,7 +17,7 @@ export const RewardModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center relative animate-in zoom-in-95 duration-300 shadow-xl">
+      <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center relative animate-in zoom-in-95 duration-300 shadow-xl">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
@@ -57,16 +57,16 @@ export const RewardModal = ({
           <Zap size={20} className="text-green-500" fill="currentColor" />
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={onNextLesson || onClose}
-            className="duo-button duo-button-green flex-1 py-3 px-4 text-white font-bold whitespace-nowrap"
+            className="duo-button duo-button-green flex-1 py-3 px-4 text-white font-bold"
           >
             Дараагийн даалгавар
           </button>
           <button
             onClick={onClose}
-            className="duo-button duo-button-gray flex-1 py-3 text-gray-700 font-bold"
+            className="duo-button duo-button-gray flex-1 py-3 px-4 text-gray-700 font-bold"
           >
             Буцах
           </button>
