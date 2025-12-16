@@ -87,7 +87,7 @@ export default function TutorialOverlay() {
       {/* Highlighted Element Spotlight - cuts through the backdrop */}
       {showHighlight && (
         <div
-          className="fixed z-61 pointer-events-none transition-all duration-300"
+          className="fixed z-9999 pointer-events-none transition-all duration-300"
           style={{
             top: `${highlightRect.top - 4}px`,
             left: `${highlightRect.left - 4}px`,

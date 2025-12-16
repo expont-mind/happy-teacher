@@ -14,6 +14,8 @@ import { useAuth } from "@/src/components/auth/AuthProvider";
 import {
   MessageTooltip,
   RelaxModal,
+  useTutorial,
+  lessonPageTutorial,
 } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
 import Loader from "@/src/components/ui/Loader";
@@ -23,6 +25,7 @@ export default function LessonMultPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
   const { markLessonCompleted, addXP, checkPurchase, user, activeProfile, loading: authLoading } = useAuth();
+  const { startTutorial } = useTutorial();
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
   const lesson = useMemo(
@@ -47,6 +50,13 @@ export default function LessonMultPage() {
 
     checkPayment();
   }, [authLoading, checkPurchase, router, user, activeProfile]);
+
+  // Start lesson tutorial when page is ready
+  useEffect(() => {
+    if (isPaid) {
+      startTutorial(lessonPageTutorial);
+    }
+  }, [isPaid, startTutorial]);
 
   const [selectedColor, setSelectedColor] = useState(
     lesson?.palette[0]?.color || "#6b3ab5"

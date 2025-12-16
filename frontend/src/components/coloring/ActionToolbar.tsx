@@ -27,6 +27,7 @@ export default function ActionToolbar({
       <button
         onClick={onUndo}
         disabled={!canUndo}
+        data-tutorial="undo-btn"
         className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 transition-all ${
           canUndo
             ? "bg-white border-blue-200 hover:border-blue-400"
@@ -43,6 +44,7 @@ export default function ActionToolbar({
       <button
         onClick={onRedo}
         disabled={!canRedo}
+        data-tutorial="redo-btn"
         className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 transition-all ${
           canRedo
             ? "bg-white border-green-200 hover:border-green-400"
@@ -58,6 +60,7 @@ export default function ActionToolbar({
       {/* Help/Hint Button */}
       <button
         onClick={onHelp}
+        data-tutorial="lesson-help-btn"
         className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-yellow-200 hover:border-yellow-400 transition-all"
       >
         <Lightbulb size={28} className="text-yellow-500" />
@@ -66,6 +69,7 @@ export default function ActionToolbar({
       {/* Download Button */}
       <button
         onClick={onDownload}
+        data-tutorial="download-btn"
         className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-purple-200 hover:border-purple-400 transition-all"
       >
         <Download size={28} className="text-purple-500" />
@@ -74,6 +78,7 @@ export default function ActionToolbar({
       {/* Finish Button */}
       <button
         onClick={onEnd}
+        data-tutorial="done-btn"
         className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-(--duo-green) border-green-400 hover:bg-(--duo-green-dark) transition-all"
       >
         <Flag size={28} className="text-white" />

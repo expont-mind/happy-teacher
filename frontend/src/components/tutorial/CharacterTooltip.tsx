@@ -130,7 +130,7 @@ export default function CharacterTooltip({
     <>
       {/* Character Image */}
       <div
-        className="fixed z-61 animate-float"
+        className="fixed z-9999 animate-float"
         style={{
           top: `${characterTop}px`,
           left: `${characterLeft}px`,
@@ -151,7 +151,7 @@ export default function CharacterTooltip({
       {/* Speech Bubble */}
       <div
         ref={tooltipRef}
-        className="fixed z-61 bg-white border-2 border-gray-200 rounded-2xl shadow-lg p-6 tutorial-enter"
+        className="fixed z-9999 bg-white border-2 border-gray-200 rounded-2xl shadow-lg p-6 tutorial-enter"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
