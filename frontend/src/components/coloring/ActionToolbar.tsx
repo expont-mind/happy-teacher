@@ -60,7 +60,7 @@ export default function ActionToolbar({
       {/* Help/Hint Button */}
       <button
         onClick={onHelp}
-        data-tutorial="help-btn"
+        data-tutorial="lesson-help-btn"
         className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-yellow-200 hover:border-yellow-400 transition-all"
       >
         <Lightbulb size={28} className="text-yellow-500" />

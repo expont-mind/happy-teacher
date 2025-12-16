@@ -54,7 +54,7 @@ function HeaderContent() {
   };
 
   const NotificationButton = () => (
-    <div className="relative">
+    <div className="relative" data-tutorial="notifications-btn">
       <button
         onClick={() => setShowNotifications(!showNotifications)}
         className={`px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300 ${
@@ -115,24 +115,24 @@ function HeaderContent() {
                   <>
                     {/* Child View: Stats, Notifications, Help, Logout */}
 
-                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5">
+                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5" data-tutorial="streak-stat">
                       <Flame size={20} color="#ff4b4b" />
                       {activeProfile?.streak || 0}
                     </div>
 
-                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5">
+                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5" data-tutorial="xp-stat">
                       <Zap size={20} color="#FBBF24" />
                       {activeProfile.xp || 0}
                     </div>
 
-                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5">
+                    <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5" data-tutorial="level-stat">
                       <Trophy size={20} color="#FBBF24" />
                       {activeProfile.level || 1}
                     </div>
 
                     <NotificationButton />
 
-                    <Link href="/help">
+                    <Link href="/help" data-tutorial="help-btn">
                       <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
                         <HelpCircle size={20} color="#CC584D" />
                       </button>
@@ -148,7 +148,7 @@ function HeaderContent() {
                 ) : (
                   <>
                     {/* Adult View: Settings, Users, Notifications, Help, Logout */}
-                    <Link href="/profiles">
+                    <Link href="/profiles" data-tutorial="profiles-btn">
                       <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
                         <Users size={20} color="#58CC02" />
                       </button>
@@ -156,13 +156,13 @@ function HeaderContent() {
 
                     <NotificationButton />
 
-                    <Link href="/settings">
+                    <Link href="/settings" data-tutorial="settings-btn">
                       <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
                         <Settings size={20} color="#70B6E5" />
                       </button>
                     </Link>
 
-                    <Link href="/help">
+                    <Link href="/help" data-tutorial="help-btn">
                       <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
                         <HelpCircle size={20} color="#CC584D" />
                       </button>
