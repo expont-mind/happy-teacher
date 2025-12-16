@@ -19,7 +19,7 @@ export default function HelpPanel({
         className="absolute inset-0 bg-black/40"
         onClick={() => setHelpOpen(false)}
       />
-      <div className="bg-white rounded-3xl p-4 shadow-2xl relative max-w-2xl w-full animate-fadeIn mx-4">
+      <div className="bg-white rounded-3xl p-4 shadow-2xl relative max-w-4xl w-full animate-fadeIn mx-4">
         <button
           onClick={() => setHelpOpen(false)}
           className="absolute top-3 right-3 rounded-full bg-pink-300 hover:bg-pink-400 text-white p-2 font-bold shadow-lg z-10"
