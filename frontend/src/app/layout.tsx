@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
@@ -34,7 +35,13 @@ export default function RootLayout({
         <AuthProvider>
           <TutorialProvider>
             <div className="w-full min-h-screen bg-white">
-              <Header />
+              <Suspense
+                fallback={
+                  <div className="h-[73px] w-full bg-white border-b border-[#0C0A0126]" />
+                }
+              >
+                <Header />
+              </Suspense>
 
               <main>{children}</main>
             </div>

@@ -104,8 +104,13 @@ export default function Paywall({ topicKey, onUnlocked, onClose }: PaywallProps)
 
         <div className="flex flex-col gap-[10px] px-5 py-6 bg-[#D6F5D6] rounded-[20px] max-w-[348px] w-full">
           <div className="flex items-center gap-2">
-            <Image src="/svg/Palette.svg" alt="Icon" width={20} height={20} />
-            <p className="text-sm font-medium text-black">
+            <Image
+              src="/svg/PaletteBlack.svg"
+              alt="Icon"
+              width={20}
+              height={20}
+            />
+            <p className="text-sm font-medium text-black font-nunito">
               16 өнгөт зургийн даалгавар
             </p>
           </div>
@@ -116,8 +121,13 @@ export default function Paywall({ topicKey, onUnlocked, onClose }: PaywallProps)
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Image src="/svg/Trophy.svg" alt="Icon" width={20} height={20} />
-            <p className="text-sm font-medium text-black">
+            <Image
+              src="/svg/TrophyBlack.svg"
+              alt="Icon"
+              width={20}
+              height={20}
+            />
+            <p className="text-sm font-medium text-black font-nunito">
               Медаль болон шагнал авах боломж
             </p>
           </div>

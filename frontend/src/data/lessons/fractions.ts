@@ -294,7 +294,6 @@ export const fractionLessons: FractionLesson[] = [
       "#95928d",
     ],
   },
-
   {
     id: "page-33",
     title: "33-р хуудас: Буддацгаая",

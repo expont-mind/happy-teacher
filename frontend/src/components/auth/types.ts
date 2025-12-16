@@ -8,6 +8,7 @@ export interface UserProfile {
   streak?: number;
   xp?: number;
   level?: number;
+  avatar?: string;
 }
 
 export interface AuthContextType {

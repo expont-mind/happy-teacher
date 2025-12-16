@@ -5,6 +5,7 @@ import { useAuth } from "@/src/components/auth";
 import { createClient } from "@/src/utils/supabase/client";
 import { UserCircle, Baby, Plus, Trash2 } from "lucide-react";
 import AddChildModal from "@/src/components/auth/AddChildModal";
+import EditChildModal from "@/src/components/auth/EditChildModal";
 import DeleteChildModal from "@/src/components/auth/DeleteChildModal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -15,6 +16,8 @@ interface ChildProfile {
   name: string;
   pin_code: string;
   avatar?: string;
+  age?: number;
+  class?: number;
 }
 
 export default function ProfilesPage() {
@@ -22,6 +25,7 @@ export default function ProfilesPage() {
   const [children, setChildren] = useState<ChildProfile[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [childToDelete, setChildToDelete] = useState<ChildProfile | null>(null);
+  const [childToEdit, setChildToEdit] = useState<ChildProfile | null>(null);
   const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
   const router = useRouter();
   const supabase = createClient();
@@ -122,7 +126,7 @@ export default function ProfilesPage() {
   }
 
   return (
-    <div className="w-full h-[calc(100vh-75px)] flex justify-center items-center bg-[#FFFAF7]">
+    <div className="w-full h-[calc(100vh-77px)] flex justify-center items-center bg-[#FFFAF7]">
       <div className="max-w-[1280px] w-full flex flex-col items-center gap-12">
         <h1 className="text-4xl md:text-5xl font-extrabold text-[#333333] font-nunito text-center">
           Хэрэглэгчид
@@ -146,7 +150,8 @@ export default function ProfilesPage() {
           {children.map((child) => (
             <div
               key={child.id}
-              className="group flex flex-col items-center gap-4 cursor-default w-40 md:w-48 relative"
+              onClick={() => setChildToEdit(child)}
+              className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48 relative"
             >
               <div className="w-40 h-40 md:w-48 md:h-48 flex flex-col gap-2 items-center justify-center rounded-[32px] overflow-hidden border-b-8 border-[#0C0A0126] transition-all relative bg-[#FFD700]">
                 <div className="h-7"></div>
@@ -218,6 +223,15 @@ export default function ProfilesPage() {
           }}
         />
       )}
+
+      <EditChildModal
+        isOpen={!!childToEdit}
+        onClose={() => setChildToEdit(null)}
+        child={childToEdit}
+        onChildUpdated={() => {
+          fetchChildren();
+        }}
+      />
 
       <DeleteChildModal
         isOpen={!!childToDelete}

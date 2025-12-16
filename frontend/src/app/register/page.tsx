@@ -128,7 +128,7 @@ function RegisterContent() {
   }
 
   return (
-    <div className="w-full h-[calc(100vh-75px)] flex justify-center items-center bg-[#FFFAF7]">
+    <div className="w-full h-[calc(100vh-77px)] flex justify-center items-center bg-[#FFFAF7]">
       <div className="max-w-[382px] w-full flex flex-col gap-9">
         <div className="flex flex-col gap-2 items-center">
           <div className="w-full flex gap-2">

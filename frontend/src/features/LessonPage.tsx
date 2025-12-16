@@ -13,6 +13,7 @@ import { fractionLessons } from "@/src/data/lessons/fractions";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import { MessageTooltip, RelaxModal, useTutorial, lessonPageTutorial } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
+import { createClient } from "@/src/utils/supabase/client";
 import {
   RotateDevicePrompt,
   useIsPortraitMobile,
@@ -25,7 +26,14 @@ import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
-  const { markLessonCompleted, addXP, checkPurchase, user, activeProfile, loading: authLoading } = useAuth();
+  const {
+    markLessonCompleted,
+    addXP,
+    checkPurchase,
+    user,
+    activeProfile,
+    loading: authLoading,
+  } = useAuth();
   const { startTutorial } = useTutorial();
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
@@ -41,7 +49,12 @@ export default function LessonPage() {
 
     const checkPayment = async () => {
       console.log("LessonPage: Checking purchase for fractions...");
-      console.log("LessonPage: user =", user?.id, "activeProfile =", activeProfile?.id);
+      console.log(
+        "LessonPage: user =",
+        user?.id,
+        "activeProfile =",
+        activeProfile?.id
+      );
 
       const purchased = await checkPurchase("fractions");
       console.log("LessonPage: purchased =", purchased);
@@ -216,6 +229,57 @@ export default function LessonPage() {
     // Save to Supabase (with localStorage fallback)
     await markLessonCompleted("fractions", lesson.id);
 
+    // Check for notification trigger (Every 3 lessons)
+    try {
+      if (activeProfile?.id && user?.id) {
+        const supabase = createClient();
+        const { count, error } = await supabase
+          .from("child_progress")
+          .select("*", { count: "exact", head: true })
+          .eq("child_id", activeProfile.id);
+
+        if (error) {
+          console.error("Count fetch error:", error);
+        }
+
+        // Trigger if count is valid and multiple of 3
+        if (count !== null && count > 0 && count % 3 === 0) {
+          console.log("Triggering notification for count:", count);
+
+          await fetch("/api/send-notification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: user.id,
+              type: "lesson_report",
+              title: "Явцын тайлан",
+              message: `${activeProfile.name} ${count} хичээл амжилттай дуусгалаа!`,
+            }),
+          });
+        }
+      } else {
+        console.warn(
+          "User or ActiveProfile missing, cannot send notification."
+        );
+      }
+    } catch (err) {
+      console.error("Failed to trigger notification:", err);
+    }
+
+    // Calculate XP based on mistakes
+    const mistakes = canvasRef.current?.getMistakeCount() || 0;
+    const baseXP = 10;
+    const bonusXP = mistakes === 0 ? 5 : 0;
+    const totalXP = baseXP + bonusXP;
+
+    // Award XP
+    const result = await addXP(totalXP);
+    if (result) {
+      setXpEarned(totalXP);
+      setShowReward(true);
+    } else {
+      router.push("/topic/fractions");
+    }
     // Mock XP for now
     const mockXP = 50;
     setXpEarned(mockXP);
