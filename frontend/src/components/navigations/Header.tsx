@@ -115,6 +115,7 @@ function HeaderContent() {
                   <button
                     onClick={() => router.push("/dashboard")}
                     className="duo-button duo-button-blue px-4 py-2 text-sm cursor-pointer flex items-center gap-2"
+                    data-tutorial="dashboard-btn"
                   >
                     <LayoutDashboard size={16} />
                     <span>Dashboard</span>
@@ -122,6 +123,7 @@ function HeaderContent() {
                   <button
                     onClick={() => router.push("/profiles")}
                     className="duo-button duo-button-green px-4 py-2 text-sm cursor-pointer flex items-center gap-2"
+                    data-tutorial="users-btn"
                   >
                     <Users size={16} />
                     <span>Users</span>
@@ -205,6 +207,7 @@ function HeaderContent() {
                       setIsOpen(false);
                     }}
                     className="duo-button duo-button-blue w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                    data-tutorial="dashboard-btn"
                   >
                     <LayoutDashboard size={16} />
                     <span>Dashboard</span>
@@ -215,6 +218,7 @@ function HeaderContent() {
                       setIsOpen(false);
                     }}
                     className="duo-button duo-button-green w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                    data-tutorial="users-btn"
                   >
                     <Users size={16} />
                     <span>Users</span>

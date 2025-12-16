@@ -11,7 +11,7 @@ import ActionToolbar from "@/src/components/coloring/ActionToolbar";
 import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import { useAuth } from "@/src/components/auth/AuthProvider";
-import { MessageTooltip, RelaxModal } from "@/src/components/tutorial";
+import { MessageTooltip, RelaxModal, useTutorial, lessonPageTutorial } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
 import {
   RotateDevicePrompt,
@@ -26,6 +26,7 @@ export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
   const router = useRouter();
   const { markLessonCompleted, addXP, checkPurchase, user, activeProfile, loading: authLoading } = useAuth();
+  const { startTutorial } = useTutorial();
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
   const lesson = useMemo(
@@ -55,6 +56,13 @@ export default function LessonPage() {
 
     checkPayment();
   }, [authLoading, checkPurchase, router, user, activeProfile]);
+
+  // Start lesson tutorial when page is ready
+  useEffect(() => {
+    if (isPaid) {
+      startTutorial(lessonPageTutorial);
+    }
+  }, [isPaid, startTutorial]);
 
   const [selectedColor, setSelectedColor] = useState(
     lesson?.palette[0] || "#6b3ab5"

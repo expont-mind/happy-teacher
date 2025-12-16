@@ -102,7 +102,7 @@ export const fractionLessons: FractionLesson[] = [
     id: "page-18",
     title: "18-р хуудас: Буддацгаая",
     mainImage: "/page_18.svg",
-    maskImage: "/page_12_mask.png",
+    maskImage: "/page_18_mask.png",
     backgroundImage: "/page_18_background.png",
     helpImage: "/page_12_help.png",
     helpVideoId: "U0fXqnrqGHs", // huvaah
