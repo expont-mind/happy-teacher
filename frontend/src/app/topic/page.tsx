@@ -21,113 +21,115 @@ export default function TopicsPage() {
     : user?.user_metadata?.full_name || "Эцэг эх";
 
   return (
-    <div className="w-full h-[calc(100vh-77px)] flex justify-center bg-[#FFFAF7]">
-      <div className="max-w-[1280px] w-full flex flex-col gap-14">
-        <div className="mt-[50px] relative w-full bg-linear-to-r from-[#6FDC6F] to-[#32CD32] py-7 px-14 flex items-center gap-7 rounded-[20px]">
-          <div className="absolute top-3 right-4 rotate-10">
-            <Image
-              src="/svg/Sparkle.svg"
-              alt="Sparkle"
-              width={32}
-              height={32}
-            />
-          </div>
-          <div className="w-[90px] h-[90px] rounded-full bg-white border-[3px] border-[#58CC02] overflow-hidden relative flex items-center justify-center text-3xl">
-            {displayAvatar ? (
+    <div className="w-full h-full min-h-[calc(100vh-77px)] flex justify-center bg-[#FFFAF7] px-4 pb-10">
+      <div className="max-w-[1280px] w-full flex flex-col gap-8 md:gap-14">
+        {user && (
+          <div className="mt-8 md:mt-[50px] relative w-full bg-linear-to-r from-[#6FDC6F] to-[#32CD32] p-6 md:py-7 md:px-14 flex flex-col md:flex-row items-center gap-6 md:gap-7 rounded-[20px]">
+            <div className="absolute top-3 right-4 rotate-10">
               <Image
-                src={displayAvatar}
-                alt="Avatar"
+                src="/svg/Sparkle.svg"
+                alt="Sparkle"
                 width={32}
                 height={32}
-                className="object-cover"
               />
-            ) : (
-              <User size={32} color="black" />
-            )}
-          </div>
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-1.5">
-              <p className="text-white font-extrabold text-[24px] font-nunito">
-                Сайна уу, {displayName}!
-              </p>
-              <p className="text-white font-medium text-sm font-nunito">
-                {isChild
-                  ? "Өнөөдөр юу сурах вэ?"
-                  : "Хүүхдүүдийнхээ явцыг хянаарай"}
-              </p>
             </div>
+            <div className="shrink-0 w-[90px] h-[90px] rounded-full bg-white border-[3px] border-[#58CC02] overflow-hidden relative flex items-center justify-center text-3xl">
+              {displayAvatar ? (
+                <Image
+                  src={displayAvatar}
+                  alt="Avatar"
+                  width={32}
+                  height={32}
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <User size={32} color="black" />
+              )}
+            </div>
+            <div className="flex flex-col gap-6 w-full items-center md:items-start text-center md:text-left">
+              <div className="flex flex-col gap-1.5">
+                <p className="text-white font-extrabold text-2xl md:text-[24px] font-nunito">
+                  Сайна уу, {displayName}!
+                </p>
+                <p className="text-white font-medium text-sm font-nunito">
+                  {isChild
+                    ? "Өнөөдөр юу сурах вэ?"
+                    : "Хүүхдүүдийнхээ явцыг хянаарай"}
+                </p>
+              </div>
 
-            {isChild ? (
-              <div className="flex gap-5">
-                <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
-                  <Image
-                    src="/svg/Fire.svg"
-                    alt="Fire"
-                    width={32}
-                    height={32}
-                  />
-                  <div className="flex flex-col w-[64px]">
-                    <p className="text-white font-semibold text-sm font-nunito">
-                      Streak
-                    </p>
-                    <p className="text-white font-extrabold text-sm font-nunito">
-                      {activeProfile?.streak || 0} өдөр
-                    </p>
+              {isChild ? (
+                <div className="flex flex-wrap justify-center md:justify-start gap-3 md:gap-5">
+                  <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
+                    <Image
+                      src="/svg/Fire.svg"
+                      alt="Fire"
+                      width={32}
+                      height={32}
+                    />
+                    <div className="flex flex-col w-[64px] items-start">
+                      <p className="text-white font-semibold text-sm font-nunito">
+                        Streak
+                      </p>
+                      <p className="text-white font-extrabold text-sm font-nunito">
+                        {activeProfile?.streak || 0} өдөр
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
+                    <Image
+                      src="/svg/Lightning.svg"
+                      alt="Lightning"
+                      width={32}
+                      height={32}
+                    />
+                    <div className="flex flex-col w-[64px] items-start">
+                      <p className="text-white font-semibold text-sm font-nunito">
+                        XP
+                      </p>
+                      <p className="text-white font-extrabold text-sm font-nunito">
+                        {activeProfile?.xp || 0}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
+                    <Image
+                      src="/svg/Medal.svg"
+                      alt="Medal"
+                      width={32}
+                      height={32}
+                    />
+                    <div className="flex flex-col w-[64px] items-start">
+                      <p className="text-white font-semibold text-sm font-nunito">
+                        Level
+                      </p>
+                      <p className="text-white font-extrabold text-sm font-nunito">
+                        {activeProfile?.level || 1}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
-                  <Image
-                    src="/svg/Lightning.svg"
-                    alt="Lightning"
-                    width={32}
-                    height={32}
-                  />
-                  <div className="flex flex-col w-[64px]">
-                    <p className="text-white font-semibold text-sm font-nunito">
-                      XP
+              ) : (
+                <div className="bg-[#FFFFFF40] rounded-[20px] px-6 py-3 flex items-center gap-4 border border-white/20">
+                  <div className="p-2 bg-white/20 rounded-xl">
+                    <Settings size={24} className="text-white" />
+                  </div>
+                  <div className="flex flex-col items-start">
+                    <p className="text-white font-bold text-lg font-nunito leading-tight">
+                      Эцэг эхийн хэсэг
                     </p>
-                    <p className="text-white font-extrabold text-sm font-nunito">
-                      {activeProfile?.xp || 0}
-                    </p>
+                    <Link
+                      href="/settings"
+                      className="text-white/90 text-sm font-bold font-nunito hover:text-white hover:underline transition-colors"
+                    >
+                      Тохиргоо руу очих →
+                    </Link>
                   </div>
                 </div>
-                <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">
-                  <Image
-                    src="/svg/Medal.svg"
-                    alt="Medal"
-                    width={32}
-                    height={32}
-                  />
-                  <div className="flex flex-col w-[64px]">
-                    <p className="text-white font-semibold text-sm font-nunito">
-                      Level
-                    </p>
-                    <p className="text-white font-extrabold text-sm font-nunito">
-                      {activeProfile?.level || 1}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-[#FFFFFF40] rounded-[20px] px-6 py-3 flex items-center gap-4 border border-white/20">
-                <div className="p-2 bg-white/20 rounded-xl">
-                  <Settings size={24} className="text-white" />
-                </div>
-                <div className="flex flex-col">
-                  <p className="text-white font-bold text-lg font-nunito leading-tight">
-                    Эцэг эхийн хэсэг
-                  </p>
-                  <Link
-                    href="/settings"
-                    className="text-white/90 text-sm font-bold font-nunito hover:text-white hover:underline transition-colors"
-                  >
-                    Тохиргоо руу очих →
-                  </Link>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex flex-col gap-7 py-6">
           <p className="text-black font-bold text-[32px] font-nunito">

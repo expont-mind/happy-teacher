@@ -9,6 +9,7 @@ interface NotificationPanelProps {
   onMarkAsRead: (id: string) => void;
   onMarkAllAsRead: () => void;
   onClose: () => void;
+  className?: string;
 }
 
 export default function NotificationPanel({
@@ -16,6 +17,7 @@ export default function NotificationPanel({
   onMarkAsRead,
   onMarkAllAsRead,
   onClose,
+  className = "",
 }: NotificationPanelProps) {
   const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
@@ -47,7 +49,9 @@ export default function NotificationPanel({
   const unreadNotifications = notifications.filter((n) => !n.read);
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-[380px] bg-white rounded-[20px] shadow-2xl border border-gray-100 overflow-hidden z-50">
+    <div
+      className={`absolute right-0 top-full mt-2 w-[380px] bg-white rounded-[20px] shadow-2xl border border-gray-100 overflow-hidden z-50 ${className}`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
         <div className="flex items-center gap-2">

@@ -27,11 +27,11 @@ const helpData = [
 
 export default function Help() {
   return (
-    <div className="w-full h-[calc(100vh-77px)] flex justify-center bg-white">
-      <div className="max-w-[1280px] w-full flex flex-col items-center gap-14 py-14">
+    <div className="w-full min-h-[calc(100vh-77px)] flex justify-center bg-white">
+      <div className="max-w-[1280px] w-full flex flex-col items-center gap-8 md:gap-14 py-8 md:py-14 px-4">
         <div className="flex flex-col gap-5 items-center max-w-[366px]">
-          <div className="w-[60px] h-[60px]  rounded-full bg-[#D9D9D9]"></div>
-          <p className="text-black font-semibold text-[24px] font-nunito">
+          <div className="w-[60px] h-[60px] rounded-full bg-[#D9D9D9]"></div>
+          <p className="text-black font-semibold text-[24px] font-nunito text-center">
             Тусламж & Заавар
           </p>
           <p className="text-[#858480] font-extrabold text-xs font-nunito text-center">
@@ -39,7 +39,7 @@ export default function Help() {
             бичлэгээс өөрт хэрэгтэй мэдээллээ олоорой!
           </p>
         </div>
-        <div className="grid grid-cols-4 gap-20 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 lg:gap-20 w-full">
           {helpData.map((item) => (
             <div
               key={item.id}
