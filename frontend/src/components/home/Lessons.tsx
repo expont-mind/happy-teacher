@@ -4,7 +4,7 @@ import { TOPICS_DATA } from "@/src/data/topics";
 
 export const Lessons = () => {
   return (
-    <div className="w-full flex justify-center bg-white py-[126px] px-4">
+    <div className="w-full flex justify-center bg-white py-16 lg:py-[126px] px-4">
       <div className="max-w-[1280px] w-full flex flex-col gap-20 items-center">
         <div className="flex flex-col gap-6 items-center text-center">
           <p className="text-[#0C0A01] text-3xl md:text-5xl font-bold font-nunito">

@@ -1,11 +1,13 @@
 import Image from "next/image";
+import Link from "next/link";
+import { TOPICS_DATA } from "@/src/data/topics";
 
 export const Footer = () => {
   return (
-    <footer className="w-full flex justify-center bg-[#4A4A4A] py-20">
-      <div className="max-w-[1280px] w-full flex flex-col gap-20">
-        <div className="flex gap-8 w-full">
-          <div className="max-w-[316px] w-full">
+    <footer className="w-full flex justify-center bg-[#4A4A4A] py-16 lg:py-20 px-4">
+      <div className="max-w-[1280px] w-full flex flex-col gap-12 lg:gap-20">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-8 w-full justify-between">
+          <div className="max-w-none lg:max-w-[316px] w-full">
             <div className="flex gap-[10px] items-center py-1.5">
               <Image
                 src="/svg/GraduationCap.svg"
@@ -19,86 +21,108 @@ export const Footer = () => {
             </div>
           </div>
 
-          <div className="w-full flex gap-[104px]">
+          <div className="w-full flex flex-col md:flex-row gap-8 lg:gap-[104px]">
             <div className="flex flex-col gap-[18px] w-full">
               <p className="text-base font-bold text-[#F3F4F6] font-nunito">
                 Бүтээгдэхүүн
               </p>
               <div className="flex flex-col gap-2">
-                <p className="text-sm font-semibold text-[#F3F4F6] font-nunito">
+                <Link
+                  href="/topic"
+                  prefetch={true}
+                  className="text-sm font-semibold text-[#F3F4F6] font-nunito hover:text-[#58CC02] transition-colors"
+                >
                   Хичээлүүд
-                </p>
-                <p className="text-sm font-semibold text-[#F3F4F6] font-nunito">
-                  Тоглоомууд
-                </p>
-                <p className="text-sm font-semibold text-[#F3F4F6] font-nunito">
-                  Үнийн санал
-                </p>
+                </Link>
+                {TOPICS_DATA.map((topic, index) => (
+                  <Link
+                    key={index}
+                    href={topic.link}
+                    prefetch={true}
+                    className="text-sm font-semibold text-[#F3F4F6] font-nunito hover:text-[#58CC02] transition-colors"
+                  >
+                    {topic.title}
+                  </Link>
+                ))}
               </div>
             </div>
-            <div className="flex flex-col gap-[18px] w-full">
-              <p className="text-base font-bold text-[#F3F4F6] font-nunito">
-                Компани
-              </p>
-              <div className="flex flex-col gap-2">
-                <p className="text-sm font-semibold text-[#F3F4F6] font-nunito">
-                  Бидний тухай
-                </p>
-                <p className="text-sm font-semibold text-[#F3F4F6] font-nunito">
-                  Багш нар
-                </p>
-              </div>
-            </div>
+
             <div className="flex flex-col gap-[18px] w-full">
               <p className="text-base font-bold text-[#F3F4F6] font-nunito">
                 Дэмжлэг
               </p>
               <div className="flex flex-col gap-2">
-                <p className="text-sm font-semibold text-[#F3F4F6] font-nunito">
+                <Link
+                  href="/help"
+                  prefetch={true}
+                  className="text-sm font-semibold text-[#F3F4F6] font-nunito hover:text-[#58CC02] transition-colors"
+                >
                   Тусламж
-                </p>
-                <p className="text-sm font-semibold text-[#F3F4F6] font-nunito">
+                </Link>
+                <Link
+                  href="/contact"
+                  prefetch={true}
+                  className="text-sm font-semibold text-[#F3F4F6] font-nunito hover:text-[#58CC02] transition-colors"
+                >
                   Холбоо барих
-                </p>
-                <p className="text-sm font-semibold text-[#F3F4F6] font-nunito">
-                  FAQ
-                </p>
+                </Link>
               </div>
             </div>
           </div>
 
-          <div className="max-w-[316px] w-full">
-            <div className="flex gap-[10px] items-center justify-end py-1.5">
-              <Image
-                src="/svg/Instagram.svg"
-                alt="Icon"
-                width={24}
-                height={24}
-              />
-              <Image
-                src="/svg/Facebook.svg"
-                alt="Icon"
-                width={24}
-                height={24}
-              />
-              <Image src="/svg/Youtube.svg" alt="Icon" width={24} height={24} />
+          <div className="max-w-none lg:max-w-[316px] w-full">
+            <div className="flex gap-[10px] items-center justify-start lg:justify-end py-1.5">
+              <Link
+                href="#"
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/svg/Instagram.svg"
+                  alt="Instagram"
+                  width={24}
+                  height={24}
+                />
+              </Link>
+              <Link
+                href="#"
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/svg/Facebook.svg"
+                  alt="Facebook"
+                  width={24}
+                  height={24}
+                />
+              </Link>
+              <Link
+                href="#"
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/svg/Youtube.svg"
+                  alt="Youtube"
+                  width={24}
+                  height={24}
+                />
+              </Link>
             </div>
           </div>
         </div>
 
         <div className="border-t border-[#858480] pt-8 w-full flex justify-center">
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 justify-between w-full text-center md:text-left">
             <p className="text-sm font-normal text-[#B6B5B2] font-nunito">
               © 2025 Happy Teacher
             </p>
-            <p className="text-sm font-normal text-[#B6B5B2] font-nunito underline leading-[21px]">
-              Privacy policy
-            </p>
-            <p className="text-sm font-normal text-[#B6B5B2] font-nunito underline leading-[21px]">
-              Terms of service
-            </p>
-            <p className="text-sm font-normal text-[#B6B5B2] font-nunito underline leading-[21px]">
-              Cookies settings
+            <p className="text-sm font-normal text-[#B6B5B2] font-nunito">
+              Powered by{" "}
+              <Link
+                href="https://www.expontmind.com/"
+                target="_blank"
+                className="font-bold border-b border-transparent hover:border-[#B6B5B2] transition-all"
+              >
+                ExpontMind
+              </Link>
             </p>
           </div>
         </div>

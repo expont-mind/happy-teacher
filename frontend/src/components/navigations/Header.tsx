@@ -40,6 +40,8 @@ function HeaderContent() {
     pathname === "/login" || (pathname === "/register" && step === 1);
   const isRegisterStep2 = pathname === "/register" && step === 2;
 
+  const [mobileNotificationsOpen, setMobileNotificationsOpen] = useState(false);
+
   // Close notifications when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -107,9 +109,9 @@ function HeaderContent() {
 
   return (
     <>
-      <header className="sticky top-0 z-5 w-full flex justify-center bg-white border-b border-[#0C0A0126]">
-        <div className="max-w-[1280px] w-full py-4 flex items-center justify-between ">
-          <Link href="/" className="flex gap-[10px] items-center py-1.5">
+      <header className="sticky top-0 z-50 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4">
+        <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
+          <Link href="/" className="flex gap-[10px] items-center py-1.5 z-20">
             <Image
               src="/svg/GraduationCap.svg"
               alt="Logo"
@@ -243,160 +245,244 @@ function HeaderContent() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            {isOpen ? (
-              <X size={24} className="text-gray-700" />
-            ) : (
+          {!isOpen && (
+            <button
+              onClick={() => setIsOpen(true)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors z-20"
+            >
               <Menu size={24} className="text-gray-700" />
-            )}
-          </button>
+            </button>
+          )}
         </div>
 
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 px-4 py-4 flex flex-col gap-3">
-            {loading ? (
-              <>
-                <div className="flex gap-2 mb-2">
-                  <Skeleton className="flex-1 h-10" />
-                  <Skeleton className="flex-1 h-10" />
+        {/* Mobile Menu Overlay */}
+        <div
+          className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ${
+            isOpen
+              ? "visible pointer-events-auto"
+              : "invisible pointer-events-none"
+          }`}
+        >
+          {/* Backdrop */}
+          <div
+            className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ease-in-out ${
+              isOpen ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setIsOpen(false)}
+          />
+
+          {/* Drawer */}
+          <div
+            className={`fixed inset-y-0 right-0 w-[280px] bg-white shadow-xl z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+              isOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            <div className="p-4 flex flex-col h-full overflow-y-auto">
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <X size={24} className="text-gray-700" />
+                </button>
+              </div>
+
+              {mobileNotificationsOpen ? (
+                <NotificationPanel
+                  notifications={notifications}
+                  onMarkAsRead={markAsRead}
+                  onMarkAllAsRead={markAllAsRead}
+                  onClose={() => setMobileNotificationsOpen(false)}
+                  className="!relative !top-0 !right-0 !w-full !mt-0 !shadow-none !border-0"
+                />
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {loading ? (
+                    <>
+                      <div className="flex gap-2 mb-2">
+                        <Skeleton className="flex-1 h-10" />
+                        <Skeleton className="flex-1 h-10" />
+                      </div>
+                      <Skeleton className="w-full h-10" />
+                      <Skeleton className="w-full h-12" />
+                    </>
+                  ) : user || activeProfile ? (
+                    <>
+                      {activeProfile?.type === "child" ? (
+                        <>
+                          {/* Child View Mobile */}
+                          <div className="flex gap-2 mb-2">
+                            <div
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
+                              data-tutorial="streak-stat"
+                            >
+                              <Flame
+                                size={18}
+                                className="text-(--duo-red)"
+                                strokeWidth={2.5}
+                              />
+                              <span className="text-sm font-bold text-gray-700">
+                                {activeProfile?.streak || 0}
+                              </span>
+                            </div>
+
+                            <div
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
+                              data-tutorial="xp-stat"
+                            >
+                              <Zap
+                                size={18}
+                                className="text-(--duo-yellow-dark)"
+                                strokeWidth={2.5}
+                              />
+                              <span className="text-sm font-bold text-gray-700">
+                                {activeProfile.xp || 0}
+                              </span>
+                            </div>
+
+                            <div
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
+                              data-tutorial="level-stat"
+                            >
+                              <Trophy
+                                size={18}
+                                className="text-(--duo-yellow-dark)"
+                                strokeWidth={2.5}
+                              />
+                              <span className="text-sm font-bold text-gray-700">
+                                {activeProfile.level || 1}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => setMobileNotificationsOpen(true)}
+                            className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            <Bell size={16} />
+                            <span>Мэдэгдэл</span>
+                          </button>
+
+                          <Link
+                            href="/help"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full"
+                          >
+                            <button className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
+                              <HelpCircle size={16} />
+                              <span>Тусламж</span>
+                            </button>
+                          </Link>
+
+                          <Link
+                            href="/profiles"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full"
+                          >
+                            <button className="duo-button duo-button-green w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
+                              <Users size={16} />
+                              <span>Профайл солих</span>
+                            </button>
+                          </Link>
+
+                          <button
+                            onClick={handleLogoutClick}
+                            className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            <LogOut size={16} />
+                            <span>Гарах</span>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {/* Adult View Mobile */}
+
+                          <Link
+                            href="/profiles"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full"
+                          >
+                            <button className="duo-button duo-button-green w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
+                              <Users size={16} />
+                              <span>Хэрэглэгчид</span>
+                            </button>
+                          </Link>
+
+                          <button
+                            onClick={() => setMobileNotificationsOpen(true)}
+                            className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            <Bell size={16} />
+                            <span>Мэдэгдэл</span>
+                          </button>
+
+                          <Link
+                            href="/settings"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full"
+                          >
+                            <button className="duo-button duo-button-blue w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
+                              <Settings size={16} />
+                              <span>Тохиргоо</span>
+                            </button>
+                          </Link>
+
+                          <Link
+                            href="/help"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full"
+                          >
+                            <button className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
+                              <HelpCircle size={16} />
+                              <span>Тусламж</span>
+                            </button>
+                          </Link>
+
+                          <button
+                            onClick={handleLogoutClick}
+                            className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            <LogOut size={16} />
+                            <span>Гарах</span>
+                          </button>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {isRegisterStep2 ? (
+                        <button
+                          onClick={() => router.push("/register?step=1")}
+                          className="flex items-center gap-2 text-[#333333] font-extrabold font-nunito w-full justify-center py-2"
+                        >
+                          <ArrowLeft size={20} strokeWidth={3} />
+                          БУЦАХ
+                        </button>
+                      ) : !isAuthPage ? (
+                        <div className="flex flex-col gap-4 items-center w-full">
+                          <Link href="/help" prefetch={true} className="w-full">
+                            <button className="duo-button duo-button-gray w-full text-sm font-bold">
+                              Тусламж
+                            </button>
+                          </Link>
+                          <button
+                            onClick={() => {
+                              router.push("/login");
+                              setIsOpen(false);
+                            }}
+                            className="w-full py-3 rounded-[16px] bg-white border-2 border-[#E5E5E5] shadow-[0_4px_0_#E5E5E5] active:shadow-none active:translate-y-[4px] transition-all text-[#58CC02] font-extrabold uppercase"
+                          >
+                            Нэвтрэх
+                          </button>
+                        </div>
+                      ) : null}
+                    </>
+                  )}
                 </div>
-                <Skeleton className="w-full h-10" />
-                <Skeleton className="w-full h-12" />
-              </>
-            ) : user || activeProfile ? (
-              <>
-                {activeProfile?.type === "child" ? (
-                  <>
-                    {/* Child View Mobile */}
-                    <div className="flex gap-2 mb-2">
-                      <div
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
-                        data-tutorial="streak-stat"
-                      >
-                        <Flame
-                          size={18}
-                          className="text-(--duo-red)"
-                          strokeWidth={2.5}
-                        />
-                        <span className="text-sm font-bold text-gray-700">
-                          {activeProfile?.streak || 0}
-                        </span>
-                      </div>
-
-                      <div
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
-                        data-tutorial="xp-stat"
-                      >
-                        <Zap
-                          size={18}
-                          className="text-(--duo-yellow-dark)"
-                          strokeWidth={2.5}
-                        />
-                        <span className="text-sm font-bold text-gray-700">
-                          {activeProfile.xp || 0}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
-                      <Bell size={16} />
-                      <span>Notifications</span>
-                    </button>
-
-                    <button className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
-                      <HelpCircle size={16} />
-                      <span>Help</span>
-                    </button>
-
-                    <button
-                      onClick={handleLogoutClick}
-                      className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <LogOut size={16} />
-                      <span>Гарах</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    {/* Adult View Mobile */}
-                    <button
-                      onClick={() => {
-                        router.push("/profiles");
-                        setIsOpen(false);
-                      }}
-                      className="duo-button duo-button-green w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <Users size={16} />
-                      <span>Users</span>
-                    </button>
-
-                    <button className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
-                      <Bell size={16} />
-                      <span>Notifications</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        router.push("/settings");
-                        setIsOpen(false);
-                      }}
-                      className="duo-button duo-button-blue w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <Settings size={16} />
-                      <span>Settings</span>
-                    </button>
-
-                    <button className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
-                      <HelpCircle size={16} />
-                      <span>Help</span>
-                    </button>
-
-                    <button
-                      onClick={handleLogoutClick}
-                      className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <LogOut size={16} />
-                      <span>Гарах</span>
-                    </button>
-                  </>
-                )}
-              </>
-            ) : (
-              <>
-                {isRegisterStep2 ? (
-                  <button
-                    onClick={() => router.push("/register?step=1")}
-                    className="flex items-center gap-2 text-[#333333] font-extrabold font-nunito w-full justify-center py-2"
-                  >
-                    <ArrowLeft size={20} strokeWidth={3} />
-                    БУЦАХ
-                  </button>
-                ) : !isAuthPage ? (
-                  <div className="flex items-center gap-6">
-                    <Link href="/help" prefetch={true}>
-                      <p className="text-xs font-normal text-[#333333] font-nunito">
-                        Тусламж
-                      </p>
-                    </Link>
-                    <button
-                      onClick={() => {
-                        router.push("/login");
-                        setIsOpen(false);
-                      }}
-                      className="px-6 py-[10px] border-2 border-[#FFA239] text-sm cursor-pointer uppercase font-nunito"
-                    >
-                      Нэвтрэх
-                    </button>
-                  </div>
-                ) : null}
-              </>
-            )}
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </header>
 
       <LogoutModal
