@@ -153,7 +153,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     password: string,
     username: string,
-    showToast: boolean = true
+    showToast: boolean = true,
+    phone?: string
   ) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -162,6 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           full_name: username,
           username: username,
+          phone: phone || "",
         },
       },
     });

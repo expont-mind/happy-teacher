@@ -63,7 +63,8 @@ function RegisterContent() {
         email,
         password,
         email.split("@")[0],
-        false
+        false,
+        phone
       );
 
       if (!signUpData?.user?.id) {
@@ -122,7 +123,7 @@ function RegisterContent() {
     return (
       <RegistrationSuccess
         generatedCode={generatedCode}
-        onContinue={() => router.push("/")}
+        onContinue={() => router.push("/login")}
       />
     );
   }

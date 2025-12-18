@@ -21,7 +21,8 @@ export interface AuthContextType {
     email: string,
     password: string,
     username: string,
-    showToast?: boolean
+    showToast?: boolean,
+    phone?: string
   ) => Promise<{ user: any; session: any }>;
   signOut: () => Promise<void>;
   selectProfile: (profile: UserProfile) => void;
