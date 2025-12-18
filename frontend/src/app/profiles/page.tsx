@@ -8,7 +8,10 @@ import AddChildModal from "@/src/components/auth/AddChildModal";
 import EditChildModal from "@/src/components/auth/EditChildModal";
 import DeleteChildModal from "@/src/components/auth/DeleteChildModal";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "@/src/components/ui/CharacterToast";
 import Image from "next/image";
 
 interface ChildProfile {
@@ -86,10 +89,10 @@ export default function ProfilesPage() {
         .eq("id", childToDelete.id);
 
       if (error) throw error;
-      toast.success("Профайл устгагдлаа");
+      showSuccessToast("Профайл устгагдлаа");
       fetchChildren();
     } catch (error) {
-      toast.error("Алдаа гарлаа");
+      showErrorToast("Алдаа гарлаа");
     } finally {
       setChildToDelete(null);
     }

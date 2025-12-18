@@ -1,6 +1,7 @@
 export type FractionLesson = {
   id: string;
   title: string;
+  introMessage?: string; // Tale-style intro message shown before lesson
   mainImage: string;
   maskImage: string;
   backgroundImage: string;
@@ -13,6 +14,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-12",
     title: "12-р хуудас: Будацгаая",
+    introMessage:
+      "Тэр хүүг Элон гэдэг. Бяцхан Элон өдөр бүр одод руу ширтэж “Би яг юунд дуртай юм бол?” гэж боддог байлаа. Элон дандаа ганцаараа цаасаар дүрс хайчилж, бүтээл хийж тоглодог байв. Нарны аймаг нь Нар, түүнийг татах хүчнийх нь улмаас тойрон эргэх найман гараг, таван тогтоогдсон одой гараг (дэлхийн ван), тэдгээрийн дагуулууд, маш олон тооны жижиг биетийг багтаасан систем юм. ",
     mainImage: "/page_12.svg",
     maskImage: "/page_12_mask.png",
     backgroundImage: "/page_12_backgroun.png",
@@ -34,6 +37,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-13",
     title: "13-р хуудас: Будацгаая",
+    introMessage:
+      "Элоны гэр бүлийн уур амьсгал хүндхэн байхад тэр чимээгүйхэн өөрийгөө Тортой адилхан гэж боддог байв. Элон “Гэр бүл бүрд асуудал гардаг, харин би Торын алх шиг хүчтэй зүрхтэй бол бүх зүйлийг эергээр давж чадна” гэдгийг ойлгожээ. “Тоглоом тоглох уу, хичээлээ хийх үү?” гэж Элон бодлоо.  Нэг нь хөгжилтэй, нөгөө нь мөрөөдөлд ойртуулдаг. Бүх сонголт чиний гарт байдаг. Мөрөөдөл рүүгээ алхах эсэхийг зөвхөн ЧИ л шийднэ",
     mainImage: "/page_13.svg",
     maskImage: "/page_13_mask.png",
     backgroundImage: "/page_13_background.png",
@@ -57,6 +62,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-14",
     title: "14-р хуудас: Будацгаая",
+    introMessage:
+      "Олон Улсын Сансрын Станц-ыг сансарт байнгын судалгаа шинжилгээ явуулах зорилгоор 1998 оны 11 сараас эхлэн тойрог замд угсран байгуулсан. Уг ОУСС-ыг олон судалгаа шинжилгээнд ашиглаж байна.Элон анхныхаа цаасан пуужинг хийхдээ “яах бол?” гэж зөндөө эргэлзсэн. Анхны алхам бол айдас биш, гайхамшиг юм. “Анх удаа шинэ зүйлд хөл тавих нь ертөнцийг өөрчлөх хамгийн хүчирхэг эхлэл юм” гэж Элон хэлсэн.",
     mainImage: "/page_14.svg",
     maskImage: "/page_14_mask.png",
     backgroundImage: "/page_14_background.png",
@@ -101,6 +108,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-18",
     title: "18-р хуудас: Будацгаая",
+    introMessage:
+      "Элоны пуужин дахин дахин унаж, эвдэрч байсан ч тэр дахиад л цаас аваад эхэлдэг байв. Тэр алдаа болгон минь дараагийн оролдлогын нэг шат юм байна. “Алдаа бүр миний ахих шат” гэдгийг сайн ойлгосон.",
     mainImage: "/page_18.svg",
     maskImage: "/page_18_mask.png",
     backgroundImage: "/page_18_background.png",
@@ -119,6 +128,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-19",
     title: "19-р хуудас: Будацгаая",
+    introMessage:
+      "Элон Маск нь 2002 онд SpaceX-ийг үүсгэн байгуулж, сансрын аяллыг хямд, хүртээмжтэй болгох зорилго тавьжээ. 2008 он хүртэл SpaceX компани олон туршилт хийж бүтэлгүйтсэнээр дампуурлын ирмэгт ирсэн байсан.",
     mainImage: "/page_19.svg",
     maskImage: "/page_19_mask.png",
     backgroundImage: "/page_19_background.png",
@@ -137,6 +148,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-20",
     title: "20-р хуудас: Будацгаая",
+    introMessage:
+      "Пуужин нь унах бүрд Элон гуниглахын оронд номоо дахин нээдэг байлаа. Тэр хуудас бүрээс “ЯАГААД” гэдэг хариултыг тэвчээртэй уншиж хайдаг. Түүний хамгийн сайн багш бол АЛДАА, харин хамгийн ухаантай багш бол НОМ байв.",
     mainImage: "/page_20.svg",
     maskImage: "/page_20_mask.png",
     backgroundImage: "/page_20_background.png",
@@ -160,6 +173,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-21",
     title: "21-р хуудас: Будацгаая",
+    introMessage:
+      "2008 онд Falcon 1 амжилттайгаар дэлхийн тойрог замд гарсан анхны хувийн хөрөнгө оруулалтаар бүтсэн пуужин болж, түүхэнд бичигджээ. Falcon 1-ийн амжилт нь SpaceX-д НАСА-тай хамтран ажиллах замыг нээсэн.",
     mainImage: "/page_21.svg",
     maskImage: "/page_21_mask.png",
     backgroundImage: "/page_21_background.png",
@@ -183,6 +198,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-22",
     title: "22-р хуудас: Будацгаая",
+    introMessage:
+      "Элон хүү олон найзтай хүүхэдтэй өөрийгөө харьцуулж гунигладаг байлаа. Түүний уншсан номон дээр:  “Хүн бүр өөр өөр учир өөрийгөө бусадтай бүү харьцуулаарай, Чи бол өөрийн гэсэн онцгой дүр төрх, зан чанартай шүү.” гэсэн ишлэл түүний ганцаардлыг хөгжих боломж болгосон. ",
     mainImage: "/page_22.svg",
     maskImage: "/page_22_mask.png",
     backgroundImage: "/page_22_background.png",
@@ -229,6 +246,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-28",
     title: "28-р хуудас: Будацгаая",
+    introMessage:
+      "Элон олон удаа оролдож, эцэст нь түүний пуужин жинхэнээсээ тэнгэрт хөөрөв.  Тэр догдолж, “БИ ЧАДСАН!” гэж зүрхэндээ чангаар хэлэв. Чи өдөр бүр хичээхэд, нэг л өдөр хүсэл чинь тэнгэрт дүүлэн нисэх болно. Space X компани нь сансрын хөөргөлтийн зардлыг бууруулах зорилготой  ба  2024 онд “Starship” пуужингийн тав дахь туршилтаа амжилттай гүйцэтгэсэн.",
     mainImage: "/page_28.svg",
     maskImage: "/page_28_mask.png",
     backgroundImage: "/page_28_background.png",
@@ -251,6 +270,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-30",
     title: "30-р хуудас: Будацгаая",
+    introMessage:
+      "Бяцхан Элон хэний ч төсөөлөөгүй зүйлийг мөрөөдөж байсан. Тэр өдөр бүр тасралтгүй хичээснээр одоо тэр дэлхийн хамгийн БАЯН,  дэлхийг авардаг жинхэнэ БААТАР болж чадсан.",
     mainImage: "/page_30.svg",
     maskImage: "/page_30_mask.png",
     backgroundImage: "/page_30_background.png",
@@ -273,6 +294,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-31",
     title: "31-р хуудас: Будацгаая",
+    introMessage:
+      "Элон Маск хүсэл мөрөөдөлдөө хүрэхийн төлөө шаргуу хөдөлмөрлөж, бид бүхний цэнхэр дэлхийг аврахын төлөө шинэлэг компаниудаа улам хөгжүүлж, зогсолтгүй урагшилсаар манай гарагийн ХАМГИЙН БАЯН хүн болсон төдийгүй цаашид ч маш олон гайхамшгийг бүтээхийн төлөө итгэл төгс алхаж байна.",
     mainImage: "/page_31.svg",
     maskImage: "/page_31_mask.png",
     backgroundImage: "/page_31_background.png",
@@ -294,6 +317,8 @@ export const fractionLessons: FractionLesson[] = [
   {
     id: "page-33",
     title: "33-р хуудас: Будацгаая",
+    introMessage:
+      "Элон бол онцгой хүүхэд биш тэр бол мөрөөдлөө дагасан жирийн хүү. Хэрвээ чи хүсвэл, бүтээж чадна. Зөвхөн зориг, зүрх, хичээл зүтгэл л хэрэгтэй. Ирээдүйг бүтээх дараагийн хүн бол ЧИ байх болно! Одоо Элон Маск хүн төрөлхтнийг аврах пуужин бүтээж, Ангарагт хот байгуулах ажлаа үргэлжлүүлсээр байна. Тэр бол зүгээр нэг баян хүн биш  өөрийнхөө мөрөөдөлдөө үнэнч байсан хүү юм.",
     mainImage: "/page_33.svg",
     maskImage: "/page_33_mask.png",
     backgroundImage: "/page_33_background.png",

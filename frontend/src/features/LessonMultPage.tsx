@@ -12,14 +12,18 @@ import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import {
-  MessageTooltip,
   RelaxModal,
   useTutorial,
-  lessonPageTutorial,
+  lessonPageTutorialDesktop,
+  lessonPageTutorialMobile,
 } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
+import {
+  RotateDevicePrompt,
+  useIsPortraitMobile,
+} from "@/src/components/ui/RotateDevicePrompt";
 import Loader from "@/src/components/ui/Loader";
-import { showCharacterToast } from "@/src/components/ui/CharacterToast";
+import { showCharacterToast, showCustomCharacterToast, showErrorToastTopRight } from "@/src/components/ui/CharacterToast";
 
 export default function LessonMultPage() {
   const params = useParams<{ lessonId: string }>();
@@ -70,7 +74,8 @@ export default function LessonMultPage() {
   // Start lesson tutorial when page is ready
   useEffect(() => {
     if (isPaid) {
-      startTutorial(lessonPageTutorial);
+      const isMobile = window.innerWidth < 1024; // lg breakpoint
+      startTutorial(isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop);
     }
   }, [isPaid, startTutorial]);
 
@@ -79,13 +84,18 @@ export default function LessonMultPage() {
   );
   const [helpOpen, setHelpOpen] = useState(false);
   const [, setImageLoaded] = useState(false);
-  const [characterMessage, setCharacterMessage] = useState<string | null>(null);
   const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
   const [showReward, setShowReward] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+
+  // Track successful fills for character toast - use ref to avoid stale closure
+  const successfulFillCountRef = useRef(0);
+
+  // Mobile state
+  const isPortraitMobile = useIsPortraitMobile();
 
   // Palette already has { color, label } format for multiplication
   const paletteForDisplay = useMemo(() => {
@@ -111,8 +121,23 @@ export default function LessonMultPage() {
   }, []);
 
   const showCharacterMessage = useCallback((message: string) => {
-    setCharacterMessage(message);
+    showErrorToastTopRight(message);
   }, []);
+
+  // Handler for successful fill - show random character toast at multiple fill counts
+  const handleSuccessfulFill = useCallback(() => {
+    successfulFillCountRef.current += 1;
+    const count = successfulFillCountRef.current;
+
+    // Show toast at fills 2, 5, 8, 11, etc. (every 3 fills starting from 2)
+    const toastTriggers = [2, 5, 8, 11, 14, 17, 20];
+    if (toastTriggers.includes(count) && lesson?.introMessages && lesson.introMessages.length > 0) {
+      // Pick a random message/character combo
+      const randomIndex = Math.floor(Math.random() * lesson.introMessages.length);
+      const { message, character } = lesson.introMessages[randomIndex];
+      showCustomCharacterToast(message, character);
+    }
+  }, [lesson]);
 
   // Show loading while checking payment
   if (isPaid === null) {
@@ -267,47 +292,73 @@ export default function LessonMultPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-2 lg:p-6">
       {/* Main Box Container */}
-      <div className="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-w-7xl w-full">
+      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-xl flex flex-col max-w-7xl w-full h-full lg:h-auto">
         {/* Header inside box */}
-        <LessonHeader title={lesson.title} onBack={handleBack} />
+        <LessonHeader
+          title={lesson.title}
+          onBack={handleBack}
+          selectedColor={selectedColor}
+          colors={paletteForDisplay}
+          onSelectColor={setSelectedColor}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onHelp={handleHelp}
+          onDownload={handleDownload}
+          onEnd={markCompleted}
+          canUndo={canUndo}
+          canRedo={canRedo}
+        />
 
-        {/* Main Content - 3 column layout */}
-        <div className="flex-1 flex items-stretch justify-center p-6 gap-6">
-          {/* Left - Color Palette */}
-          <ColorPalette
-            colors={paletteForDisplay}
-            selectedColor={selectedColor}
-            setSelectedColor={setSelectedColor}
-          />
+        {/* Show Rotate Prompt in Portrait Mode */}
+        {isPortraitMobile ? (
+          <RotateDevicePrompt />
+        ) : (
+          /* Main Content - 3 column layout on desktop, single column on mobile */
+          <div className="flex-1 flex items-stretch justify-center p-2 lg:p-6 gap-2 lg:gap-6">
+            {/* Left - Color Palette (Desktop only) */}
+            <div className="hidden lg:flex">
+              <ColorPalette
+                colors={paletteForDisplay}
+                selectedColor={selectedColor}
+                setSelectedColor={setSelectedColor}
+              />
+            </div>
 
-          {/* Center - Canvas */}
-          <div className="flex-1 max-w-4xl">
-            <ColoringCanvas
-              ref={canvasRef}
-              mainImage={lesson.mainImage}
-              maskImage={lesson.maskImage}
-              backgroundImage={lesson.backgroundImage}
-              selectedColor={selectedColor}
-              setImageLoaded={setImageLoaded}
-              palette={rawPalette}
-              onShowMessage={showCharacterMessage}
-              onShowRelax={() => setShowRelaxModal(true)}
-            />
+            {/* Center - Canvas */}
+            <div className="flex-1 max-w-5xl">
+              <ColoringCanvas
+                ref={canvasRef}
+                mainImage={lesson.mainImage}
+                maskImage={lesson.maskImage}
+                backgroundImage={lesson.backgroundImage}
+                selectedColor={selectedColor}
+                setImageLoaded={setImageLoaded}
+                palette={rawPalette}
+                onShowMessage={showCharacterMessage}
+                onShowRelax={() => setShowRelaxModal(true)}
+                onSuccessfulFill={handleSuccessfulFill}
+              />
+            </div>
+
+            {/* Right - Action Toolbar (Desktop only) */}
+            <div className="hidden lg:flex">
+              <ActionToolbar
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                onHelp={handleHelp}
+                onDownload={handleDownload}
+                onEnd={markCompleted}
+                canUndo={canUndo}
+                canRedo={canRedo}
+              />
+            </div>
           </div>
+        )}
 
-          {/* Right - Action Toolbar */}
-          <ActionToolbar
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            onHelp={handleHelp}
-            onDownload={handleDownload}
-            onEnd={markCompleted}
-            canUndo={canUndo}
-            canRedo={canRedo}
-          />
-        </div>
+        {/* Footer (Desktop only) */}
+        <div className="hidden lg:flex p-6 justify-end border-t border-gray-100"></div>
       </div>
 
       {/* Help Panel */}
@@ -315,16 +366,6 @@ export default function LessonMultPage() {
         helpOpen={helpOpen}
         setHelpOpen={setHelpOpen}
         helpImage={lesson.helpImage}
-      />
-
-      {/* Character Message */}
-      <MessageTooltip
-        message={characterMessage || ""}
-        character="yellow"
-        characterPosition="left"
-        isVisible={!!characterMessage}
-        onClose={() => setCharacterMessage(null)}
-        autoCloseDelay={8000}
       />
 
       {/* Relax Modal */}

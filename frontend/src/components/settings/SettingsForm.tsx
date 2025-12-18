@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/src/components/auth";
 import { createClient } from "@/src/utils/supabase/client";
-import { toast } from "sonner";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "@/src/components/ui/CharacterToast";
 import Loader from "@/src/components/ui/Loader";
 import Image from "next/image";
 
@@ -50,9 +53,9 @@ export default function SettingsForm() {
       });
 
       if (error) throw error;
-      toast.success("Мэдээлэл амжилттай хадгалагдлаа");
+      showSuccessToast("Мэдээлэл амжилттай хадгалагдлаа");
     } catch (error: any) {
-      toast.error("Алдаа гарлаа: " + error.message);
+      showErrorToast("Алдаа гарлаа: " + error.message);
     } finally {
       setIsSaving(false);
     }
@@ -61,7 +64,7 @@ export default function SettingsForm() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPassword) {
-      toast.error("Шинэ нууц үгээ оруулна уу");
+      showErrorToast("Шинэ нууц үгээ оруулна уу");
       return;
     }
     setPasswordLoading(true);
@@ -72,11 +75,11 @@ export default function SettingsForm() {
       });
 
       if (error) throw error;
-      toast.success("Нууц үг амжилттай солигдлоо");
+      showSuccessToast("Нууц үг амжилттай солигдлоо");
       setCurrentPassword("");
       setNewPassword("");
     } catch (error: any) {
-      toast.error("Алдаа: " + error.message);
+      showErrorToast("Алдаа: " + error.message);
     } finally {
       setPasswordLoading(false);
     }
@@ -97,7 +100,7 @@ export default function SettingsForm() {
       if (error) throw error;
     } catch (error: any) {
       console.error("Error saving notification settings:", error);
-      toast.error("Тохиргоог хадгалж чадсангүй");
+      showErrorToast("Тохиргоог хадгалж чадсангүй");
       setNotifications((prev) => ({
         ...prev,
         [key]: !prev[key],

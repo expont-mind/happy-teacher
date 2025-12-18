@@ -39,6 +39,7 @@ function HeaderContent() {
   const isAuthPage =
     pathname === "/login" || (pathname === "/register" && step === 1);
   const isRegisterStep2 = pathname === "/register" && step === 2;
+  const isLessonPage = /^\/topic\/[^/]+\/[^/]+$/.test(pathname);
 
   const [mobileNotificationsOpen, setMobileNotificationsOpen] = useState(false);
 
@@ -109,7 +110,7 @@ function HeaderContent() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4">
+      <header className={`${isLessonPage ? '' : 'sticky top-0'} z-50 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4`}>
         <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
           <Link href="/" className="flex gap-[10px] items-center py-1.5 z-20">
             <Image
@@ -241,6 +242,7 @@ function HeaderContent() {
             <button
               onClick={() => setIsOpen(true)}
               className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors z-20"
+              data-tutorial="mobile-menu-btn"
             >
               <Menu size={24} className="text-gray-700" />
             </button>
