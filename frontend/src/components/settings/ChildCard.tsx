@@ -50,12 +50,6 @@ export const ChildCard = ({ child }: ChildCardProps) => {
                 {child.xp} XP
               </span>
             </div>
-            <div className="flex items-center gap-1.5 bg-[#3B82F6]/10 px-2 py-0.5 rounded-md">
-              <Trophy size={14} className="text-[#3B82F6]" />
-              <span className="text-xs font-bold text-[#2563EB] font-nunito">
-                Level {child.level}
-              </span>
-            </div>
           </div>
         </div>
       </div>

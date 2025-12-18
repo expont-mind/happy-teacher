@@ -39,8 +39,8 @@ function RegisterContent() {
   // Step 2 - Child Info
   const [childName, setChildName] = useState("");
   const [childIcon, setChildIcon] = useState(CHILD_ICONS[0]);
-  const [childAge, setChildAge] = useState<number>(6);
-  const [childGrade, setChildGrade] = useState<number>(1);
+  const [childAge, setChildAge] = useState<number>(9);
+  const [childGrade, setChildGrade] = useState<number>(4);
   const [generatedCode, setGeneratedCode] = useState<string>("");
 
   const { signUp, supabase } = useAuth();
@@ -51,7 +51,7 @@ function RegisterContent() {
   };
 
   const generatePinCode = (): string => {
-    return Math.floor(1000 + Math.random() * 9000).toString();
+    return Math.floor(100000 + Math.random() * 900000).toString();
   };
 
   const handleStep2Submit = async (e: React.FormEvent) => {

@@ -25,7 +25,7 @@ export default function LoginPage() {
       await signIn(email, password);
       setEmail("");
       setPassword("");
-      router.push("/");
+      router.push("/profiles");
     } catch (error) {
     } finally {
       setLoading(false);

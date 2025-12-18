@@ -5,7 +5,7 @@ export const Hero = () => {
   return (
     <div className="w-full flex justify-center bg-white py-16 lg:py-[144px] px-4 overflow-hidden">
       <div className="relative max-w-[1280px] w-full flex flex-col items-center lg:items-start text-center lg:text-left gap-6">
-        <p className="text-[#1F2937] font-extrabold text-4xl lg:text-[56px] font-nunito max-w-[410px] lg:leading-16 leading-tight z-10">
+        <p className="text-[#1F2937] font-extrabold text-4xl lg:text-[56px] font-nunito max-w-[410px] lg:leading-14 leading-tight z-10">
           Математикийг <span className="text-[#58CC02]">амархан</span> сур.
           Үргэлж.
         </p>
@@ -29,14 +29,14 @@ export const Hero = () => {
           alt="Icon"
           width={468}
           height={400}
-          className="hidden lg:block absolute -right-[50px] bottom-6"
+          className="hidden lg:block absolute -right-[50px] -bottom-6"
         />
         <Image
           src="/svg/home2.png"
           alt="Icon"
           width={330}
           height={244}
-          className="hidden lg:block absolute right-[450px] -bottom-6"
+          className="hidden lg:block absolute right-[450px] -bottom-10"
         />
 
         {/* Mobile Images (Optional: simplified or different positioning) */}
