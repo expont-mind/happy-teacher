@@ -23,8 +23,8 @@ export default function AddChildModal({
 }: AddChildModalProps) {
   const [name, setName] = useState("");
   const [childIcon, setChildIcon] = useState(CHILD_ICONS[0]);
-  const [childAge, setChildAge] = useState<number>(6);
-  const [childGrade, setChildGrade] = useState<number>(1);
+  const [childAge, setChildAge] = useState<number>(9);
+  const [childGrade, setChildGrade] = useState<number>(4);
 
   const [generatedPin, setGeneratedPin] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,7 @@ export default function AddChildModal({
   if (!isOpen) return null;
 
   const generatePin = () => {
-    return Math.floor(1000 + Math.random() * 9000).toString();
+    return Math.floor(100000 + Math.random() * 900000).toString();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,7 +71,7 @@ export default function AddChildModal({
   const handleClose = () => {
     setName("");
     setChildIcon(CHILD_ICONS[0]);
-    setChildAge(6);
+    setChildAge(9);
     setChildGrade(1);
     setGeneratedPin("");
     setStep("input");
@@ -145,7 +145,7 @@ export default function AddChildModal({
                     Нас
                   </label>
                   <div className="flex gap-2">
-                    {[6, 7, 8, 9, 10].map((age) => (
+                    {[9, 10, 11, 12, 13].map((age) => (
                       <button
                         key={age}
                         type="button"
@@ -168,7 +168,7 @@ export default function AddChildModal({
                     Анги
                   </label>
                   <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((grade) => (
+                    {[4, 5, 6, 7, 8].map((grade) => (
                       <button
                         key={grade}
                         type="button"

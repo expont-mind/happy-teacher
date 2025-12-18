@@ -154,14 +154,6 @@ function HeaderContent() {
                       {activeProfile.xp || 0}
                     </div>
 
-                    <div
-                      className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5"
-                      data-tutorial="level-stat"
-                    >
-                      <Trophy size={20} color="#FBBF24" />
-                      {activeProfile.level || 1}
-                    </div>
-
                     <Link href="/profiles" data-tutorial="profiles-btn">
                       <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
                         <Users size={20} color="#58CC02" />
@@ -337,20 +329,6 @@ function HeaderContent() {
                               />
                               <span className="text-sm font-bold text-gray-700">
                                 {activeProfile.xp || 0}
-                              </span>
-                            </div>
-
-                            <div
-                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-200"
-                              data-tutorial="level-stat"
-                            >
-                              <Trophy
-                                size={18}
-                                className="text-(--duo-yellow-dark)"
-                                strokeWidth={2.5}
-                              />
-                              <span className="text-sm font-bold text-gray-700">
-                                {activeProfile.level || 1}
                               </span>
                             </div>
                           </div>

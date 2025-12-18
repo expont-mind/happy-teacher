@@ -300,34 +300,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (currentProfile.parentId) {
         try {
-          // Try RPC first (secure way to bypass RLS)
-          const { data: rpcData, error: rpcError } = await supabase.rpc(
-            "check_parent_purchase",
-            {
-              p_id: currentProfile.parentId,
-              t_key: topicKey,
-            }
-          );
-
-          if (!rpcError) {
-            return !!rpcData;
-          }
-
-          console.warn(
-            "RPC check failed (function might not exist), falling back to direct query:",
-            rpcError.message
-          );
-
-          // Fallback to direct query (works if RLS is disabled or public)
+          // Check for specific child purchase or family purchase (null child_id)
           const { data, error } = await supabase
             .from("purchases")
             .select("id")
             .eq("user_id", currentProfile.parentId)
             .eq("topic_key", topicKey)
+            .or(`child_id.eq.${currentProfile.id},child_id.is.null`)
             .maybeSingle();
 
           if (error) {
-            console.warn("Error checking parent purchase:", error);
+            console.warn("Error checking child purchase:", error);
+            // Fallback to RPC if direct query fails (e.g. if column doesn't exist yet, though we assume it does)
+            const { data: rpcData, error: rpcError } = await supabase.rpc(
+              "check_parent_purchase",
+              {
+                p_id: currentProfile.parentId,
+                t_key: topicKey,
+              }
+            );
+            if (!rpcError) return !!rpcData;
             return false;
           }
 

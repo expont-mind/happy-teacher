@@ -32,8 +32,8 @@ export default function EditChildModal({
 }: EditChildModalProps) {
   const [name, setName] = useState("");
   const [childIcon, setChildIcon] = useState(CHILD_ICONS[0]);
-  const [childAge, setChildAge] = useState<number>(6);
-  const [childGrade, setChildGrade] = useState<number>(1);
+  const [childAge, setChildAge] = useState<number>(9);
+  const [childGrade, setChildGrade] = useState<number>(4);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
@@ -41,8 +41,8 @@ export default function EditChildModal({
     if (child) {
       setName(child.name || "");
       setChildIcon(child.avatar || CHILD_ICONS[0]);
-      setChildAge(child.age || 6);
-      setChildGrade(child.class || 1);
+      setChildAge(child.age || 9);
+      setChildGrade(child.class || 4);
     }
   }, [child]);
 
@@ -144,7 +144,7 @@ export default function EditChildModal({
                   Нас
                 </label>
                 <div className="flex gap-2">
-                  {[6, 7, 8, 9, 10].map((age) => (
+                  {[9, 10, 11, 12, 13].map((age) => (
                     <button
                       key={age}
                       type="button"
@@ -167,7 +167,7 @@ export default function EditChildModal({
                   Анги
                 </label>
                 <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((grade) => (
+                  {[4, 5, 6, 7, 8].map((grade) => (
                     <button
                       key={grade}
                       type="button"
