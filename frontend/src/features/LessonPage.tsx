@@ -12,7 +12,6 @@ import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import {
-  MessageTooltip,
   IntroToast,
   RelaxModal,
   useTutorial,
@@ -26,7 +25,10 @@ import {
   useIsPortraitMobile,
 } from "@/src/components/ui/RotateDevicePrompt";
 import Loader from "@/src/components/ui/Loader";
-import { showCharacterToast } from "@/src/components/ui/CharacterToast";
+import {
+  showCharacterToast,
+  showErrorToastTopRight,
+} from "@/src/components/ui/CharacterToast";
 
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
@@ -103,7 +105,6 @@ export default function LessonPage() {
   );
   const [helpOpen, setHelpOpen] = useState(false);
   const [, setImageLoaded] = useState(false);
-  const [characterMessage, setCharacterMessage] = useState<string | null>(null);
   const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
   const [showReward, setShowReward] = useState(false);
@@ -138,7 +139,7 @@ export default function LessonPage() {
   }, []);
 
   const showCharacterMessage = useCallback((message: string) => {
-    setCharacterMessage(message);
+    showErrorToastTopRight(message);
   }, []);
 
   // Show loading while checking payment
@@ -397,16 +398,6 @@ export default function LessonPage() {
         helpVideoId={lesson.helpVideoId}
       />
 
-      {/* Character Message */}
-      <MessageTooltip
-        message={characterMessage || ""}
-        character="yellow"
-        characterPosition="left"
-        isVisible={!!characterMessage}
-        onClose={() => setCharacterMessage(null)}
-        autoCloseDelay={8000}
-      />
-
       {/* Intro Toast (centered with blur) */}
       <IntroToast
         message={introMessage || ""}
@@ -415,7 +406,9 @@ export default function LessonPage() {
           setIntroMessage(null);
           // Start tutorial after intro closes
           const isMobile = window.innerWidth < 1024;
-          startTutorial(isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop);
+          startTutorial(
+            isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop
+          );
         }}
       />
 
