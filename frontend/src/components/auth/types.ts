@@ -27,7 +27,10 @@ export interface AuthContextType {
   selectProfile: (profile: UserProfile) => void;
   checkPurchase: (topicKey: string) => Promise<boolean>;
   purchaseTopic: (topicKey: string) => Promise<void>;
-  markLessonCompleted: (topicKey: string, lessonId: string) => Promise<void>;
+  markLessonCompleted: (
+    topicKey: string,
+    lessonId: string
+  ) => Promise<{ isFirstCompletion: boolean }>;
   getCompletedLessons: (topicKey: string) => Promise<string[]>;
   lastPurchaseTime: number;
   addXP: (

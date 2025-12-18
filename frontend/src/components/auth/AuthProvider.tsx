@@ -409,7 +409,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const markLessonCompleted = async (topicKey: string, lessonId: string) => {
+  const markLessonCompleted = async (
+    topicKey: string,
+    lessonId: string
+  ): Promise<{ isFirstCompletion: boolean }> => {
     // Use state first, then fallback to localStorage to be safe
     let currentProfile = activeProfile;
     if (!currentProfile) {
@@ -426,6 +429,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // If child profile
     if (currentProfile?.type === "child") {
       try {
+        // Check if lesson was already completed
+        const { data: existingProgress } = await supabase
+          .from("child_progress")
+          .select("id")
+          .eq("child_id", currentProfile.id)
+          .eq("topic_key", topicKey)
+          .eq("lesson_id", lessonId)
+          .maybeSingle();
+
+        const isFirstCompletion = !existingProgress;
+
         const { error } = await supabase.rpc("mark_child_progress", {
           p_child_id: currentProfile.id,
           p_topic_key: topicKey,
@@ -438,10 +452,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const key = `child_progress:${currentProfile.id}:${topicKey}`;
           const saved = localStorage.getItem(key);
           const list: string[] = saved ? JSON.parse(saved) : [];
-          if (!list.includes(lessonId)) {
+          const wasNew = !list.includes(lessonId);
+          if (wasNew) {
             const updated = [...list, lessonId];
             localStorage.setItem(key, JSON.stringify(updated));
           }
+          return { isFirstCompletion: wasNew };
         } else {
           // Update streak
           const { data: newStreak, error: streakError } = await supabase.rpc(
@@ -461,24 +477,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             );
           }
         }
+
+        return { isFirstCompletion };
       } catch (err) {
         console.error("Unexpected error marking child lesson completed:", err);
+        return { isFirstCompletion: false };
       }
-      return;
     }
 
     if (!user) {
       const key = `progress:${topicKey}`;
       const saved = localStorage.getItem(key);
       const list: string[] = saved ? JSON.parse(saved) : [];
-      if (!list.includes(lessonId)) {
+      const wasNew = !list.includes(lessonId);
+      if (wasNew) {
         const updated = [...list, lessonId];
         localStorage.setItem(key, JSON.stringify(updated));
       }
-      return;
+      return { isFirstCompletion: wasNew };
     }
 
     try {
+      // Check if already completed for adult
+      const { data: existingProgress } = await supabase
+        .from("user_progress")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("topic_key", topicKey)
+        .eq("lesson_id", lessonId)
+        .maybeSingle();
+
+      const isFirstCompletion = !existingProgress;
+
       const { error } = await supabase.from("user_progress").upsert(
         {
           user_id: user.id,
@@ -504,11 +534,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const key = `progress:${topicKey}`;
           const saved = localStorage.getItem(key);
           const list: string[] = saved ? JSON.parse(saved) : [];
-          if (!list.includes(lessonId)) {
+          const wasNew = !list.includes(lessonId);
+          if (wasNew) {
             const updated = [...list, lessonId];
             localStorage.setItem(key, JSON.stringify(updated));
           }
-          return;
+          return { isFirstCompletion: wasNew };
         }
         console.error("Error marking lesson completed:", error);
         throw error;
@@ -525,15 +556,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem("activeProfile", JSON.stringify(updatedProfile));
         }
       }
+
+      return { isFirstCompletion };
     } catch (err) {
       console.error("Unexpected error marking lesson completed:", err);
       const key = `progress:${topicKey}`;
       const saved = localStorage.getItem(key);
       const list: string[] = saved ? JSON.parse(saved) : [];
-      if (!list.includes(lessonId)) {
+      const wasNew = !list.includes(lessonId);
+      if (wasNew) {
         const updated = [...list, lessonId];
         localStorage.setItem(key, JSON.stringify(updated));
       }
+      return { isFirstCompletion: wasNew };
     }
   };
 

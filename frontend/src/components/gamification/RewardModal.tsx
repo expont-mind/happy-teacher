@@ -50,7 +50,7 @@ export const RewardModal = ({
 
         <h2 className="text-2xl font-bold text-yellow-500 mb-2">Гайхалтай!</h2>
 
-        <p className="text-gray-500 mb-4">Та бутархайг зөв өнгөлөө!</p>
+        <p className="text-gray-500 mb-4">Та бутархайг зөв будлаа!</p>
 
         <div className="flex items-center justify-center gap-1 text-xl font-bold text-green-500 mb-6">
           +{xpEarned} XP
@@ -62,7 +62,7 @@ export const RewardModal = ({
             onClick={onNextLesson || onClose}
             className="duo-button duo-button-green flex-1 py-3 px-4 text-white font-bold"
           >
-            Дараагийн даалгавар
+            Үргэлжлүүлэх
           </button>
           <button
             onClick={onClose}

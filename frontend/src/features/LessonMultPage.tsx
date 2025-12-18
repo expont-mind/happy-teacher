@@ -23,7 +23,11 @@ import {
   useIsPortraitMobile,
 } from "@/src/components/ui/RotateDevicePrompt";
 import Loader from "@/src/components/ui/Loader";
-import { showCharacterToast, showCustomCharacterToast, showErrorToastTopRight } from "@/src/components/ui/CharacterToast";
+import {
+  showCharacterToast,
+  showCustomCharacterToast,
+  showErrorToastTopRight,
+} from "@/src/components/ui/CharacterToast";
 
 export default function LessonMultPage() {
   const params = useParams<{ lessonId: string }>();
@@ -46,8 +50,13 @@ export default function LessonMultPage() {
 
   // Find the next lesson
   const nextLesson = useMemo(() => {
-    const currentIndex = multiplicationLessons.findIndex((l) => l.id === params.lessonId);
-    if (currentIndex === -1 || currentIndex === multiplicationLessons.length - 1) {
+    const currentIndex = multiplicationLessons.findIndex(
+      (l) => l.id === params.lessonId
+    );
+    if (
+      currentIndex === -1 ||
+      currentIndex === multiplicationLessons.length - 1
+    ) {
       return null;
     }
     return multiplicationLessons[currentIndex + 1];
@@ -75,7 +84,9 @@ export default function LessonMultPage() {
   useEffect(() => {
     if (isPaid) {
       const isMobile = window.innerWidth < 1024; // lg breakpoint
-      startTutorial(isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop);
+      startTutorial(
+        isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop
+      );
     }
   }, [isPaid, startTutorial]);
 
@@ -131,9 +142,15 @@ export default function LessonMultPage() {
 
     // Show toast at fills 2, 5, 8, 11, etc. (every 3 fills starting from 2)
     const toastTriggers = [2, 5, 8, 11, 14, 17, 20];
-    if (toastTriggers.includes(count) && lesson?.introMessages && lesson.introMessages.length > 0) {
+    if (
+      toastTriggers.includes(count) &&
+      lesson?.introMessages &&
+      lesson.introMessages.length > 0
+    ) {
       // Pick a random message/character combo
-      const randomIndex = Math.floor(Math.random() * lesson.introMessages.length);
+      const randomIndex = Math.floor(
+        Math.random() * lesson.introMessages.length
+      );
       const { message, character } = lesson.introMessages[randomIndex];
       showCustomCharacterToast(message, character);
     }
@@ -259,21 +276,31 @@ export default function LessonMultPage() {
     }
 
     // Save to Supabase (with localStorage fallback)
-    await markLessonCompleted("multiplication", lesson.id);
+    const { isFirstCompletion } = await markLessonCompleted(
+      "multiplication",
+      lesson.id
+    );
 
-    // Calculate XP based on mistakes
-    const mistakes = canvasRef.current?.getMistakeCount() || 0;
-    const baseXP = 10;
-    const bonusXP = mistakes === 0 ? 5 : 0;
-    const totalXP = baseXP + bonusXP;
+    // Only award XP on first completion
+    if (isFirstCompletion) {
+      // Calculate XP based on mistakes
+      const mistakes = canvasRef.current?.getMistakeCount() || 0;
+      const baseXP = 10;
+      const bonusXP = mistakes === 0 ? 5 : 0;
+      const totalXP = baseXP + bonusXP;
 
-    // Award XP and show reward modal
-    try {
-      await addXP(totalXP);
-    } catch (err) {
-      console.error("Failed to add XP:", err);
+      // Award XP and show reward modal
+      try {
+        await addXP(totalXP);
+      } catch (err) {
+        console.error("Failed to add XP:", err);
+      }
+      setXpEarned(totalXP);
+    } else {
+      // No XP for re-completing
+      setXpEarned(0);
     }
-    setXpEarned(totalXP);
+
     setShowReward(true);
   };
 
