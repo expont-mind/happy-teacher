@@ -24,7 +24,7 @@ export default function TopicsPage() {
     <div className="w-full h-full min-h-[calc(100vh-77px)] flex justify-center bg-[#FFFAF7] px-4 pb-10">
       <div className="max-w-[1280px] w-full flex flex-col gap-8 md:gap-14">
         {user && (
-          <div className="mt-8 md:mt-[50px] relative w-full bg-linear-to-r from-[#6FDC6F] to-[#32CD32] p-6 md:py-7 md:px-14 flex flex-col md:flex-row items-center gap-6 md:gap-7 rounded-[20px]">
+          <div className="mt-8 md:mt-[50px] relative w-full bg-linear-to-r from-[#6FDC6F] to-[#32CD32] p-6 md:py-7 md:px-14 flex flex-col md:flex-row items-center gap-6 md:gap-7 rounded-[20px] shadow-[2px_4px_5px_#58CC02]">
             <div className="absolute top-3 right-4 rotate-10">
               <Image
                 src="/svg/Sparkle.svg"

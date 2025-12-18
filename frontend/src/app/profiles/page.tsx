@@ -160,7 +160,7 @@ export default function ProfilesPage() {
               onClick={() => handleChildSelect(child)}
               className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48 relative"
             >
-              <div className="w-40 h-40 md:w-48 md:h-48 flex flex-col gap-2 items-center justify-center rounded-[32px] overflow-hidden shadow-[0_8px_0_#0C0A0126] hover:shadow-[0_8px_0_#0C0A0140] active:shadow-none active:translate-y-2 transition-all relative bg-[#FFD700] duration-200">
+              <div className="w-40 h-40 md:w-48 md:h-48 flex flex-col gap-2 items-center justify-center rounded-[32px] overflow-hidden shadow-[0_8px_0_#0C0A0126] hover:shadow-[0_8px_0_#0C0A0140] active:shadow-none active:translate-y-2 transition-all relative bg-[#58CC02] duration-200">
                 <div className="h-7"></div>
                 {child.avatar && child.avatar.startsWith("/") ? (
                   <Image

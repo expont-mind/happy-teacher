@@ -146,13 +146,12 @@ function HeaderContent() {
                       {activeProfile?.streak || 0}
                     </div>
 
-                    <div
-                      className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5"
-                      data-tutorial="xp-stat"
-                    >
-                      <Zap size={20} color="#FBBF24" />
-                      {activeProfile.xp || 0}
-                    </div>
+                    <Link href="/shop" data-tutorial="xp-stat">
+                      <div className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5 hover:bg-gray-50 transition-colors cursor-pointer">
+                        <Zap size={20} color="#FBBF24" />
+                        {activeProfile.xp || 0}
+                      </div>
+                    </Link>
 
                     <Link href="/profiles" data-tutorial="profiles-btn">
                       <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
