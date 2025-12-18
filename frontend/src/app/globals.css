@@ -230,6 +230,15 @@ body {
   animation: shimmer 2s infinite;
 }
 
+/* Utility classes */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Animations */
 @keyframes shimmer {
   0% {
