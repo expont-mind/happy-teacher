@@ -14,7 +14,9 @@ export default function TutorialOverlay() {
     if (!isActive || !config) return;
 
     const step = config.steps[currentStep];
-    const element = document.querySelector(step.targetSelector) as HTMLElement;
+    const element = document.querySelector(
+      step.targetSelector
+    ) as HTMLElement;
 
     if (element) {
       setTargetElement(element);
@@ -82,12 +84,10 @@ export default function TutorialOverlay() {
 
   return (
     <>
-      {/* Backdrop with spotlight effect */}
-
       {/* Highlighted Element Spotlight - cuts through the backdrop */}
       {showHighlight && (
         <div
-          className="fixed z-9999 pointer-events-none transition-all duration-300"
+          className="fixed pointer-events-none transition-all duration-300"
           style={{
             top: `${highlightRect.top - 4}px`,
             left: `${highlightRect.left - 4}px`,
@@ -95,6 +95,7 @@ export default function TutorialOverlay() {
             height: `${highlightRect.height + 8}px`,
             boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.6)",
             borderRadius: "var(--radius-xl)",
+            zIndex: 99999,
           }}
         />
       )}
@@ -106,6 +107,7 @@ export default function TutorialOverlay() {
         onNext={nextStep}
         onSkip={skipTutorial}
         showSkip={currentStep === 0}
+        showHighlight={showHighlight}
       />
     </>
   );

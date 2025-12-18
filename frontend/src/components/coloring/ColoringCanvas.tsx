@@ -19,6 +19,7 @@ interface ColoringCanvasProps {
   isEraserMode?: boolean;
   onShowMessage?: (message: string) => void;
   onShowRelax?: () => void;
+  onSuccessfulFill?: () => void;
 }
 
 export interface ColoringCanvasRef {
@@ -44,6 +45,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       isEraserMode = false,
       onShowMessage,
       onShowRelax,
+      onSuccessfulFill,
     },
     ref
   ) => {
@@ -404,6 +406,9 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         // Reset wrong click counter on successful fill
         wrongClickCountRef.current = 0;
 
+        // Notify parent of successful fill
+        if (onSuccessfulFill) onSuccessfulFill();
+
         // Use eraser mode (white) or selected color
         const fillColor = isEraserMode ? "#ffffff" : selectedColor;
         floodFill(x, y, fillColor);
@@ -415,6 +420,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         palette,
         onShowRelax,
         showMessage,
+        onSuccessfulFill,
       ]
     );
 

@@ -1,6 +1,7 @@
 export type MultiplicationLesson = {
   id: string;
   title: string;
+  introMessages?: { message: string; character: string }[]; // Array of messages with characters for random toasts
   mainImage: string;
   maskImage: string;
   backgroundImage: string;
@@ -12,6 +13,24 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-3",
     title: "3-р хуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Hulk, харлаа? Энэ хүүхэд үнэхээр сайн будаж байна!",
+        character: "iron-man",
+      },
+      {
+        message: "Тийм ээ Tony! Hulk ийм сайн будаж чаддаггүй...",
+        character: "hulk",
+      },
+      {
+        message: "Гайхалтай! Чи бидний багт орох ёстой!",
+        character: "iron-man",
+      },
+      {
+        message: "HULK PROUD! Чи маш сайн хийж байна!",
+        character: "hulk",
+      },
+    ],
     mainImage: "/multiplication/page_3.svg",
     maskImage: "/multiplication/page_3_mask.png",
     backgroundImage: "/multiplication/page_3_background_test.png",
@@ -34,6 +53,26 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-4",
     title: "4-р хуудас: Будацгаая",
+    introMessages: [
+      {
+        message:
+          "Ахмад аа, энэ хүүхдийн будалтыг хар! Яг л урлагийн бүтээл шиг байна!",
+        character: "hulk",
+      },
+      {
+        message:
+          "Тийм ээ Hulk! Ийм авьяастай хүүхэд байхад бид санаа зовохгүй!",
+        character: "captain-america",
+      },
+      {
+        message: "T'Challa, чи ч гэсэн үз! Гайхалтай биш гэж үү?",
+        character: "captain-america",
+      },
+      {
+        message: "Wakanda-д ч ийм сайн будагч ховор! Чи онцгой!",
+        character: "black-panther",
+      },
+    ],
     mainImage: "/multiplication/page_4.svg",
     maskImage: "/multiplication/page_4_mask.png",
     backgroundImage: "/multiplication/page_4_background.png",
@@ -56,6 +95,25 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-5",
     title: "5-р хуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Ахмад аа, энэ хүүхэд яг л чам шиг тууштай будаж байна!",
+        character: "iron-man",
+      },
+      {
+        message:
+          "Тийм ээ Tony! Тэвчээр бол амжилтын түлхүүр гэдгийг сайн мэднэ!",
+        character: "captain-america",
+      },
+      {
+        message: "Бид хоёр ийм сайн будаж чадах уу даа? Ха-ха!",
+        character: "iron-man",
+      },
+      {
+        message: "Чи жинхэнэ баатар шиг ажиллаж байна! Бахархаж байна!",
+        character: "captain-america",
+      },
+    ],
     mainImage: "/multiplication/page_5.svg",
     maskImage: "/multiplication/page_5_mask.png",
     backgroundImage: "/multiplication/page_5_background.png",
@@ -80,6 +138,26 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-6",
     title: "6-р хуудас: Будацгаая",
+    introMessages: [
+      {
+        message:
+          "Tony, энэ хүүхдийг хар! Миний бамбайнаас ч илүү нарийн будаж байна!",
+        character: "captain-america",
+      },
+      {
+        message:
+          "Тийм ээ Ахмад аа! JARVIS-ийн тооцооллоос ч илүү нарийвчлалтай!",
+        character: "iron-man",
+      },
+      {
+        message: "Thanos, чи ч гэсэн үз! Энэ хүүхэд ямар сайн вэ!",
+        character: "captain-america",
+      },
+      {
+        message: "Хм... Энэ хүүхэд үнэхээр авьяастай байна. Гайхалтай!",
+        character: "thanos",
+      },
+    ],
     mainImage: "/multiplication/page_6_test.svg",
     maskImage: "/multiplication/page_6_mask.png",
     backgroundImage: "/multiplication/page_6_background.png",
@@ -102,6 +180,28 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-7",
     title: "7-р хуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Thor, энэ хүүхдийн өнгө сонголтыг хар! Яг л солонго шиг!",
+        character: "black-panther",
+      },
+      {
+        message: "Asgard-д ч ийм сайн урлагч ховор байдаг! Гайхалтай!",
+        character: "thor",
+      },
+      {
+        message: "Hulk, чи ч бас харж байна уу? Үнэхээр сайхан!",
+        character: "thor",
+      },
+      {
+        message: "Дайчид мориндоо!",
+        character: "captain-america",
+      },
+      {
+        message: "HULK SEE! HULK LIKE! Чи хамгийн шилдэг!",
+        character: "hulk",
+      },
+    ],
     mainImage: "/multiplication/page_7_test_1.svg",
     maskImage: "/multiplication/page_7_mask.png",
     backgroundImage: "/multiplication/page_7_background.png",
@@ -125,6 +225,25 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-8",
     title: "8-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Wolverine, энэ хүүхдийн тууштай байдлыг хар! Чам шиг!",
+        character: "thanos",
+      },
+      {
+        message:
+          "Тийм ээ! Энэ хүүхэд миний adamantium сэтгэлтэй адил хатуужилтай!",
+        character: "wolverine",
+      },
+      {
+        message: "Ахмад аа, чи ч бас үзээч! Гайхалтай биш гэж үү?",
+        character: "wolverine",
+      },
+      {
+        message: "Тийм! Энэ хүүхэд жинхэнэ аварга болж байна!",
+        character: "captain-america",
+      },
+    ],
     mainImage: "/multiplication/page_8.svg",
     maskImage: "/multiplication/page_5_mask.png",
     backgroundImage: "/multiplication/page_8_background.png",
@@ -144,6 +263,24 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-9",
     title: "9-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Steve, энэ хүүхэд хэн бэ? Яаж ийм сайн будаж байгаа юм?",
+        character: "wolverine",
+      },
+      {
+        message: "Би ч мэдэхгүй Logan, гэхдээ гайхалтай авьяастай!",
+        character: "minecraft",
+      },
+      {
+        message: "Tony, чи ч бас хар! Энэ бол урлагийн бүтээл!",
+        character: "minecraft",
+      },
+      {
+        message: "Вау! JARVIS, үүнийг бичлэг хий! Гайхалтай!",
+        character: "iron-man",
+      },
+    ],
     mainImage: "/multiplication/page_9.svg",
     maskImage: "/multiplication/page_9_mask.png",
     backgroundImage: "/multiplication/page_9_background.png",
@@ -164,6 +301,24 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-10",
     title: "10-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Hulk, энэ хүүхэд чамаас ч илүү сайн будаж байна!",
+        character: "minecraft",
+      },
+      {
+        message: "HULK AGREE! Энэ хүүхэд гайхалтай! Hulk бахархаж байна!",
+        character: "hulk",
+      },
+      {
+        message: "T'Challa, чи ч гэсэн үз! Wakanda-д ч ийм авьяас ховор!",
+        character: "hulk",
+      },
+      {
+        message: "Үнэн! Энэ хүүхэд манай улсын эрдэнэс болох байлаа!",
+        character: "black-panther",
+      },
+    ],
     mainImage: "/multiplication/page_10.svg",
     maskImage: "/multiplication/page_10_mask.png",
     backgroundImage: "/multiplication/page_10_background.png",
@@ -180,6 +335,24 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-11",
     title: "11-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Thor, энэ хүүхдийн хурдыг хар! Mjolnir-ээс ч хурдан!",
+        character: "iron-man",
+      },
+      {
+        message: "Тийм ээ Stark! Энэ хүүхэд Asgard-ийн баатруудаас ч дээр!",
+        character: "thor",
+      },
+      {
+        message: "Thanos, чи ч гэсэн үз! Infinity Stone-гүйгээр ч чадвартай!",
+        character: "thor",
+      },
+      {
+        message: "Хм... Энэ хүүхэд үнэхээр онцгой. Бахархмаар!",
+        character: "thanos",
+      },
+    ],
     mainImage: "/multiplication/page_11.svg",
     maskImage: "/multiplication/page_11_mask.png",
     backgroundImage: "/multiplication/page_11_background.png",
@@ -200,6 +373,24 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-12",
     title: "12-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Wolverine, энэ хүүхдийн нарийвчлалыг хар! Гайхалтай!",
+        character: "hulk",
+      },
+      {
+        message: "Тийм ээ Hulk! Миний мэс шиг нарийн будаж байна!",
+        character: "wolverine",
+      },
+      {
+        message: "Ахмад аа, чи ч гэсэн үз! Энэ хүүхэд профессор болох нь!",
+        character: "wolverine",
+      },
+      {
+        message: "Тийм! Энэ хүүхдэд баярлалаа! Бид бахархаж байна!",
+        character: "captain-america",
+      },
+    ],
     mainImage: "/multiplication/page_12.svg",
     maskImage: "/multiplication/page_12_mask.png",
     backgroundImage: "/multiplication/page_12_background.png",
@@ -225,6 +416,24 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-13",
     title: "12-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Steve, энэ хүүхдийн будалтыг хар! Үнэхээр гайхалтай!",
+        character: "thor",
+      },
+      {
+        message: "Тийм ээ Thor! Энэ хүүхэд математикийн баатар болж байна!",
+        character: "minecraft",
+      },
+      {
+        message: "Tony, чи ч бас хар! JARVIS-аас ч илүү ухаалаг!",
+        character: "minecraft",
+      },
+      {
+        message: "Вау! Энэ хүүхдийг Avengers-т авах хэрэгтэй! Ха-ха!",
+        character: "iron-man",
+      },
+    ],
     mainImage: "/multiplication/page_13.svg",
     maskImage: "/multiplication/page_13_mask.png",
     backgroundImage: "/multiplication/page_13_background.png",
@@ -242,6 +451,24 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-14",
     title: "14-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Hulk, энэ хүүхдийн хүчийг хар! Чам шиг хүчтэй!",
+        character: "captain-america",
+      },
+      {
+        message: "HULK IMPRESSED! Энэ хүүхэд Hulk-аас ч хүчтэй будаж байна!",
+        character: "hulk",
+      },
+      {
+        message: "T'Challa, чи ч бас үз! Бараг дуусч байна шүү дээ!",
+        character: "hulk",
+      },
+      {
+        message: "Гайхалтай! Wakanda Forever! Чи тэвчээртэй байгаарай!",
+        character: "black-panther",
+      },
+    ],
     mainImage: "/multiplication/page_14.svg",
     maskImage: "/multiplication/page_14_mask.png",
     backgroundImage: "/multiplication/page_14_background.png",
@@ -266,6 +493,25 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-15",
     title: "15-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message:
+          "Thanos, энэ хүүхдийг хар! Infinity Stone-гүйгээр ч гайхалтай!",
+        character: "black-panther",
+      },
+      {
+        message: "Хм... Энэ хүүхэд миний цуглуулгаас ч илүү үнэ цэнэтэй!",
+        character: "thanos",
+      },
+      {
+        message: "Wolverine, чи юу гэж бодож байна?",
+        character: "thanos",
+      },
+      {
+        message: "Энэ хүүхэд жинхэнэ аварга! Бид бүгд бахархаж байна!",
+        character: "wolverine",
+      },
+    ],
     mainImage: "/multiplication/page_15.svg",
     maskImage: "/multiplication/page_15_mask.png",
     backgroundImage: "/multiplication/page_15_background.png",
@@ -288,6 +534,24 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-16",
     title: "16-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Tony, энэ хүүхэд хамгийн хэцүү хэсгийг давж байна!",
+        character: "thanos",
+      },
+      {
+        message: "Гайхалтай! JARVIS, бичлэг хий! Энэ түүхэнд үлдэх мөч!",
+        character: "iron-man",
+      },
+      {
+        message: "Thor, чи ч бас хар! Asgard-д ч ийм зоригтой хүүхэд ховор!",
+        character: "iron-man",
+      },
+      {
+        message: "By Odin's beard! Энэ хүүхэд жинхэнэ баатар! Бууж өгөхгүй!",
+        character: "thor",
+      },
+    ],
     mainImage: "/multiplication/page_16_test_5.svg",
     maskImage: "/multiplication/page_16_mask.png",
     backgroundImage: "/multiplication/page_16_background_1.png",
@@ -307,6 +571,26 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   {
     id: "page-17",
     title: "17-рхуудас: Будацгаая",
+    introMessages: [
+      {
+        message: "Hulk, энэ хүүхэд амжилттай дууслаа! Бид бүгд бахархаж байна!",
+        character: "wolverine",
+      },
+      {
+        message:
+          "HULK SO PROUD! Энэ хүүхэд жинхэнэ АВАРГА! HULK SMASH... with joy!",
+        character: "hulk",
+      },
+      {
+        message:
+          "Ахмад аа, чи ч бас хар! Бид бүгд энэ хүүхдээр бахархаж байна!",
+        character: "hulk",
+      },
+      {
+        message: "Баяр хүргэе! Чи Avengers-ийн нэгэн адил ялалт байгууллаа! 🎉",
+        character: "captain-america",
+      },
+    ],
     mainImage: "/multiplication/page_17.svg",
     maskImage: "/multiplication/page_17_mask.png",
     backgroundImage: "/multiplication/page_17_background.png",

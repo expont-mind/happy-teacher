@@ -4,7 +4,10 @@ import { useState } from "react";
 import { X, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/src/utils/supabase/client";
-import { toast } from "sonner";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "@/src/components/ui/CharacterToast";
 import Loader from "@/src/components/ui/Loader";
 import { CHILD_ICONS } from "@/src/app/register/page";
 
@@ -58,11 +61,11 @@ export default function AddChildModal({
 
       setGeneratedPin(pin);
       setStep("success");
-      toast.success("Хүүхдийн бүртгэл амжилттай үүслээ!");
+      showSuccessToast("Хүүхдийн бүртгэл амжилттай үүслээ!");
       onChildAdded?.();
     } catch (error: any) {
       console.error("Error adding child:", error);
-      toast.error("Алдаа гарлаа: " + error.message);
+      showErrorToast("Алдаа гарлаа: " + error.message);
     } finally {
       setLoading(false);
     }

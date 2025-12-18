@@ -4,8 +4,10 @@ import { useEffect } from "react";
 
 import {
   useTutorial,
-  childHomePageTutorial,
-  adultHomePageTutorial,
+  childHomePageTutorialDesktop,
+  childHomePageTutorialMobile,
+  adultHomePageTutorialDesktop,
+  adultHomePageTutorialMobile,
 } from "@/src/components/tutorial";
 import { useAuth } from "@/src/components/auth";
 import { Features, HowItWorks, CTA, Hero, Lessons } from "../components/home";
@@ -17,10 +19,16 @@ export const HomePage = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      const isMobile = window.innerWidth < 768;
+
       if (activeProfile?.type === "child") {
-        startTutorial(childHomePageTutorial);
+        startTutorial(
+          isMobile ? childHomePageTutorialMobile : childHomePageTutorialDesktop
+        );
       } else if (activeProfile?.type === "adult") {
-        startTutorial(adultHomePageTutorial);
+        startTutorial(
+          isMobile ? adultHomePageTutorialMobile : adultHomePageTutorialDesktop
+        );
       }
     }, 500);
 

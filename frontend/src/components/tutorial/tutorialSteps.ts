@@ -1,8 +1,9 @@
 import { TutorialConfig } from "./types";
 
-export const childHomePageTutorial: TutorialConfig = {
-  pageKey: "home:child",
-  completionKey: "tutorial:home:child:completed",
+// Desktop tutorials - full detailed steps
+export const childHomePageTutorialDesktop: TutorialConfig = {
+  pageKey: "home:child:desktop",
+  completionKey: "tutorial:home:child:desktop:completed",
   steps: [
     {
       id: "welcome",
@@ -72,9 +73,9 @@ export const childHomePageTutorial: TutorialConfig = {
   ],
 };
 
-export const adultHomePageTutorial: TutorialConfig = {
-  pageKey: "home:adult",
-  completionKey: "tutorial:home:adult:completed",
+export const adultHomePageTutorialDesktop: TutorialConfig = {
+  pageKey: "home:adult:desktop",
+  completionKey: "tutorial:home:adult:desktop:completed",
   steps: [
     {
       id: "welcome",
@@ -133,9 +134,79 @@ export const adultHomePageTutorial: TutorialConfig = {
   ],
 };
 
-export const lessonPageTutorial: TutorialConfig = {
-  pageKey: "lesson",
-  completionKey: "tutorial:lesson:completed",
+// Mobile tutorials - simplified (welcome, menu, start)
+export const childHomePageTutorialMobile: TutorialConfig = {
+  pageKey: "home:child:mobile",
+  completionKey: "tutorial:home:child:mobile:completed",
+  steps: [
+    {
+      id: "welcome",
+      targetSelector: '[data-tutorial="main-cta"]',
+      title: "Сайн уу! Би таны туслах багш. Эхлэхийн тулд энд дарна уу!",
+      character: "yellow",
+      characterPosition: "right",
+      tooltipPosition: "bottom",
+      highlightTarget: true,
+    },
+    {
+      id: "menu",
+      targetSelector: '[data-tutorial="mobile-menu-btn"]',
+      title: "Цэсийг нээхийн тулд энд дарна уу!",
+      character: "blue",
+      characterPosition: "left",
+      tooltipPosition: "bottom",
+      highlightTarget: true,
+    },
+    {
+      id: "start",
+      targetSelector: '[data-tutorial="main-cta"]',
+      title: "Гайхалтай! Одоо та бэлэн боллоо. Сурах аялалаа эхлүүлцгээе!",
+      character: "yellow",
+      characterPosition: "right",
+      tooltipPosition: "bottom",
+      highlightTarget: false,
+    },
+  ],
+};
+
+export const adultHomePageTutorialMobile: TutorialConfig = {
+  pageKey: "home:adult:mobile",
+  completionKey: "tutorial:home:adult:mobile:completed",
+  steps: [
+    {
+      id: "welcome",
+      targetSelector: '[data-tutorial="main-cta"]',
+      title: "Сайн уу! Би таны туслах багш. Эхлэхийн тулд энд дарна уу!",
+      character: "yellow",
+      characterPosition: "right",
+      tooltipPosition: "bottom",
+      highlightTarget: true,
+    },
+    {
+      id: "menu",
+      targetSelector: '[data-tutorial="mobile-menu-btn"]',
+      title: "Цэсийг нээхийн тулд энд дарна уу!",
+      character: "blue",
+      characterPosition: "left",
+      tooltipPosition: "bottom",
+      highlightTarget: true,
+    },
+    {
+      id: "start",
+      targetSelector: '[data-tutorial="main-cta"]',
+      title: "Гайхалтай! Одоо та бэлэн боллоо. Сурах аялалаа эхлүүлцгээе!",
+      character: "yellow",
+      characterPosition: "right",
+      tooltipPosition: "bottom",
+      highlightTarget: false,
+    },
+  ],
+};
+
+// Desktop lesson tutorial - full detailed steps
+export const lessonPageTutorialDesktop: TutorialConfig = {
+  pageKey: "lesson:desktop",
+  completionKey: "tutorial:lesson:desktop:completed",
   steps: [
     {
       id: "color-palette",
@@ -183,6 +254,15 @@ export const lessonPageTutorial: TutorialConfig = {
       highlightTarget: true,
     },
     {
+      id: "story",
+      targetSelector: '[data-tutorial="story-btn"]',
+      title: "Үлгэрээ дахин үзэхийн тулд энд дарна уу.",
+      character: "yellow",
+      characterPosition: "left",
+      tooltipPosition: "left",
+      highlightTarget: true,
+    },
+    {
       id: "done",
       targetSelector: '[data-tutorial="done-btn"]',
       title: "Дууссан бол энд дарж шалгуулна уу!",
@@ -193,3 +273,41 @@ export const lessonPageTutorial: TutorialConfig = {
     },
   ],
 };
+
+// Mobile lesson tutorial - simplified steps
+export const lessonPageTutorialMobile: TutorialConfig = {
+  pageKey: "lesson:mobile",
+  completionKey: "tutorial:lesson:mobile:completed",
+  steps: [
+    {
+      id: "color-picker",
+      targetSelector: '[data-tutorial="mobile-color-picker"]',
+      title: "Өнгөө сонгохын тулд энд дарна уу!",
+      character: "yellow",
+      characterPosition: "left",
+      tooltipPosition: "bottom",
+      highlightTarget: true,
+    },
+    {
+      id: "actions-menu",
+      targetSelector: '[data-tutorial="mobile-actions-menu"]',
+      title: "Тусламж, түүх болон бусад үйлдлүүд энд байна.",
+      character: "blue",
+      characterPosition: "left",
+      tooltipPosition: "bottom",
+      highlightTarget: true,
+    },
+    {
+      id: "start",
+      targetSelector: '[data-tutorial="mobile-color-picker"]',
+      title: "Гайхалтай! Одоо та бэлэн боллоо. Будаж эхлээрэй!",
+      character: "yellow",
+      characterPosition: "left",
+      tooltipPosition: "bottom",
+      highlightTarget: false,
+    },
+  ],
+};
+
+// Legacy export for backwards compatibility
+export const lessonPageTutorial = lessonPageTutorialDesktop;

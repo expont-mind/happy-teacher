@@ -3,7 +3,11 @@
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/src/utils/supabase/client";
-import { toast } from "sonner";
+import {
+  showSuccessToast,
+  showErrorToast,
+  showInfoToast,
+} from "@/src/components/ui/CharacterToast";
 import { AuthContextType, UserProfile } from "./types";
 
 const translateAuthError = (message: string) => {
@@ -124,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
     });
     if (error) {
-      toast.error(translateAuthError(error.message));
+      showErrorToast(translateAuthError(error.message));
       throw error;
     }
 
@@ -142,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("activeProfile", JSON.stringify(profile));
     }
 
-    toast.success("Амжилттай нэвтэрлээ!");
+    showSuccessToast("Амжилттай нэвтэрлээ!");
   };
 
   const signUp = async (
@@ -162,11 +166,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     });
     if (error) {
-      toast.error(translateAuthError(error.message));
+      showErrorToast(translateAuthError(error.message));
       throw error;
     }
     if (showToast) {
-      toast.success("Бүртгэл амжилттай! Имэйлээ шалгана уу.");
+      showSuccessToast("Бүртгэл амжилттай! Имэйлээ шалгана уу.");
     }
     return data;
   };
@@ -174,12 +178,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toast.error(translateAuthError(error.message));
+      showErrorToast(translateAuthError(error.message));
       throw error;
     }
     setActiveProfile(null);
     localStorage.removeItem("activeProfile");
-    toast.success("Гарах амжилттай!");
+    showSuccessToast("Гарах амжилттай!");
   };
 
   const fetchProfileStats = async (profile: UserProfile) => {
@@ -221,7 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setActiveProfile(profileWithStats);
     activeProfileRef.current = profileWithStats;
     localStorage.setItem("activeProfile", JSON.stringify(profileWithStats));
-    toast.success(`${profile.name} профайл руу шилжлээ!`);
+    showSuccessToast(`${profile.name} профайл руу шилжлээ!`);
   };
 
   const addXP = async (
@@ -380,7 +384,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const alreadyPurchased = await checkPurchase(topicKey);
       if (alreadyPurchased) {
-        toast.info("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.");
+        showInfoToast("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.");
         return;
       }
 
@@ -391,7 +395,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         if (error.code === "23505") {
-          toast.info("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.");
+          showInfoToast("Та энэ сэдвийг аль хэдийн худалдаж авсан байна.");
           return;
         }
         if (
@@ -400,14 +404,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           error.message?.includes("does not exist") ||
           error.message?.includes("schema cache")
         ) {
-          toast.error("Database table байхгүй байна.");
+          showErrorToast("Database table байхгүй байна.");
           throw error;
         }
-        toast.error(error.message || "Худалдан авалт амжилтгүй боллоо.");
+        showErrorToast(error.message || "Худалдан авалт амжилтгүй боллоо.");
         throw error;
       }
 
-      toast.success("Худалдан авалт амжилттай!");
+      showSuccessToast("Худалдан авалт амжилттай!");
     } catch (err) {
       throw err;
     }

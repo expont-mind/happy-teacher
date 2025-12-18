@@ -11,6 +11,7 @@ interface CharacterTooltipProps {
   onNext: () => void;
   onSkip: () => void;
   showSkip: boolean;
+  showHighlight?: boolean;
 }
 
 export default function CharacterTooltip({
@@ -19,6 +20,7 @@ export default function CharacterTooltip({
   onNext,
   onSkip,
   showSkip,
+  showHighlight = true,
 }: CharacterTooltipProps) {
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [pointerStyle, setPointerStyle] = useState({});
@@ -30,7 +32,8 @@ export default function CharacterTooltip({
 
       const targetRect = targetElement.getBoundingClientRect();
       const tooltipRect = tooltipRef.current.getBoundingClientRect();
-      const characterWidth = window.innerWidth < 768 ? 120 : 160;
+      const isMobile = window.innerWidth < 768;
+      const characterWidth = isMobile ? 100 : 160;
       const gap = 20;
 
       let top = 0;
@@ -51,16 +54,15 @@ export default function CharacterTooltip({
           };
           break;
         case "top":
-          // Position below the element to avoid overlap
-          top = targetRect.bottom + gap;
+          top = targetRect.top - tooltipRect.height - gap;
           left = targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
           pointerClass = {
-            top: "-8px",
+            bottom: "-8px",
             left: "50%",
             transform: "translateX(-50%)",
             borderLeft: "8px solid transparent",
             borderRight: "8px solid transparent",
-            borderBottom: "8px solid white",
+            borderTop: "8px solid white",
           };
           break;
         case "left":
@@ -106,7 +108,7 @@ export default function CharacterTooltip({
 
     calculatePosition();
 
-    // Update position on scroll and resize (follow the target element)
+    // Update position on scroll and resize
     window.addEventListener("resize", calculatePosition);
     window.addEventListener("scroll", calculatePosition);
 
@@ -117,25 +119,28 @@ export default function CharacterTooltip({
   }, [step, targetElement]);
 
   const characterSrc = `/character/${step.character}-${step.characterPosition}.png`;
-  const characterSize = typeof window !== "undefined" && window.innerWidth < 768 ? 120 : 160;
+  const isMobileView = typeof window !== "undefined" && window.innerWidth < 768;
+  const characterSize = isMobileView ? 100 : 160;
 
+  // Calculate character position
   const characterLeft =
     step.characterPosition === "left"
       ? position.left - characterSize - 16
       : position.left + (tooltipRef.current?.offsetWidth || 0) + 16;
-
-  const characterTop = position.top + (tooltipRef.current?.offsetHeight || 0) / 2 - characterSize / 2;
+  const characterTop =
+    position.top + (tooltipRef.current?.offsetHeight || 0) / 2 - characterSize / 2;
 
   return (
     <>
       {/* Character Image */}
       <div
-        className="fixed z-9999 animate-float"
+        className="fixed animate-float"
         style={{
           top: `${characterTop}px`,
           left: `${characterLeft}px`,
           width: `${characterSize}px`,
           height: `${characterSize}px`,
+          zIndex: 99999,
         }}
       >
         <Image
@@ -151,20 +156,20 @@ export default function CharacterTooltip({
       {/* Speech Bubble */}
       <div
         ref={tooltipRef}
-        className="fixed z-9999 bg-white border-2 border-gray-200 rounded-2xl shadow-lg p-6 tutorial-enter"
+        className="fixed bg-white border-2 border-gray-200 rounded-2xl shadow-lg p-4 md:p-6 tutorial-enter"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
-          maxWidth: typeof window !== "undefined" && window.innerWidth < 768 ? "280px" : "400px",
+          maxWidth: isMobileView ? "280px" : "400px",
+          zIndex: 99999,
         }}
         role="dialog"
         aria-label="Tutorial step"
       >
-        {/* Pointer Triangle */}
-        <div
-          className="absolute w-0 h-0"
-          style={pointerStyle}
-        />
+        {/* Pointer Triangle - hide when spotlight is shown */}
+        {!showHighlight && (
+          <div className="absolute w-0 h-0" style={pointerStyle} />
+        )}
 
         {/* Content */}
         <p className="text-base font-semibold text-gray-900 leading-relaxed mb-4">

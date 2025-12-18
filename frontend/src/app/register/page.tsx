@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ParentInfoForm from "@/src/components/auth/forms/ParentInfoForm";
 import ChildInfoForm from "@/src/components/auth/forms/ChildInfoForm";
 import RegistrationSuccess from "@/src/components/auth/forms/RegistrationSuccess";
-import { toast } from "sonner";
+import { showErrorToast } from "@/src/components/ui/CharacterToast";
 import Skeleton from "@/src/components/ui/Skeleton";
 
 export const CHILD_ICONS = [
@@ -104,7 +104,7 @@ function RegisterContent() {
 
       if (error) {
         console.error("Child insert error:", error);
-        toast.error(`Алдаа: ${error.message}`);
+        showErrorToast(`Алдаа: ${error.message}`);
         return;
       }
 
@@ -112,7 +112,7 @@ function RegisterContent() {
     } catch (error: any) {
       if (error.message !== "Parent registration failed") {
       }
-      toast.error("Бүртгэл үүсгэхэд алдаа гарлаа!");
+      showErrorToast("Бүртгэл үүсгэхэд алдаа гарлаа!");
     } finally {
       setLoading(false);
     }

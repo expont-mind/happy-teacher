@@ -13,9 +13,11 @@ import { fractionLessons } from "@/src/data/lessons/fractions";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import {
   MessageTooltip,
+  IntroToast,
   RelaxModal,
   useTutorial,
-  lessonPageTutorial,
+  lessonPageTutorialDesktop,
+  lessonPageTutorialMobile,
 } from "@/src/components/tutorial";
 import { RewardModal } from "../components/gamification/RewardModal";
 import { createClient } from "@/src/utils/supabase/client";
@@ -23,8 +25,6 @@ import {
   RotateDevicePrompt,
   useIsPortraitMobile,
 } from "@/src/components/ui/RotateDevicePrompt";
-import { MobileColorPalette } from "@/src/components/coloring/MobileColorPalette";
-import { MobileActionToolbar } from "@/src/components/coloring/MobileActionToolbar";
 import Loader from "@/src/components/ui/Loader";
 import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 
@@ -49,7 +49,9 @@ export default function LessonPage() {
 
   // Find the next lesson
   const nextLesson = useMemo(() => {
-    const currentIndex = fractionLessons.findIndex((l) => l.id === params.lessonId);
+    const currentIndex = fractionLessons.findIndex(
+      (l) => l.id === params.lessonId
+    );
     if (currentIndex === -1 || currentIndex === fractionLessons.length - 1) {
       return null;
     }
@@ -84,12 +86,17 @@ export default function LessonPage() {
     checkPayment();
   }, [authLoading, checkPurchase, router, user, activeProfile]);
 
-  // Start lesson tutorial when page is ready
+  // Show intro message when lesson starts
+  const [introMessage, setIntroMessage] = useState<string | null>(null);
   useEffect(() => {
-    if (isPaid) {
-      startTutorial(lessonPageTutorial);
+    if (isPaid && lesson?.introMessage) {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        setIntroMessage(lesson.introMessage!);
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [isPaid, startTutorial]);
+  }, [isPaid, lesson]);
 
   const [selectedColor, setSelectedColor] = useState(
     lesson?.palette[0]?.color || "#6b3ab5"
@@ -105,8 +112,6 @@ export default function LessonPage() {
   const [canRedo, setCanRedo] = useState(false);
 
   // Mobile state
-  const [colorPaletteOpen, setColorPaletteOpen] = useState(false);
-  const [actionToolbarOpen, setActionToolbarOpen] = useState(false);
   const isPortraitMobile = useIsPortraitMobile();
 
   // Palette is already in the correct format for ColorPalette
@@ -176,6 +181,10 @@ export default function LessonPage() {
 
   const handleDownload = () => {
     canvasRef.current?.downloadCanvas();
+  };
+
+  const handleShowIntro = () => {
+    setIntroMessage(lesson?.introMessage || null);
   };
 
   const markCompleted = async () => {
@@ -312,14 +321,22 @@ export default function LessonPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-2 lg:p-6">
       {/* Main Box Container */}
-      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-xl overflow-hidden flex flex-col max-w-7xl w-full h-full lg:h-auto">
+      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-xl flex flex-col max-w-7xl w-full h-full lg:h-auto ">
         {/* Header inside box */}
         <LessonHeader
           title={lesson.title}
           onBack={handleBack}
           selectedColor={selectedColor}
-          onOpenColorPalette={() => setColorPaletteOpen(true)}
-          onOpenActions={() => setActionToolbarOpen(true)}
+          colors={paletteForDisplay}
+          onSelectColor={setSelectedColor}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onHelp={handleHelp}
+          onDownload={handleDownload}
+          onEnd={markCompleted}
+          onShowIntro={handleShowIntro}
+          canUndo={canUndo}
+          canRedo={canRedo}
         />
 
         {/* Show Rotate Prompt in Portrait Mode */}
@@ -360,6 +377,7 @@ export default function LessonPage() {
                 onHelp={handleHelp}
                 onDownload={handleDownload}
                 onEnd={markCompleted}
+                onShowIntro={handleShowIntro}
                 canUndo={canUndo}
                 canRedo={canRedo}
               />
@@ -370,28 +388,6 @@ export default function LessonPage() {
         {/* Footer (Desktop only) */}
         <div className="hidden lg:flex p-6 justify-end border-t border-gray-100"></div>
       </div>
-
-      {/* Mobile Color Palette */}
-      <MobileColorPalette
-        isOpen={colorPaletteOpen}
-        onClose={() => setColorPaletteOpen(false)}
-        colors={paletteForDisplay}
-        selectedColor={selectedColor}
-        onSelectColor={setSelectedColor}
-      />
-
-      {/* Mobile Action Toolbar */}
-      <MobileActionToolbar
-        isOpen={actionToolbarOpen}
-        onClose={() => setActionToolbarOpen(false)}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        onHelp={handleHelp}
-        onDownload={handleDownload}
-        onEnd={markCompleted}
-        canUndo={canUndo}
-        canRedo={canRedo}
-      />
 
       {/* Help Panel */}
       <HelpPanel
@@ -409,6 +405,18 @@ export default function LessonPage() {
         isVisible={!!characterMessage}
         onClose={() => setCharacterMessage(null)}
         autoCloseDelay={8000}
+      />
+
+      {/* Intro Toast (centered with blur) */}
+      <IntroToast
+        message={introMessage || ""}
+        isVisible={!!introMessage}
+        onClose={() => {
+          setIntroMessage(null);
+          // Start tutorial after intro closes
+          const isMobile = window.innerWidth < 1024;
+          startTutorial(isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop);
+        }}
       />
 
       {/* Relax Modal */}

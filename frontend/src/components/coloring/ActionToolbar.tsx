@@ -1,6 +1,6 @@
 "use client";
 
-import { Undo2, Redo2, Lightbulb, Download, Flag } from "lucide-react";
+import { Undo2, Redo2, Lightbulb, Download, Flag, BookOpen } from "lucide-react";
 
 interface ActionToolbarProps {
   onUndo: () => void;
@@ -10,6 +10,7 @@ interface ActionToolbarProps {
   onEnd: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  onShowIntro?: () => void;
 }
 
 export default function ActionToolbar({
@@ -20,9 +21,10 @@ export default function ActionToolbar({
   onEnd,
   canUndo,
   canRedo,
+  onShowIntro,
 }: ActionToolbarProps) {
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="sticky top-6 self-start flex flex-col items-center gap-4">
       {/* Undo Button */}
       <button
         onClick={onUndo}
@@ -74,6 +76,17 @@ export default function ActionToolbar({
       >
         <Download size={28} className="text-purple-500" />
       </button>
+
+      {/* Story/Intro Button */}
+      {onShowIntro && (
+        <button
+          onClick={onShowIntro}
+          data-tutorial="story-btn"
+          className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-blue-200 hover:border-blue-400 transition-all"
+        >
+          <BookOpen size={28} className="text-blue-500" />
+        </button>
+      )}
 
       {/* Finish Button */}
       <button
