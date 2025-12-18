@@ -194,7 +194,15 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       // Update button states
       setCanUndo(historyIndexRef.current > 0);
       setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
-    }, []);
+
+      // Save to localStorage
+      try {
+        const dataUrl = canvas.toDataURL();
+        localStorage.setItem(`coloring_progress_${mainImage}`, dataUrl);
+      } catch (e) {
+        console.error("Error saving progress:", e);
+      }
+    }, [mainImage]);
 
     // Undo function
     const undo = useCallback(() => {
@@ -211,7 +219,15 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
       setCanUndo(historyIndexRef.current > 0);
       setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
-    }, []);
+
+      // Save undo state to localStorage
+      try {
+        const dataUrl = canvas.toDataURL();
+        localStorage.setItem(`coloring_progress_${mainImage}`, dataUrl);
+      } catch (e) {
+        console.error("Error saving progress:", e);
+      }
+    }, [mainImage]);
 
     // Redo function
     const redo = useCallback(() => {
@@ -228,7 +244,15 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
       setCanUndo(historyIndexRef.current > 0);
       setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
-    }, []);
+
+      // Save redo state to localStorage
+      try {
+        const dataUrl = canvas.toDataURL();
+        localStorage.setItem(`coloring_progress_${mainImage}`, dataUrl);
+      } catch (e) {
+        console.error("Error saving progress:", e);
+      }
+    }, [mainImage]);
 
     // Reset canvas
     const resetCanvas = useCallback(() => {
@@ -241,7 +265,11 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       historyIndexRef.current = 0;
       setCanUndo(false);
       setCanRedo(false);
-    }, []);
+
+      // Clear localStorage
+      localStorage.removeItem(`coloring_progress_${mainImage}`);
+      window.location.reload();
+    }, [mainImage]);
 
     // Download canvas as image
     const downloadCanvas = useCallback(() => {
@@ -444,11 +472,34 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           canvas.height
         );
 
-        // Save initial state to history
-        historyRef.current = [originalImageDataRef.current];
-        historyIndexRef.current = 0;
-        setCanUndo(false);
-        setCanRedo(false);
+        // Check for saved progress
+        const savedDataUrl = localStorage.getItem(
+          `coloring_progress_${mainImage}`
+        );
+
+        if (savedDataUrl) {
+          const savedImg = new window.Image();
+          savedImg.src = savedDataUrl;
+          savedImg.onload = () => {
+            ctx.drawImage(savedImg, 0, 0);
+            const currentData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+            historyRef.current = [currentData];
+            historyIndexRef.current = 0;
+            setCanUndo(false);
+            setCanRedo(false);
+          };
+        } else {
+          // Save initial state to history
+          historyRef.current = [originalImageDataRef.current];
+          historyIndexRef.current = 0;
+          setCanUndo(false);
+          setCanRedo(false);
+        }
 
         setImageLoaded(true);
 
