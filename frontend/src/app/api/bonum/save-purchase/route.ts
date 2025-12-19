@@ -45,24 +45,34 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Purchase хадгалах (Use upsert to handle potential duplicates safely)
-    const { error } = await supabase.from("purchases").upsert(rowsToInsert, {
-      onConflict: "user_id, topic_key, child_id",
-      ignoreDuplicates: true,
-    });
+    console.log("Rows to insert:", JSON.stringify(rowsToInsert, null, 2));
+
+    // Purchase хадгалах - insert ашиглана (upsert биш)
+    const { data: insertedData, error } = await supabase
+      .from("purchases")
+      .insert(rowsToInsert)
+      .select();
+
+    console.log("Insert result:", { insertedData, error });
 
     if (error) {
+      console.error("=== DATABASE ERROR ===");
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
+      console.error("Error details:", error.details);
+      console.error("Error hint:", error.hint);
+
+      // 23505 = duplicate key (аль хэдийн худалдаж авсан)
       if (error.code === "23505") {
-        console.log("Purchase already exists");
+        console.log("Purchase already exists - treating as success");
         return NextResponse.json({
           success: true,
           message: "Already purchased",
         });
       }
 
-      console.error("Database error:", error);
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: error.message, code: error.code, details: error.details },
         { status: 500 }
       );
     }

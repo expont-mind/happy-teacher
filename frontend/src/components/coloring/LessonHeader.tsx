@@ -12,6 +12,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
+import { FractionLabel } from "@/src/components/ui/Fraction";
 
 interface LessonHeaderProps {
   title: string;
@@ -71,9 +72,9 @@ export default function LessonHeader({
           data-tutorial="mobile-color-picker"
         >
           <div className="flex gap-1 min-w-max">
-            {colors.map(({ color, label }) => (
+            {colors.map(({ color, label }, index) => (
               <button
-                key={color}
+                key={`${color}-${index}`}
                 onClick={() => onSelectColor?.(color)}
                 className={`flex items-center gap-1 px-1.5 py-1 rounded-lg transition-all ${
                   selectedColor === color
@@ -91,13 +92,12 @@ export default function LessonHeader({
                   style={{ backgroundColor: color }}
                 />
                 {label && (
-                  <span
+                  <FractionLabel
+                    label={label}
                     className={`text-xs font-bold ${
                       selectedColor === color ? "text-white" : "text-white/80"
                     }`}
-                  >
-                    {label}
-                  </span>
+                  />
                 )}
               </button>
             ))}
@@ -149,17 +149,19 @@ export default function LessonHeader({
                   </button>
                 </Popover.Close>
 
-                <Popover.Close asChild>
-                  <button
-                    onClick={onHelp}
-                    className="flex items-center gap-2 p-3 rounded-xl border-2 border-yellow-200 bg-yellow-50 cursor-pointer"
-                  >
-                    <Lightbulb size={20} className="text-yellow-500" />
-                    <span className="font-medium text-gray-700 text-sm">
-                      Тусламж
-                    </span>
-                  </button>
-                </Popover.Close>
+                {onHelp && (
+                  <Popover.Close asChild>
+                    <button
+                      onClick={onHelp}
+                      className="flex items-center gap-2 p-3 rounded-xl border-2 border-yellow-200 bg-yellow-50 cursor-pointer"
+                    >
+                      <Lightbulb size={20} className="text-yellow-500" />
+                      <span className="font-medium text-gray-700 text-sm">
+                        Тусламж
+                      </span>
+                    </button>
+                  </Popover.Close>
+                )}
 
                 <Popover.Close asChild>
                   <button
