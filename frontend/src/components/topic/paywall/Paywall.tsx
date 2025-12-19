@@ -21,7 +21,7 @@ interface Child {
   avatar: string;
 }
 
-const TOPIC_PRICE = 3;
+const TOPIC_PRICE = 4;
 
 export default function Paywall({
   topicKey,
@@ -126,15 +126,17 @@ export default function Paywall({
   };
 
   const generateTransactionId = () => {
-    // For child, use their own ID if selectedChildIds is empty (safeguard)
-    const childPart =
-      selectedChildIds.length > 0
-        ? selectedChildIds.join("-")
-        : activeProfile?.type === "child"
-        ? activeProfile.id
-        : "none";
+    // Bonum API transactionId урт хязгаартай (ихэвчлэн 50 тэмдэгт)
+    // Тиймээс UUID-уудыг богиносгоно
+    const userShort = (user?.id || "guest").slice(0, 8);
+    const childShort = selectedChildIds.length > 0
+      ? selectedChildIds[0].slice(0, 8)
+      : activeProfile?.type === "child"
+      ? activeProfile.id.slice(0, 8)
+      : "x";
+    const timeStamp = Date.now().toString(36); // base36 богино болгох
 
-    return `${topicKey}_${user?.id || "guest"}_${childPart}_${Date.now()}`;
+    return `${topicKey.slice(0, 4)}_${userShort}_${childShort}_${timeStamp}`;
   };
 
   const getCallbackUrl = () => {
@@ -322,18 +324,6 @@ export default function Paywall({
               amount={currentPrice}
               callback={getCallbackUrl()}
               transactionId={generateTransactionId()}
-              items={[
-                {
-                  title: `${topicKey} хичээл${
-                    activeProfile?.type === "child"
-                      ? ""
-                      : ` (${selectedChildIds.length} хүүхэд)`
-                  }`,
-                  remark: "Happy Teacher сургалтын хичээл",
-                  amount: currentPrice,
-                  count: 1,
-                },
-              ]}
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
               className={`duo-button duo-button-green w-full py-3 text-sm flex items-center justify-center gap-2 ${

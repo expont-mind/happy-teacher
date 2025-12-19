@@ -94,14 +94,29 @@ export async function POST(request: NextRequest) {
         const separator = callback.includes('?') ? '&' : '?';
         const callbackWithTransaction = `${callback}${separator}transactionId=${encodeURIComponent(transactionId)}`;
 
-        const invoicePayload = {
+        // Items-г Bonum форматад тохируулах
+        const formattedItems = items?.map(item => ({
+            image: item.image || '',
+            title: item.title,
+            remark: item.remark || '',
+            amount: item.amount,
+            count: item.count
+        }));
+
+        const invoicePayload: Record<string, unknown> = {
             amount,
             callback: callbackWithTransaction,
             transactionId,
             expiresIn: expiresIn || 23000,
-            items,
-            extras,
         };
+
+        // Items болон extras нь зөвхөн байвал нэмнэ
+        if (formattedItems && formattedItems.length > 0) {
+            invoicePayload.items = formattedItems;
+        }
+        if (extras && extras.length > 0) {
+            invoicePayload.extras = extras;
+        }
 
         console.log('Creating invoice:', JSON.stringify(invoicePayload, null, 2));
 
@@ -116,14 +131,23 @@ export async function POST(request: NextRequest) {
         });
 
         const data = await response.json();
-        console.log('Invoice response:', JSON.stringify(data, null, 2));
+        console.log('=== BONUM RESPONSE ===');
+        console.log('Status:', response.status);
+        console.log('Response body:', JSON.stringify(data, null, 2));
 
         if (!response.ok) {
             const errorData = data as BonumErrorResponse;
+            console.error('=== BONUM ERROR DETAILS ===');
+            console.error('HTTP Status:', response.status);
+            console.error('Error message:', errorData.message);
+            console.error('Error field:', errorData.error);
+            console.error('Full error data:', JSON.stringify(data, null, 2));
+
             return NextResponse.json(
                 {
                     error: 'Failed to create invoice',
                     message: errorData.message || errorData.error || 'Unknown error',
+                    details: data, // Бүх алдааны мэдээллийг буцаах
                 },
                 { status: response.status }
             );

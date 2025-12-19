@@ -94,6 +94,14 @@ function PaymentCallbackContent() {
 
           const saveData = await saveResponse.json();
           console.log("Save purchase response:", saveData);
+          console.log("Save response status:", saveResponse.status);
+
+          if (!saveResponse.ok) {
+            console.error("=== SAVE PURCHASE FAILED ===");
+            console.error("Error:", saveData.error);
+            console.error("Code:", saveData.code);
+            console.error("Details:", saveData.details);
+          }
 
           if (saveData.success) {
             // localStorage цэвэрлэх
