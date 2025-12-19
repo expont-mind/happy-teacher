@@ -11,8 +11,8 @@ export type MultiplicationLesson = {
 
 export const multiplicationLessons: MultiplicationLesson[] = [
   {
-    id: "page-3",
-    title: "3-р хуудас: Будацгаая",
+    id: "page-1",
+    title: "1-р хуудас: Будацгаая",
     introMessages: [
       {
         message: "Hulk, харлаа? Энэ хүүхэд үнэхээр сайн будаж байна!",
@@ -31,9 +31,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "hulk",
       },
     ],
-    mainImage: "/multiplication/page_3.svg",
-    maskImage: "/multiplication/page_3_mask.png",
-    backgroundImage: "/multiplication/page_3_background_test.png",
+    mainImage: "/multiplication/page_1.svg",
+    maskImage: "/multiplication/page_1_mask.png",
+    backgroundImage: "/multiplication/page_1_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#3fbfff", label: "1" },
@@ -51,8 +51,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-4",
-    title: "4-р хуудас: Будацгаая",
+    id: "page-2",
+    title: "2-р хуудас: Будацгаая",
     introMessages: [
       {
         message:
@@ -73,9 +73,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "black-panther",
       },
     ],
-    mainImage: "/multiplication/page_4.svg",
-    maskImage: "/multiplication/page_4_mask.png",
-    backgroundImage: "/multiplication/page_4_background.png",
+    mainImage: "/multiplication/page_2.svg",
+    maskImage: "/multiplication/page_2_mask.png",
+    backgroundImage: "/multiplication/page_2_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#3fbfff", label: "1" },
@@ -93,8 +93,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-5",
-    title: "5-р хуудас: Будацгаая",
+    id: "page-3",
+    title: "3-р хуудас: Будацгаая",
     introMessages: [
       {
         message: "Ахмад аа, энэ хүүхэд яг л чам шиг тууштай будаж байна!",
@@ -114,9 +114,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "captain-america",
       },
     ],
-    mainImage: "/multiplication/page_5.svg",
-    maskImage: "/multiplication/page_5_mask.png",
-    backgroundImage: "/multiplication/page_5_background.png",
+    mainImage: "/multiplication/page_3.svg",
+    maskImage: "/multiplication/page_3_mask.png",
+    backgroundImage: "/multiplication/page_3_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#f3ce00", label: "1" },
@@ -136,8 +136,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-6",
-    title: "6-р хуудас: Будацгаая",
+    id: "page-4",
+    title: "4-р хуудас: Будацгаая",
     introMessages: [
       {
         message:
@@ -158,9 +158,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "thanos",
       },
     ],
-    mainImage: "/multiplication/page_6_test.svg",
-    maskImage: "/multiplication/page_6_mask.png",
-    backgroundImage: "/multiplication/page_6_background.png",
+    mainImage: "/multiplication/page_4.svg",
+    maskImage: "/multiplication/page_4_mask.png",
+    backgroundImage: "/multiplication/page_4_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#ff751f", label: "3" },
@@ -178,8 +178,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-7",
-    title: "7-р хуудас: Будацгаая",
+    id: "page-5",
+    title: "5-р хуудас: Будацгаая",
     introMessages: [
       {
         message: "Thor, энэ хүүхдийн өнгө сонголтыг хар! Яг л солонго шиг!",
@@ -202,9 +202,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "hulk",
       },
     ],
-    mainImage: "/multiplication/page_7_test_1.svg",
-    maskImage: "/multiplication/page_7_mask.png",
-    backgroundImage: "/multiplication/page_7_background.png",
+    mainImage: "/multiplication/page_5.svg",
+    maskImage: "/multiplication/page_5_mask.png",
+    backgroundImage: "/multiplication/page_5_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#9eff1f", label: "4" },
@@ -223,8 +223,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-8",
-    title: "8-рхуудас: Будацгаая",
+    id: "page-6",
+    title: "6-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Wolverine, энэ хүүхдийн тууштай байдлыг хар! Чам шиг!",
@@ -244,9 +244,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "captain-america",
       },
     ],
-    mainImage: "/multiplication/page_8.svg",
-    maskImage: "/multiplication/page_5_mask.png",
-    backgroundImage: "/multiplication/page_8_background.png",
+    mainImage: "/multiplication/page_6.svg",
+    maskImage: "/multiplication/page_6_mask.png",
+    backgroundImage: "/multiplication/page_6_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#3fbfff", label: "4" },
@@ -261,8 +261,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-9",
-    title: "9-рхуудас: Будацгаая",
+    id: "page-7",
+    title: "7-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Steve, энэ хүүхэд хэн бэ? Яаж ийм сайн будаж байгаа юм?",
@@ -281,9 +281,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "iron-man",
       },
     ],
-    mainImage: "/multiplication/page_9.svg",
-    maskImage: "/multiplication/page_9_mask.png",
-    backgroundImage: "/multiplication/page_9_background.png",
+    mainImage: "/multiplication/page_7.svg",
+    maskImage: "/multiplication/page_7_mask.png",
+    backgroundImage: "/multiplication/page_7_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#3fbfff", label: "4" },
@@ -299,8 +299,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
   },
 
   {
-    id: "page-10",
-    title: "10-рхуудас: Будацгаая",
+    id: "page-8",
+    title: "8-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Hulk, энэ хүүхэд чамаас ч илүү сайн будаж байна!",
@@ -319,9 +319,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "black-panther",
       },
     ],
-    mainImage: "/multiplication/page_10.svg",
-    maskImage: "/multiplication/page_10_mask.png",
-    backgroundImage: "/multiplication/page_10_background.png",
+    mainImage: "/multiplication/page_8.svg",
+    maskImage: "/multiplication/page_8_mask.png",
+    backgroundImage: "/multiplication/page_8_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#38b6ff", label: "10" },
@@ -333,8 +333,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-11",
-    title: "11-рхуудас: Будацгаая",
+    id: "page-9",
+    title: "9-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Thor, энэ хүүхдийн хурдыг хар! Mjolnir-ээс ч хурдан!",
@@ -353,9 +353,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "thanos",
       },
     ],
-    mainImage: "/multiplication/page_11.svg",
-    maskImage: "/multiplication/page_11_mask.png",
-    backgroundImage: "/multiplication/page_11_background.png",
+    mainImage: "/multiplication/page_9.svg",
+    maskImage: "/multiplication/page_9_mask.png",
+    backgroundImage: "/multiplication/page_9_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#00bf63", label: "8" },
@@ -371,8 +371,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-12",
-    title: "12-рхуудас: Будацгаая",
+    id: "page-10",
+    title: "10-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Wolverine, энэ хүүхдийн нарийвчлалыг хар! Гайхалтай!",
@@ -391,9 +391,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "captain-america",
       },
     ],
-    mainImage: "/multiplication/page_12.svg",
-    maskImage: "/multiplication/page_12_mask.png",
-    backgroundImage: "/multiplication/page_12_background.png",
+    mainImage: "/multiplication/page_10.svg",
+    maskImage: "/multiplication/page_10_mask.png",
+    backgroundImage: "/multiplication/page_10_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#00bf63", label: "8" },
@@ -414,8 +414,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-13",
-    title: "12-рхуудас: Будацгаая",
+    id: "page-11",
+    title: "11-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Steve, энэ хүүхдийн будалтыг хар! Үнэхээр гайхалтай!",
@@ -434,9 +434,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "iron-man",
       },
     ],
-    mainImage: "/multiplication/page_13.svg",
-    maskImage: "/multiplication/page_13_mask.png",
-    backgroundImage: "/multiplication/page_13_background.png",
+    mainImage: "/multiplication/page_11.svg",
+    maskImage: "/multiplication/page_11_mask.png",
+    backgroundImage: "/multiplication/page_11_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#fff3c2", label: "12" },
@@ -449,8 +449,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-14",
-    title: "14-рхуудас: Будацгаая",
+    id: "page-12",
+    title: "12-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Hulk, энэ хүүхдийн хүчийг хар! Чам шиг хүчтэй!",
@@ -469,9 +469,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "black-panther",
       },
     ],
-    mainImage: "/multiplication/page_14.svg",
-    maskImage: "/multiplication/page_14_mask.png",
-    backgroundImage: "/multiplication/page_14_background.png",
+    mainImage: "/multiplication/page_12.svg",
+    maskImage: "/multiplication/page_12_mask.png",
+    backgroundImage: "/multiplication/page_12_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#fff3c2", label: "12" },
@@ -491,8 +491,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-15",
-    title: "15-рхуудас: Будацгаая",
+    id: "page-13",
+    title: "13-рхуудас: Будацгаая",
     introMessages: [
       {
         message:
@@ -512,9 +512,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "wolverine",
       },
     ],
-    mainImage: "/multiplication/page_15.svg",
-    maskImage: "/multiplication/page_15_mask.png",
-    backgroundImage: "/multiplication/page_15_background.png",
+    mainImage: "/multiplication/page_13.svg",
+    maskImage: "/multiplication/page_13_mask.png",
+    backgroundImage: "/multiplication/page_13_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#fff3c2", label: "12" },
@@ -532,8 +532,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-16",
-    title: "16-рхуудас: Будацгаая",
+    id: "page-14",
+    title: "14-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Tony, энэ хүүхэд хамгийн хэцүү хэсгийг давж байна!",
@@ -552,9 +552,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "thor",
       },
     ],
-    mainImage: "/multiplication/page_16_test_5.svg",
-    maskImage: "/multiplication/page_16_mask.png",
-    backgroundImage: "/multiplication/page_16_background_1.png",
+    mainImage: "/multiplication/page_14.svg",
+    maskImage: "/multiplication/page_14_mask.png",
+    backgroundImage: "/multiplication/page_14_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#9eff1f", label: "14" },
@@ -569,8 +569,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     ],
   },
   {
-    id: "page-17",
-    title: "17-рхуудас: Будацгаая",
+    id: "page-15",
+    title: "15-рхуудас: Будацгаая",
     introMessages: [
       {
         message: "Hulk, энэ хүүхэд амжилттай дууслаа! Бид бүгд бахархаж байна!",
@@ -591,9 +591,9 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "captain-america",
       },
     ],
-    mainImage: "/multiplication/page_17.svg",
-    maskImage: "/multiplication/page_17_mask.png",
-    backgroundImage: "/multiplication/page_17_background.png",
+    mainImage: "/multiplication/page_15.svg",
+    maskImage: "/multiplication/page_15_mask.png",
+    backgroundImage: "/multiplication/page_15_background.png",
     helpImage: "/multiplication/page_12_help.png",
     palette: [
       { color: "#b9b9b9", label: "12" },

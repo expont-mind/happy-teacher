@@ -1,3 +1,5 @@
+import { FractionLabel } from "@/src/components/ui/Fraction";
+
 interface ColorPaletteProps {
   colors: { color: string; label?: string }[];
   selectedColor: string;
@@ -21,11 +23,11 @@ export default function ColorPalette({
 
         {/* Color buttons - wrap in grid */}
         <div className="grid grid-cols-2 gap-2">
-          {colors.map(({ color, label }) => (
+          {colors.map(({ color, label }, index) => (
             <button
-              key={color}
+              key={`${color}-${index}`}
               onClick={() => setSelectedColor(color)}
-              className="flex flex-col items-center gap-1 group"
+              className="flex flex-col items-center gap-1 group cursor-pointer"
             >
               {/* Color button */}
               <div
@@ -39,13 +41,12 @@ export default function ColorPalette({
 
               {/* Fraction label below */}
               {label && (
-                <span
+                <FractionLabel
+                  label={label}
                   className={`text-xs font-semibold ${
                     isSelected(color) ? "text-purple-600" : "text-gray-600"
                   }`}
-                >
-                  {label}
-                </span>
+                />
               )}
             </button>
           ))}
