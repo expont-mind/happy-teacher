@@ -8,7 +8,6 @@ import ColoringCanvas, {
 import ColorPalette from "@/src/components/coloring/ColorPalette";
 import LessonHeader from "@/src/components/coloring/LessonHeader";
 import ActionToolbar from "@/src/components/coloring/ActionToolbar";
-import HelpPanel from "@/src/components/coloring/HelpPanel";
 import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import {
@@ -82,7 +81,6 @@ export default function LessonMultPage() {
   const [selectedColor, setSelectedColor] = useState(
     lesson?.palette[0]?.color || "#6b3ab5"
   );
-  const [helpOpen, setHelpOpen] = useState(false);
   const [, setImageLoaded] = useState(false);
   const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
@@ -171,10 +169,6 @@ export default function LessonMultPage() {
 
   const handleRedo = () => {
     canvasRef.current?.redo();
-  };
-
-  const handleHelp = () => {
-    setHelpOpen(true);
   };
 
   const handleDownload = () => {
@@ -304,7 +298,6 @@ export default function LessonMultPage() {
           onSelectColor={setSelectedColor}
           onUndo={handleUndo}
           onRedo={handleRedo}
-          onHelp={handleHelp}
           onDownload={handleDownload}
           onEnd={markCompleted}
           canUndo={canUndo}
@@ -347,7 +340,6 @@ export default function LessonMultPage() {
               <ActionToolbar
                 onUndo={handleUndo}
                 onRedo={handleRedo}
-                onHelp={handleHelp}
                 onDownload={handleDownload}
                 onEnd={markCompleted}
                 canUndo={canUndo}
@@ -360,13 +352,6 @@ export default function LessonMultPage() {
         {/* Footer (Desktop only) */}
         <div className="hidden lg:flex p-6 justify-end border-t border-gray-100"></div>
       </div>
-
-      {/* Help Panel */}
-      <HelpPanel
-        helpOpen={helpOpen}
-        setHelpOpen={setHelpOpen}
-        helpImage={lesson.helpImage}
-      />
 
       {/* Relax Modal */}
       <RelaxModal

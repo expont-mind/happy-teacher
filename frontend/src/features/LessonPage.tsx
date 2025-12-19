@@ -194,53 +194,16 @@ export default function LessonPage() {
     const { isComplete, missingColors } = canvasRef.current.checkCompletion();
 
     if (!isComplete) {
-      const colorNames: Record<string, string> = {
-        // Basic colors from page-12, 16, 21-23, 28, 30, 31, 33
-        "#6b3ab5": "Нил ягаан",
-        "#1066b4": "Хөх",
-        "#3396c7": "Цэнхэр",
-        "#1a9742": "Ногоон",
-        "#fdf3dc": "Цагаан шар",
-        "#ffd200": "Шар",
-        "#ff7900": "Улбар шар",
-        "#ee3030": "Улаан",
-        "#603130": "Хүрэн",
-        "#95928d": "Саарал",
-        // Additional colors from page-13, 14
-        "#ff914d": "Улбар шар",
-        "#ff66c4": "Ягаан",
-        "#7ed957": "Цайвар ногоон",
-        "#00bf63": "Ногоон",
-        "#ffde59": "Шар",
-        "#ff3131": "Улаан",
-        "#004aad": "Хар хөх",
-        "#38b6ff": "Тэнгэрийн хөх",
-        "#a85e31": "Хүрэн",
-        "#fee8c0": "Цайвар шар",
-        "#000000": "Хар",
-        "#a6a6a6": "Саарал",
-        "#8c52ff": "Ягаан",
-        // Colors from page-19
-        "#ff0000": "Улаан",
-        "#fd7e00": "Улбар шар",
-        "#ffef00": "Шар",
-        "#00c90e": "Ногоон",
-        "#0051ff": "Хөх",
-        "#54008a": "Нил ягаан",
-        "#684530": "Хүрэн",
-        // Colors from page-20
-        "#fadb5e": "Шар",
-        "#ef5d06": "Улбар шар",
-        "#fffbd7": "Цайвар шар",
-        // Colors from page-22
-        "#c1ff72": "Цайвар ногоон",
-        "#323232": "Хар саарал",
-        // Colors from page-28
-        "#6fbe03": "Ногоон",
-      };
+      // Build color names from palette labels
+      const paletteColorNames: Record<string, string> = {};
+      lesson.palette.forEach(({ color, label }) => {
+        if (label) {
+          paletteColorNames[color.toLowerCase()] = label;
+        }
+      });
 
       const missingColorNames = missingColors
-        .map((color) => colorNames[color.toLowerCase()] || color)
+        .map((color) => paletteColorNames[color.toLowerCase()] || color)
         .join(", ");
 
       showCharacterMessage(

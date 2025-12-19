@@ -5,7 +5,7 @@ import { Undo2, Redo2, Lightbulb, Download, Flag, BookOpen } from "lucide-react"
 interface ActionToolbarProps {
   onUndo: () => void;
   onRedo: () => void;
-  onHelp: () => void;
+  onHelp?: () => void;
   onDownload: () => void;
   onEnd: () => void;
   canUndo: boolean;
@@ -32,7 +32,7 @@ export default function ActionToolbar({
         data-tutorial="undo-btn"
         className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 transition-all ${
           canUndo
-            ? "bg-white border-blue-200 hover:border-blue-400"
+            ? "bg-white border-blue-200 hover:border-blue-400 cursor-pointer"
             : "bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed"
         }`}
       >
@@ -49,7 +49,7 @@ export default function ActionToolbar({
         data-tutorial="redo-btn"
         className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 transition-all ${
           canRedo
-            ? "bg-white border-green-200 hover:border-green-400"
+            ? "bg-white border-green-200 hover:border-green-400 cursor-pointer"
             : "bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed"
         }`}
       >
@@ -60,19 +60,21 @@ export default function ActionToolbar({
       </button>
 
       {/* Help/Hint Button */}
-      <button
-        onClick={onHelp}
-        data-tutorial="lesson-help-btn"
-        className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-yellow-200 hover:border-yellow-400 transition-all"
-      >
-        <Lightbulb size={28} className="text-yellow-500" />
-      </button>
+      {onHelp && (
+        <button
+          onClick={onHelp}
+          data-tutorial="lesson-help-btn"
+          className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-yellow-200 hover:border-yellow-400 transition-all cursor-pointer"
+        >
+          <Lightbulb size={28} className="text-yellow-500" />
+        </button>
+      )}
 
       {/* Download Button */}
       <button
         onClick={onDownload}
         data-tutorial="download-btn"
-        className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-purple-200 hover:border-purple-400 transition-all"
+        className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-purple-200 hover:border-purple-400 transition-all cursor-pointer"
       >
         <Download size={28} className="text-purple-500" />
       </button>
@@ -82,7 +84,7 @@ export default function ActionToolbar({
         <button
           onClick={onShowIntro}
           data-tutorial="story-btn"
-          className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-blue-200 hover:border-blue-400 transition-all"
+          className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-blue-200 hover:border-blue-400 transition-all cursor-pointer"
         >
           <BookOpen size={28} className="text-blue-500" />
         </button>
@@ -92,7 +94,7 @@ export default function ActionToolbar({
       <button
         onClick={onEnd}
         data-tutorial="done-btn"
-        className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-(--duo-green) border-green-400 hover:bg-(--duo-green-dark) transition-all"
+        className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-(--duo-green) border-green-400 hover:bg-(--duo-green-dark) transition-all cursor-pointer"
       >
         <Flag size={28} className="text-white" />
       </button>

@@ -109,6 +109,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           .map((x) => x.toString(16).padStart(2, "0"))
           .join("")}`.toLowerCase();
 
+        // Skip white (background)
         if (allowedColors.includes(maskColor) && maskColor !== "#ffffff") {
           requiredColors.add(maskColor);
           if (!colorPixels.has(maskColor)) {
