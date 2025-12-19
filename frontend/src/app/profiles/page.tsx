@@ -21,6 +21,7 @@ interface ChildProfile {
   avatar?: string;
   age?: number;
   class?: number;
+  parent_id?: string;
 }
 
 export default function ProfilesPage() {
@@ -35,29 +36,61 @@ export default function ProfilesPage() {
 
   useEffect(() => {
     if (!loading) {
-      if (!user) {
+      if (!user && !activeProfile) {
         router.push("/");
         return;
       }
     }
 
-    if (user) {
+    if (user || activeProfile?.type === "child") {
       fetchChildren();
     }
   }, [user, loading, router, activeProfile]);
 
   const fetchChildren = async () => {
     try {
+      const parentId =
+        user?.id ||
+        (activeProfile?.type === "child" ? activeProfile.parentId : null);
+
+      if (!parentId) return;
+
       const { data, error } = await supabase
         .from("children")
         .select("*")
-        .eq("parent_id", user?.id)
+        .eq("parent_id", parentId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      setChildren(data || []);
+
+      // If we are a child and fetching returned nothing (RLS block?),
+      // fallback to showing at least ourselves.
+      if ((!data || data.length === 0) && activeProfile?.type === "child") {
+        setChildren([
+          {
+            id: activeProfile.id,
+            name: activeProfile.name,
+            pin_code: "****",
+            avatar: activeProfile.avatar,
+            age: activeProfile.level, // mapping optional fields loosely
+          },
+        ]);
+      } else {
+        setChildren(data || []);
+      }
     } catch (error) {
       console.error("Error fetching children:", error);
+      // Fallback on error too
+      if (activeProfile?.type === "child") {
+        setChildren([
+          {
+            id: activeProfile.id,
+            name: activeProfile.name,
+            pin_code: "****",
+            avatar: activeProfile.avatar,
+          },
+        ]);
+      }
     } finally {
       setIsLoadingProfiles(false);
     }
@@ -69,7 +102,7 @@ export default function ProfilesPage() {
       name: child.name,
       type: "child",
       avatar: child.avatar,
-      parentId: user?.id,
+      parentId: child.parent_id || user?.id || activeProfile?.parentId,
     });
     router.push("/");
   };
@@ -143,18 +176,24 @@ export default function ProfilesPage() {
         </h1>
 
         <div className="flex flex-wrap justify-center gap-8 md:gap-12">
-          {/* Adult Profile */}
-          <div
-            onClick={handleAdultSelect}
-            className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48"
-          >
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden shadow-[0_8px_0_#0C0A0126] hover:shadow-[0_8px_0_#0C0A0140] active:shadow-none active:translate-y-2 transition-all relative bg-blue-500 flex items-center justify-center duration-200">
-              <UserCircle size={80} className="text-white" strokeWidth={2.5} />
+          {/* Adult Profile - Only show if user exists (parent login) */}
+          {user && (
+            <div
+              onClick={handleAdultSelect}
+              className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48"
+            >
+              <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden shadow-[0_8px_0_#0C0A0126] hover:shadow-[0_8px_0_#0C0A0140] active:shadow-none active:translate-y-2 transition-all relative bg-blue-500 flex items-center justify-center duration-200">
+                <UserCircle
+                  size={80}
+                  className="text-white"
+                  strokeWidth={2.5}
+                />
+              </div>
+              <span className="text-[#333333] font-extrabold text-xl text-center truncate w-full uppercase tracking-wide font-nunito">
+                {user?.user_metadata?.full_name || "Том хүн"}
+              </span>
             </div>
-            <span className="text-[#333333] font-extrabold text-xl text-center truncate w-full uppercase tracking-wide font-nunito">
-              {user?.user_metadata?.full_name || "Том хүн"}
-            </span>
-          </div>
+          )}
 
           {/* Children Profiles */}
           {children.map((child) => (
@@ -184,46 +223,50 @@ export default function ProfilesPage() {
                 {child.name}
               </span>
 
-              {/* Action Buttons */}
-              <div className="absolute -top-2 -right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setChildToEdit(child);
-                  }}
-                  className="bg-blue-500 w-10 h-10 flex justify-center items-center rounded-xl shadow-[0_4px_0_#1d4ed8] active:shadow-none active:translate-y-1 hover:bg-blue-600 text-white cursor-pointer duration-200"
-                  title="Засах"
-                >
-                  <Pencil size={18} />
-                </button>
+              {/* Action Buttons - Only if user/parent is logged in */}
+              {user && (
+                <div className="absolute -top-2 -right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setChildToEdit(child);
+                    }}
+                    className="bg-blue-500 w-10 h-10 flex justify-center items-center rounded-xl shadow-[0_4px_0_#1d4ed8] active:shadow-none active:translate-y-1 hover:bg-blue-600 text-white cursor-pointer duration-200"
+                    title="Засах"
+                  >
+                    <Pencil size={18} />
+                  </button>
 
-                <button
-                  onClick={(e) => handleDeleteClick(child, e)}
-                  className="bg-red-500 w-10 h-10 flex justify-center items-center rounded-xl shadow-[0_4px_0_#b91c1c] active:shadow-none active:translate-y-1 hover:bg-red-600 text-white cursor-pointer duration-200"
-                  title="Устгах"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
+                  <button
+                    onClick={(e) => handleDeleteClick(child, e)}
+                    className="bg-red-500 w-10 h-10 flex justify-center items-center rounded-xl shadow-[0_4px_0_#b91c1c] active:shadow-none active:translate-y-1 hover:bg-red-600 text-white cursor-pointer duration-200"
+                    title="Устгах"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              )}
             </div>
           ))}
 
-          {/* Add Profile Button */}
-          <div
-            onClick={() => setShowAddModal(true)}
-            className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48"
-          >
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden border-[3px] border-dashed border-[#0C0A0166] transition-all relative flex items-center justify-center bg-transparent hover:bg-[#0C0A0105]">
-              <Plus
-                size={64}
-                className="text-[#333333] transition-colors"
-                strokeWidth={2.5}
-              />
+          {/* Add Profile Button - Only if parent */}
+          {user && (
+            <div
+              onClick={() => setShowAddModal(true)}
+              className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48"
+            >
+              <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] overflow-hidden border-[3px] border-dashed border-[#0C0A0166] transition-all relative flex items-center justify-center bg-transparent hover:bg-[#0C0A0105]">
+                <Plus
+                  size={64}
+                  className="text-[#333333] transition-colors"
+                  strokeWidth={2.5}
+                />
+              </div>
+              <span className="text-[#333333] font-extrabold text-xl text-center uppercase tracking-wide transition-colors font-nunito">
+                Хүүхэд нэмэх
+              </span>
             </div>
-            <span className="text-[#333333] font-extrabold text-xl text-center uppercase tracking-wide transition-colors font-nunito">
-              Хүүхэд нэмэх
-            </span>
-          </div>
+          )}
         </div>
 
         <div className="mt-8 text-center">

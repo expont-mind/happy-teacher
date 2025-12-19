@@ -7,7 +7,8 @@ import Paywall from "@/src/components/topic/paywall/Paywall";
 import TopicInfoCard from "@/src/components/topic/TopicInfoCard";
 import VerticalRoadmap from "@/src/components/topic/VerticalRoadmap";
 import { useAuth } from "@/src/components/auth";
-import Skeleton from "@/src/components/ui/Skeleton";
+
+import TopicSkeleton from "@/src/components/topic/TopicSkeleton";
 import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 import { TOPICS_DATA } from "@/src/data/topics";
 
@@ -92,16 +93,7 @@ function FractionsRoadmapContent() {
   );
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-white py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Skeleton className="h-80 w-full rounded-3xl" />
-            <Skeleton className="h-96 w-full rounded-3xl" />
-          </div>
-        </div>
-      </div>
-    );
+    return <TopicSkeleton />;
   }
 
   return (
@@ -150,18 +142,7 @@ function FractionsRoadmapContent() {
 
 export default function FractionsRoadmapPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-white py-12 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Skeleton className="h-80 w-full rounded-3xl" />
-              <Skeleton className="h-96 w-full rounded-3xl" />
-            </div>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<TopicSkeleton />}>
       <FractionsRoadmapContent />
     </Suspense>
   );

@@ -65,10 +65,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
 
       if (!session) {
-        // Handle logout
-        setActiveProfile(null);
-        activeProfileRef.current = null;
-        localStorage.removeItem("activeProfile");
+        // Handle logout or child session restore
+        const savedProfileStr = localStorage.getItem("activeProfile");
+        let restoredChild = false;
+
+        if (savedProfileStr) {
+          try {
+            const saved = JSON.parse(savedProfileStr);
+            if (saved.type === "child") {
+              // It's a child profile, so we keep it even without a supabase session
+              setActiveProfile(saved);
+              activeProfileRef.current = saved;
+              restoredChild = true;
+            }
+          } catch (e) {
+            console.error("Error parsing saved profile on logout check", e);
+          }
+        }
+
+        if (!restoredChild) {
+          setActiveProfile(null);
+          activeProfileRef.current = null;
+          localStorage.removeItem("activeProfile");
+        }
       } else {
         // Check if we have a saved profile in localStorage first
         const savedProfileStr = localStorage.getItem("activeProfile");
@@ -477,6 +496,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               "activeProfile",
               JSON.stringify(updatedProfile)
             );
+          }
+
+          // Check if we should send progress notification (every 3 lessons)
+          if (isFirstCompletion && currentProfile.parentId) {
+            try {
+              // Get total completed lessons count
+              const { count } = await supabase
+                .from("child_progress")
+                .select("*", { count: "exact", head: true })
+                .eq("child_id", currentProfile.id);
+
+              // Send notification every 3 lessons
+              if (count && count % 3 === 0) {
+                // Send email notification to parent
+                await fetch("/api/send-notification", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    userId: currentProfile.parentId,
+                    type: "lesson_progress",
+                    title: `${currentProfile.name} - Хичээлийн явц`,
+                    message: `${currentProfile.name} ${count} хичээл дууссан байна. Гайхалтай ахиц! 🎉`,
+                  }),
+                });
+              }
+            } catch (notifError) {
+              console.error("Error sending progress notification:", notifError);
+              // Don't throw - notification failure shouldn't break lesson completion
+            }
           }
         }
 
