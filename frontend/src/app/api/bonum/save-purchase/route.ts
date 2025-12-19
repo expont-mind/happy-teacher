@@ -37,12 +37,11 @@ export async function POST(request: NextRequest) {
         child_id: childId,
       });
     } else {
-      // Adult only / No child selected
-      rowsToInsert.push({
-        user_id: userId,
-        topic_key: topicKey,
-        child_id: null,
-      });
+      // No child selected - this is now an error
+      return NextResponse.json(
+        { success: false, error: "At least one child must be selected" },
+        { status: 400 }
+      );
     }
 
     console.log("Rows to insert:", JSON.stringify(rowsToInsert, null, 2));
@@ -72,7 +71,12 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { success: false, error: error.message, code: error.code, details: error.details },
+        {
+          success: false,
+          error: error.message,
+          code: error.code,
+          details: error.details,
+        },
         { status: 500 }
       );
     }

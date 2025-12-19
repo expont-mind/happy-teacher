@@ -7,7 +7,7 @@ import { UserCircle, Baby, Plus, Trash2, Pencil } from "lucide-react";
 import AddChildModal from "@/src/components/auth/AddChildModal";
 import EditChildModal from "@/src/components/auth/EditChildModal";
 import DeleteChildModal from "@/src/components/auth/DeleteChildModal";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   showSuccessToast,
   showErrorToast,
@@ -104,7 +104,8 @@ export default function ProfilesPage() {
       avatar: child.avatar,
       parentId: child.parent_id || user?.id || activeProfile?.parentId,
     });
-    router.push("/");
+
+    router.push("/topic");
   };
 
   const handleDeleteClick = (child: ChildProfile, e: React.MouseEvent) => {
@@ -114,6 +115,12 @@ export default function ProfilesPage() {
 
   const confirmDelete = async () => {
     if (!childToDelete) return;
+
+    if (children.length <= 1) {
+      showErrorToast("Хамгийн сүүлийн профайлыг устгах боломжгүй");
+      setChildToDelete(null);
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -141,7 +148,7 @@ export default function ProfilesPage() {
         type: "adult",
       });
     }
-    router.push("/");
+    router.push("/topic");
   };
 
   if (loading || isLoadingProfiles) {
@@ -237,13 +244,15 @@ export default function ProfilesPage() {
                     <Pencil size={18} />
                   </button>
 
-                  <button
-                    onClick={(e) => handleDeleteClick(child, e)}
-                    className="bg-red-500 w-10 h-10 flex justify-center items-center rounded-xl shadow-[0_4px_0_#b91c1c] active:shadow-none active:translate-y-1 hover:bg-red-600 text-white cursor-pointer duration-200"
-                    title="Устгах"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  {children.length > 1 && (
+                    <button
+                      onClick={(e) => handleDeleteClick(child, e)}
+                      className="bg-red-500 w-10 h-10 flex justify-center items-center rounded-xl shadow-[0_4px_0_#b91c1c] active:shadow-none active:translate-y-1 hover:bg-red-600 text-white cursor-pointer duration-200"
+                      title="Устгах"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
                 </div>
               )}
             </div>

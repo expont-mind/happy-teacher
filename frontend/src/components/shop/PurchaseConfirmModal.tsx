@@ -1,7 +1,7 @@
 "use client";
 
 import { X, ShoppingBag } from "lucide-react";
-import { Coupon } from "@/src/data/coupons";
+import { Coupon } from "@/src/types";
 
 interface PurchaseConfirmModalProps {
   isOpen: boolean;

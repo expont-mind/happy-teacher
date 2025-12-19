@@ -1,4 +1,4 @@
-import { Coupon } from "@/src/data/coupons";
+import { Coupon } from "@/src/types";
 import {
   Zap,
   ShoppingBag,

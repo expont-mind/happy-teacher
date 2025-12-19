@@ -7,3 +7,11 @@ export interface Coupon {
   color: string;
   codePrefix: string;
 }
+
+export interface PurchasedCoupon {
+  id: string;
+  coupon_id: string;
+  code: string;
+  created_at: string;
+  is_used: boolean;
+}

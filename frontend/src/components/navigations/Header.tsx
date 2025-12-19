@@ -110,7 +110,11 @@ function HeaderContent() {
 
   return (
     <>
-      <header className={`${isLessonPage ? '' : 'sticky top-0'} z-50 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4`}>
+      <header
+        className={`${
+          isLessonPage ? "" : "sticky top-0"
+        } z-50 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4`}
+      >
         <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
           <Link href="/" className="flex gap-[10px] items-center py-1.5 z-20">
             <Image
@@ -129,7 +133,6 @@ function HeaderContent() {
           <div className="hidden md:flex items-center gap-3">
             {loading ? (
               <div className="flex items-center gap-3">
-                <Skeleton className="w-12 h-11 rounded-[10px]" />
                 <Skeleton className="w-12 h-11 rounded-[10px]" />
                 <Skeleton className="w-12 h-11 rounded-[10px]" />
                 <Skeleton className="w-12 h-11 rounded-[10px]" />
@@ -159,8 +162,6 @@ function HeaderContent() {
                         <Users size={20} color="#58CC02" />
                       </button>
                     </Link>
-
-                    <NotificationButton />
 
                     <Link href="/help" data-tutorial="help-btn">
                       <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
@@ -334,14 +335,6 @@ function HeaderContent() {
                             </div>
                           </div>
 
-                          <button
-                            onClick={() => setMobileNotificationsOpen(true)}
-                            className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
-                          >
-                            <Bell size={16} />
-                            <span>Мэдэгдэл</span>
-                          </button>
-
                           <Link
                             href="/help"
                             onClick={() => setIsOpen(false)}
@@ -375,7 +368,6 @@ function HeaderContent() {
                       ) : (
                         <>
                           {/* Adult View Mobile */}
-
                           <Link
                             href="/profiles"
                             onClick={() => setIsOpen(false)}

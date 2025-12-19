@@ -40,7 +40,7 @@ export default function LoginPage() {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("children")
-        .select("name, id, parent_id")
+        .select("name, id, parent_id, avatar")
         .eq("pin_code", pin)
         .maybeSingle();
 
@@ -54,6 +54,7 @@ export default function LoginPage() {
         id: data.id,
         name: data.name,
         type: "child",
+        avatar: data.avatar,
         parentId: data.parent_id,
       });
 

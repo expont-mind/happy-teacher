@@ -1,22 +1,16 @@
-import { COUPONS } from "@/src/data/coupons";
+import { PurchasedCoupon, Coupon } from "@/src/types";
 import { getIcon } from "./CouponCard";
-
-export interface PurchasedCoupon {
-  id: string;
-  coupon_id: string;
-  code: string;
-  created_at: string;
-  is_used: boolean;
-}
 
 interface InventoryCardProps {
   purchasedCoupon: PurchasedCoupon;
+  coupon?: Coupon;
 }
 
-export const InventoryCard = ({ purchasedCoupon }: InventoryCardProps) => {
-  const couponInfo = COUPONS.find(
-    (c) => c.id === purchasedCoupon.coupon_id
-  ) || {
+export const InventoryCard = ({
+  purchasedCoupon,
+  coupon,
+}: InventoryCardProps) => {
+  const couponInfo = coupon || {
     title: "Unknown Coupon",
     description: "Description not found",
     color: "bg-gray-500",

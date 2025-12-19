@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Dumbbell, Play, ShoppingCart } from "lucide-react";
+import { Calendar, Dumbbell, Play, ShoppingCart, Users } from "lucide-react";
 import Image from "next/image";
 
 interface TopicInfoCardProps {
@@ -14,6 +14,8 @@ interface TopicInfoCardProps {
   isPaid?: boolean;
   onShowPaywall?: () => void;
   videoUrl?: string;
+  isAdult?: boolean;
+  onSwitchProfile?: () => void;
 }
 
 export default function TopicInfoCard({
@@ -27,6 +29,8 @@ export default function TopicInfoCard({
   isPaid = true,
   onShowPaywall,
   videoUrl,
+  isAdult = false,
+  onSwitchProfile,
 }: TopicInfoCardProps) {
   return (
     <div className="bg-white rounded-[16px] border-2 border-[#0C0A0126] p-5 lg:sticky lg:top-[125px] flex flex-col gap-6">
@@ -81,26 +85,32 @@ export default function TopicInfoCard({
         </div>
       </div>
 
-      {isPaid && (
+      {isPaid && isAdult ? (
+        <button
+          onClick={onSwitchProfile}
+          className="duo-button duo-button-green w-full py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
+        >
+          <Users size={18} />
+          Хүүхдийн профайл руу шилжих
+        </button>
+      ) : isPaid ? (
         <div className="border border-[#0C0A0126] rounded-[10px] p-3">
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
               Таны явц
             </span>
-            <span className="text-sm font-black text-(--duo-green)">
+            <span className="text-sm font-black text-[#58CC02]">
               {progressPercent}%
             </span>
           </div>
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-(--duo-green) transition-all duration-500 ease-out rounded-full"
+              className="h-full bg-[#58CC02] transition-all duration-500 ease-out rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
         </div>
-      )}
-
-      {!isPaid && (
+      ) : (
         <button
           onClick={onShowPaywall}
           className="duo-button duo-button-green w-full py-3 text-sm cursor-pointer flex items-center justify-center gap-2"

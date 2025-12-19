@@ -1,6 +1,6 @@
 "use client";
 import { Suspense, useEffect, useState, useMemo, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import Paywall from "@/src/components/topic/paywall/Paywall";
@@ -92,6 +92,13 @@ function FractionsRoadmapContent() {
     []
   );
 
+  const router = useRouter();
+  const isAdult = activeProfile?.type === "adult";
+
+  const handleSwitchProfile = () => {
+    router.push("/profiles?redirect=/topic/fractions");
+  };
+
   if (loading) {
     return <TopicSkeleton />;
   }
@@ -111,6 +118,8 @@ function FractionsRoadmapContent() {
             price={fractionsData.price}
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
+            isAdult={isAdult}
+            onSwitchProfile={handleSwitchProfile}
           />
 
           {/* Right Column - Vertical Roadmap */}
@@ -121,6 +130,7 @@ function FractionsRoadmapContent() {
             headerTitle="Энгийн бутархайг будацгаая"
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
+            isAdult={isAdult}
           />
         </div>
 

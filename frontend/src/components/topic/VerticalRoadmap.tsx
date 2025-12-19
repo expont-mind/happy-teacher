@@ -2,7 +2,10 @@
 
 import { Play, Lock, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { showCharacterToastWithPurchase } from "@/src/components/ui/CharacterToast";
+import {
+  showCharacterToastWithPurchase,
+  showCharacterToast,
+} from "@/src/components/ui/CharacterToast";
 
 export type RoadmapItem = {
   id: string;
@@ -16,6 +19,7 @@ interface VerticalRoadmapProps {
   headerTitle?: string;
   isPaid?: boolean;
   onShowPaywall?: () => void;
+  isAdult?: boolean;
 }
 
 export default function VerticalRoadmap({
@@ -25,6 +29,7 @@ export default function VerticalRoadmap({
   headerTitle,
   isPaid = true,
   onShowPaywall,
+  isAdult = false,
 }: VerticalRoadmapProps) {
   const router = useRouter();
 
@@ -42,6 +47,15 @@ export default function VerticalRoadmap({
       );
       return;
     }
+
+    if (isAdult) {
+      showCharacterToast(
+        "Та хичээл хийхийн тулд хүүхдийн профайлаар нэвтрэнэ үү.",
+        "yellow"
+      );
+      return;
+    }
+
     if (unlocked) {
       router.push(`/topic/${topicKey}/${item.id}`);
     }

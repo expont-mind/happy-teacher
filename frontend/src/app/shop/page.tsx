@@ -2,17 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/src/components/auth";
-import { Coupon } from "@/src/data/coupons";
+import { Coupon, PurchasedCoupon } from "@/src/types";
 import { toast } from "sonner";
 import { createClient } from "@/src/utils/supabase/client";
 import { showCharacterToast } from "@/src/components/ui/CharacterToast";
 import { ShopHeader } from "@/src/components/shop/ShopHeader";
 import { ShopTabs } from "@/src/components/shop/ShopTabs";
 import { CouponCard } from "@/src/components/shop/CouponCard";
-import {
-  InventoryCard,
-  PurchasedCoupon,
-} from "@/src/components/shop/InventoryCard";
+import { InventoryCard } from "@/src/components/shop/InventoryCard";
 import { EmptyInventory } from "@/src/components/shop/EmptyInventory";
 import PurchaseConfirmModal from "@/src/components/shop/PurchaseConfirmModal";
 
@@ -229,7 +226,11 @@ export default function ShopPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {purchasedCoupons.map((pc) => (
-                  <InventoryCard key={pc.id} purchasedCoupon={pc} />
+                  <InventoryCard
+                    key={pc.id}
+                    purchasedCoupon={pc}
+                    coupon={coupons.find((c) => c.id === pc.coupon_id)}
+                  />
                 ))}
               </div>
             )}

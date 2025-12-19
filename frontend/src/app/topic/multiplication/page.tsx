@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState, useMemo, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 import Paywall from "@/src/components/topic/paywall/Paywall";
 import TopicInfoCard from "@/src/components/topic/TopicInfoCard";
@@ -97,6 +97,13 @@ function MultiplicationContent() {
     []
   );
 
+  const router = useRouter();
+  const isAdult = activeProfile?.type === "adult";
+
+  const handleSwitchProfile = () => {
+    router.push("/profiles?redirect=/topic/multiplication");
+  };
+
   if (loading) {
     return <TopicSkeleton />;
   }
@@ -116,6 +123,8 @@ function MultiplicationContent() {
             price={multiplicationData.price}
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
+            isAdult={isAdult}
+            onSwitchProfile={handleSwitchProfile}
           />
 
           {/* Right Column - Vertical Roadmap */}
@@ -126,6 +135,7 @@ function MultiplicationContent() {
             headerTitle="Үржүүлэх дасгал"
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
+            isAdult={isAdult}
           />
         </div>
 

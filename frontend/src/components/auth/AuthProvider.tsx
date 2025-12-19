@@ -241,7 +241,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const selectProfile = async (profile: UserProfile) => {
     // Fetch stats before setting profile
     const stats = await fetchProfileStats(profile);
-    const profileWithStats = { ...profile, ...stats };
+    // Important: spread stats first, then profile to preserve parentId, avatar, etc.
+    const profileWithStats = { ...stats, ...profile };
 
     setActiveProfile(profileWithStats);
     activeProfileRef.current = profileWithStats;
@@ -304,7 +305,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq("id", currentProfile.id)
             .maybeSingle();
 
-          if (!childError && childData) {
+          if (!childError && childData && childData.parent_id) {
             // Update profile with parentId
             const updatedProfile = {
               ...currentProfile,
@@ -317,45 +318,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               "activeProfile",
               JSON.stringify(updatedProfile)
             );
+          } else {
+            console.warn("❌ Could not fetch parentId for child profile");
+            return false;
           }
         } catch (err) {
-          console.error("Error fetching missing parentId:", err);
+          console.error("❌ Error fetching missing parentId:", err);
+          return false;
         }
       }
 
       if (currentProfile.parentId) {
         try {
-          // Check for specific child purchase or family purchase (null child_id)
-          const { data, error } = await supabase
-            .from("purchases")
-            .select("id")
-            .eq("user_id", currentProfile.parentId)
-            .eq("topic_key", topicKey)
-            .or(`child_id.eq.${currentProfile.id},child_id.is.null`)
-            .maybeSingle();
+          // Use RPC to check purchase (bypasses RLS for code login)
+          const { data, error } = await supabase.rpc("check_child_purchase", {
+            p_child_id: currentProfile.id,
+            p_topic_key: topicKey,
+          });
 
           if (error) {
-            console.warn("Error checking child purchase:", error);
-            // Fallback to RPC if direct query fails (e.g. if column doesn't exist yet, though we assume it does)
-            const { data: rpcData, error: rpcError } = await supabase.rpc(
-              "check_parent_purchase",
-              {
-                p_id: currentProfile.parentId,
-                t_key: topicKey,
-              }
-            );
-            if (!rpcError) return !!rpcData;
-            return false;
+            console.warn("❌ Error checking child purchase via RPC:", error);
+            // Fallback to direct query if RPC fails (e.g. function doesn't exist yet)
+            const { data: directData, error: directError } = await supabase
+              .from("purchases")
+              .select("id")
+              .eq("user_id", currentProfile.parentId)
+              .eq("topic_key", topicKey)
+              .eq("child_id", currentProfile.id)
+              .maybeSingle();
+
+            if (directError) return false;
+            return !!directData;
           }
 
           return !!data;
         } catch (err) {
-          console.warn("Unexpected error checking parent purchase:", err);
+          console.warn("❌ Unexpected error checking parent purchase:", err);
           return false;
         }
+      } else {
+        // If still no parentId after self-healing, return false
+        console.warn("❌ No parentId available for child profile");
+        return false;
       }
     }
 
+    // Only check adult purchases if the active profile is adult
     if (!user) return false;
 
     try {
@@ -378,13 +386,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.warn("⚠️ Purchases table issue:", error.message);
           return false;
         }
-        console.warn("Error checking purchase:", error.message || error);
+        console.warn(
+          "❌ Error checking adult purchase:",
+          error.message || error
+        );
         return false;
       }
 
       return !!data;
     } catch (err) {
-      console.warn("Unexpected error checking purchase:", err);
+      console.warn("❌ Unexpected error checking adult purchase:", err);
       return false;
     }
   };
