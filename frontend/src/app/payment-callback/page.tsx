@@ -21,8 +21,16 @@ function PaymentCallbackContent() {
       const topicKey = searchParams.get("topicKey");
       const userId = searchParams.get("userId");
       const transactionId = searchParams.get("transactionId");
+      const childIds = searchParams.get("childIds");
+      const childId = searchParams.get("childId"); // Legacy support
 
-      console.log("Payment callback params:", { topicKey, userId, transactionId });
+      console.log("Payment callback params:", {
+        topicKey,
+        userId,
+        transactionId,
+        childIds,
+        childId,
+      });
 
       if (!topicKey) {
         setStatus("Алдаа: topicKey олдсонгүй");
@@ -45,7 +53,13 @@ function PaymentCallbackContent() {
 
       if (!invoiceId) {
         setStatus("Төлбөрийн мэдээлэл олдсонгүй");
-        setTimeout(() => router.replace(`/topic/${topicKey}?payment=error&reason=no_invoice`), 2000);
+        setTimeout(
+          () =>
+            router.replace(
+              `/topic/${topicKey}?payment=error&reason=no_invoice`
+            ),
+          2000
+        );
         return;
       }
 
@@ -54,7 +68,11 @@ function PaymentCallbackContent() {
       console.log("Checking invoice status for:", invoiceId);
 
       try {
-        const response = await fetch(`/api/bonum/get-invoice-status?invoiceId=${encodeURIComponent(invoiceId)}`);
+        const response = await fetch(
+          `/api/bonum/get-invoice-status?invoiceId=${encodeURIComponent(
+            invoiceId
+          )}`
+        );
         const data = await response.json();
 
         console.log("Invoice status response:", data);
@@ -70,11 +88,20 @@ function PaymentCallbackContent() {
               userId: userId || user?.id,
               topicKey,
               invoiceId,
+              childIds: childIds || childId, // Send either
             }),
           });
 
           const saveData = await saveResponse.json();
           console.log("Save purchase response:", saveData);
+          console.log("Save response status:", saveResponse.status);
+
+          if (!saveResponse.ok) {
+            console.error("=== SAVE PURCHASE FAILED ===");
+            console.error("Error:", saveData.error);
+            console.error("Code:", saveData.code);
+            console.error("Details:", saveData.details);
+          }
 
           if (saveData.success) {
             // localStorage цэвэрлэх
@@ -88,12 +115,16 @@ function PaymentCallbackContent() {
             router.replace(`/topic/${topicKey}?payment=success`);
           } else {
             setStatus("Хадгалахад алдаа гарлаа");
-            router.replace(`/topic/${topicKey}?payment=error&reason=save_failed`);
+            router.replace(
+              `/topic/${topicKey}?payment=error&reason=save_failed`
+            );
           }
         } else {
           // Төлбөр төлөгдөөгүй
           setStatus(`Төлбөр төлөгдөөгүй (${data.status})`);
-          router.replace(`/topic/${topicKey}?payment=failed&status=${data.status}`);
+          router.replace(
+            `/topic/${topicKey}?payment=failed&status=${data.status}`
+          );
         }
       } catch (error) {
         console.error("Error checking payment:", error);

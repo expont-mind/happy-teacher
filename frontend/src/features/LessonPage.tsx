@@ -213,7 +213,10 @@ export default function LessonPage() {
     }
 
     // Save to Supabase (with localStorage fallback)
-    await markLessonCompleted("fractions", lesson.id);
+    const { isFirstCompletion } = await markLessonCompleted(
+      "fractions",
+      lesson.id
+    );
 
     // Check for notification trigger (Every 3 lessons)
     try {
@@ -252,19 +255,26 @@ export default function LessonPage() {
       console.error("Failed to trigger notification:", err);
     }
 
-    // Calculate XP based on mistakes
-    const mistakes = canvasRef.current?.getMistakeCount() || 0;
-    const baseXP = 10;
-    const bonusXP = mistakes === 0 ? 5 : 0;
-    const totalXP = baseXP + bonusXP;
+    // Only award XP on first completion
+    if (isFirstCompletion) {
+      // Calculate XP based on mistakes
+      const mistakes = canvasRef.current?.getMistakeCount() || 0;
+      const baseXP = 10;
+      const bonusXP = mistakes === 0 ? 5 : 0;
+      const totalXP = baseXP + bonusXP;
 
-    // Award XP and show reward modal
-    try {
-      await addXP(totalXP);
-    } catch (err) {
-      console.error("Failed to add XP:", err);
+      // Award XP and show reward modal
+      try {
+        await addXP(totalXP);
+      } catch (err) {
+        console.error("Failed to add XP:", err);
+      }
+      setXpEarned(totalXP);
+    } else {
+      // No XP for re-completing
+      setXpEarned(0);
     }
-    setXpEarned(totalXP);
+
     setShowReward(true);
   };
 

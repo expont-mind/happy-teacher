@@ -21,13 +21,17 @@ export interface AuthContextType {
     email: string,
     password: string,
     username: string,
-    showToast?: boolean
+    showToast?: boolean,
+    phone?: string
   ) => Promise<{ user: any; session: any }>;
   signOut: () => Promise<void>;
   selectProfile: (profile: UserProfile) => void;
   checkPurchase: (topicKey: string) => Promise<boolean>;
   purchaseTopic: (topicKey: string) => Promise<void>;
-  markLessonCompleted: (topicKey: string, lessonId: string) => Promise<void>;
+  markLessonCompleted: (
+    topicKey: string,
+    lessonId: string
+  ) => Promise<{ isFirstCompletion: boolean }>;
   getCompletedLessons: (topicKey: string) => Promise<string[]>;
   lastPurchaseTime: number;
   addXP: (

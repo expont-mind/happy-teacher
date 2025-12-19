@@ -24,17 +24,17 @@ export async function GET(request: Request) {
         child.parent_id
       );
       const settings = parent?.user?.user_metadata?.notification_settings || {
-        sms: false,
+        inactivityReminder: true,
       };
 
-      if (settings.sms) {
-        // Mock SMS
+      if (settings.inactivityReminder && parent?.user?.email) {
+        // Send Email Notification
         console.log(
-          `[SMS] Sending inactivity reminder for ${child.name} to parent ${child.parent_id}`
+          `[Email] Sending inactivity reminder for ${child.name} to parent ${parent.user.email}`
         );
-        logs.push(`SMS sent to ${child.parent_id} for ${child.name}`);
+        logs.push(`Email sent to ${parent.user.email} for ${child.name}`);
       } else {
-        logs.push(`SMS skipped for ${child.name} (Settings OFF)`);
+        logs.push(`Email skipped for ${child.name} (Settings OFF or No Email)`);
       }
 
       // Always insert DB notification

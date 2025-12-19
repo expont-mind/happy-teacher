@@ -99,7 +99,7 @@ export default function ChildInfoForm({
               Нас
             </label>
             <div className="flex gap-2">
-              {[6, 7, 8, 9, 10].map((age) => (
+              {[9, 10, 11, 12, 13].map((age) => (
                 <button
                   key={age}
                   type="button"
@@ -121,7 +121,7 @@ export default function ChildInfoForm({
               Анги
             </label>
             <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((grade) => (
+              {[4, 5, 6, 7, 8].map((grade) => (
                 <button
                   key={grade}
                   type="button"

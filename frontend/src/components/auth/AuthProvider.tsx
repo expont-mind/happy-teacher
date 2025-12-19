@@ -65,10 +65,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
 
       if (!session) {
-        // Handle logout
-        setActiveProfile(null);
-        activeProfileRef.current = null;
-        localStorage.removeItem("activeProfile");
+        // Handle logout or child session restore
+        const savedProfileStr = localStorage.getItem("activeProfile");
+        let restoredChild = false;
+
+        if (savedProfileStr) {
+          try {
+            const saved = JSON.parse(savedProfileStr);
+            if (saved.type === "child") {
+              // It's a child profile, so we keep it even without a supabase session
+              setActiveProfile(saved);
+              activeProfileRef.current = saved;
+              restoredChild = true;
+            }
+          } catch (e) {
+            console.error("Error parsing saved profile on logout check", e);
+          }
+        }
+
+        if (!restoredChild) {
+          setActiveProfile(null);
+          activeProfileRef.current = null;
+          localStorage.removeItem("activeProfile");
+        }
       } else {
         // Check if we have a saved profile in localStorage first
         const savedProfileStr = localStorage.getItem("activeProfile");
@@ -153,7 +172,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     password: string,
     username: string,
-    showToast: boolean = true
+    showToast: boolean = true,
+    phone?: string
   ) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -162,6 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           full_name: username,
           username: username,
+          phone: phone || "",
         },
       },
     });
@@ -304,34 +325,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (currentProfile.parentId) {
         try {
-          // Try RPC first (secure way to bypass RLS)
-          const { data: rpcData, error: rpcError } = await supabase.rpc(
-            "check_parent_purchase",
-            {
-              p_id: currentProfile.parentId,
-              t_key: topicKey,
-            }
-          );
-
-          if (!rpcError) {
-            return !!rpcData;
-          }
-
-          console.warn(
-            "RPC check failed (function might not exist), falling back to direct query:",
-            rpcError.message
-          );
-
-          // Fallback to direct query (works if RLS is disabled or public)
+          // Check for specific child purchase or family purchase (null child_id)
           const { data, error } = await supabase
             .from("purchases")
             .select("id")
             .eq("user_id", currentProfile.parentId)
             .eq("topic_key", topicKey)
+            .or(`child_id.eq.${currentProfile.id},child_id.is.null`)
             .maybeSingle();
 
           if (error) {
-            console.warn("Error checking parent purchase:", error);
+            console.warn("Error checking child purchase:", error);
+            // Fallback to RPC if direct query fails (e.g. if column doesn't exist yet, though we assume it does)
+            const { data: rpcData, error: rpcError } = await supabase.rpc(
+              "check_parent_purchase",
+              {
+                p_id: currentProfile.parentId,
+                t_key: topicKey,
+              }
+            );
+            if (!rpcError) return !!rpcData;
             return false;
           }
 
@@ -417,7 +430,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const markLessonCompleted = async (topicKey: string, lessonId: string) => {
+  const markLessonCompleted = async (
+    topicKey: string,
+    lessonId: string
+  ): Promise<{ isFirstCompletion: boolean }> => {
     // Use state first, then fallback to localStorage to be safe
     let currentProfile = activeProfile;
     if (!currentProfile) {
@@ -434,6 +450,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // If child profile
     if (currentProfile?.type === "child") {
       try {
+        // Check if lesson was already completed
+        const { data: existingProgress } = await supabase
+          .from("child_progress")
+          .select("id")
+          .eq("child_id", currentProfile.id)
+          .eq("topic_key", topicKey)
+          .eq("lesson_id", lessonId)
+          .maybeSingle();
+
+        const isFirstCompletion = !existingProgress;
+
         const { error } = await supabase.rpc("mark_child_progress", {
           p_child_id: currentProfile.id,
           p_topic_key: topicKey,
@@ -446,10 +473,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const key = `child_progress:${currentProfile.id}:${topicKey}`;
           const saved = localStorage.getItem(key);
           const list: string[] = saved ? JSON.parse(saved) : [];
-          if (!list.includes(lessonId)) {
+          const wasNew = !list.includes(lessonId);
+          if (wasNew) {
             const updated = [...list, lessonId];
             localStorage.setItem(key, JSON.stringify(updated));
           }
+          return { isFirstCompletion: wasNew };
         } else {
           // Update streak
           const { data: newStreak, error: streakError } = await supabase.rpc(
@@ -468,25 +497,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               JSON.stringify(updatedProfile)
             );
           }
+
+          // Check if we should send progress notification (every 3 lessons)
+          if (isFirstCompletion && currentProfile.parentId) {
+            try {
+              // Get total completed lessons count
+              const { count } = await supabase
+                .from("child_progress")
+                .select("*", { count: "exact", head: true })
+                .eq("child_id", currentProfile.id);
+
+              // Send notification every 3 lessons
+              if (count && count % 3 === 0) {
+                // Send email notification to parent
+                await fetch("/api/send-notification", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    userId: currentProfile.parentId,
+                    type: "lesson_progress",
+                    title: `${currentProfile.name} - Хичээлийн явц`,
+                    message: `${currentProfile.name} ${count} хичээл дууссан байна. Гайхалтай ахиц! 🎉`,
+                  }),
+                });
+              }
+            } catch (notifError) {
+              console.error("Error sending progress notification:", notifError);
+              // Don't throw - notification failure shouldn't break lesson completion
+            }
+          }
         }
+
+        return { isFirstCompletion };
       } catch (err) {
         console.error("Unexpected error marking child lesson completed:", err);
+        return { isFirstCompletion: false };
       }
-      return;
     }
 
     if (!user) {
       const key = `progress:${topicKey}`;
       const saved = localStorage.getItem(key);
       const list: string[] = saved ? JSON.parse(saved) : [];
-      if (!list.includes(lessonId)) {
+      const wasNew = !list.includes(lessonId);
+      if (wasNew) {
         const updated = [...list, lessonId];
         localStorage.setItem(key, JSON.stringify(updated));
       }
-      return;
+      return { isFirstCompletion: wasNew };
     }
 
     try {
+      // Check if already completed for adult
+      const { data: existingProgress } = await supabase
+        .from("user_progress")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("topic_key", topicKey)
+        .eq("lesson_id", lessonId)
+        .maybeSingle();
+
+      const isFirstCompletion = !existingProgress;
+
       const { error } = await supabase.from("user_progress").upsert(
         {
           user_id: user.id,
@@ -512,11 +584,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const key = `progress:${topicKey}`;
           const saved = localStorage.getItem(key);
           const list: string[] = saved ? JSON.parse(saved) : [];
-          if (!list.includes(lessonId)) {
+          const wasNew = !list.includes(lessonId);
+          if (wasNew) {
             const updated = [...list, lessonId];
             localStorage.setItem(key, JSON.stringify(updated));
           }
-          return;
+          return { isFirstCompletion: wasNew };
         }
         console.error("Error marking lesson completed:", error);
         throw error;
@@ -533,15 +606,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem("activeProfile", JSON.stringify(updatedProfile));
         }
       }
+
+      return { isFirstCompletion };
     } catch (err) {
       console.error("Unexpected error marking lesson completed:", err);
       const key = `progress:${topicKey}`;
       const saved = localStorage.getItem(key);
       const list: string[] = saved ? JSON.parse(saved) : [];
-      if (!list.includes(lessonId)) {
+      const wasNew = !list.includes(lessonId);
+      if (wasNew) {
         const updated = [...list, lessonId];
         localStorage.setItem(key, JSON.stringify(updated));
       }
+      return { isFirstCompletion: wasNew };
     }
   };
 
