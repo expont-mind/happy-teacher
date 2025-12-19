@@ -127,8 +127,8 @@ export default function TopicsPage() {
                   <div
                     className="h-full min-h-[360px] border-2 border-[#E5E5E5] rounded-[30px] p-6 md:p-8 hover:border-[#58CC02] transition-all duration-300 flex flex-col justify-between gap-6"
                     style={{
-                      backgroundImage: `url(/Fraction.png)`,
-                      backgroundPosition: "bottom",
+                      backgroundImage: `url(${topic.image})`,
+                      backgroundPosition: "center",
                       backgroundSize: "cover",
                       backgroundRepeat: "no-repeat",
                     }}
