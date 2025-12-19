@@ -41,7 +41,14 @@ export function CreateInvoiceButton({
 
             const data = await response.json();
 
+            console.log('=== API RESPONSE ===');
+            console.log('Status:', response.status);
+            console.log('Data:', JSON.stringify(data, null, 2));
+
             if (!response.ok) {
+                console.error('=== BONUM API ERROR ===');
+                console.error('Message:', data.message);
+                console.error('Details:', JSON.stringify(data.details, null, 2));
                 throw new Error(data.message || 'Failed to create invoice');
             }
 
