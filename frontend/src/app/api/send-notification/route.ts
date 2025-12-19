@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       if (process.env.RESEND_API_KEY) {
         try {
           const { error } = await resend.emails.send({
-            from: "Happy Teacher <noreply@happyteacher.mn>",
+            from: "Happy Teacher <noreply@happyacademy.mn>",
             to: user.email,
             subject: title,
             html: `
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
       if (process.env.RESEND_API_KEY) {
         try {
           const { error } = await resend.emails.send({
-            from: "Happy Teacher <noreply@happyteacher.mn>",
+            from: "Happy Teacher <noreply@happyacademy.mn>",
             to: user.email,
             subject: title || "Хичээлээ санаж байна уу?",
             html: `
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
       if (process.env.RESEND_API_KEY) {
         try {
           const { error } = await resend.emails.send({
-            from: "Happy Teacher <noreply@happyteacher.mn>",
+            from: "Happy Teacher <noreply@happyacademy.mn>",
             to: user.email,
             subject: title || "7 хоногийн тайлан",
             html: `
