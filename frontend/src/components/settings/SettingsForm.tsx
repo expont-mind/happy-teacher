@@ -16,9 +16,9 @@ export default function SettingsForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notifications, setNotifications] = useState({
-    sms: false,
-    gmail: true,
-    report: false,
+    lessonProgress: true,
+    inactivityReminder: true,
+    weeklyReport: true,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -195,7 +195,7 @@ export default function SettingsForm() {
           <div className="flex items-center justify-between p-3">
             <div className="flex flex-col gap-1">
               <p className="text-black font-bold text-sm font-nunito">
-                Имайл мэдэгдэл
+                Хичээлийн явцын тайлан
               </p>
               <p className="text-[#858480] font-medium text-xs font-nunito">
                 3 хичээл бүрт явцын тайлан
@@ -203,14 +203,16 @@ export default function SettingsForm() {
             </div>
             <button
               type="button"
-              onClick={() => toggleNotification("gmail")}
+              onClick={() => toggleNotification("lessonProgress")}
               className={`w-[44px] h-[24px] rounded-full p-[2px] transition-colors duration-200 ease-in-out cursor-pointer ${
-                notifications.gmail ? "bg-[#58CC02]" : "bg-[#E5E5E5]"
+                notifications.lessonProgress ? "bg-[#58CC02]" : "bg-[#E5E5E5]"
               }`}
             >
               <div
                 className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${
-                  notifications.gmail ? "translate-x-[20px]" : "translate-x-0"
+                  notifications.lessonProgress
+                    ? "translate-x-[20px]"
+                    : "translate-x-0"
                 }`}
               />
             </button>
@@ -218,7 +220,7 @@ export default function SettingsForm() {
           <div className="flex items-center justify-between p-3">
             <div className="flex flex-col gap-1">
               <p className="text-black font-bold text-sm font-nunito">
-                SMS мэдэгдэл
+                Идэвхгүй байдлын сануулга
               </p>
               <p className="text-[#858480] font-medium text-xs font-nunito">
                 2 өдөр идэвхгүй бол сануулга
@@ -226,14 +228,18 @@ export default function SettingsForm() {
             </div>
             <button
               type="button"
-              onClick={() => toggleNotification("sms")}
+              onClick={() => toggleNotification("inactivityReminder")}
               className={`w-[44px] h-[24px] rounded-full p-[2px] transition-colors duration-200 ease-in-out cursor-pointer ${
-                notifications.sms ? "bg-[#58CC02]" : "bg-[#E5E5E5]"
+                notifications.inactivityReminder
+                  ? "bg-[#58CC02]"
+                  : "bg-[#E5E5E5]"
               }`}
             >
               <div
                 className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${
-                  notifications.sms ? "translate-x-[20px]" : "translate-x-0"
+                  notifications.inactivityReminder
+                    ? "translate-x-[20px]"
+                    : "translate-x-0"
                 }`}
               />
             </button>
@@ -249,14 +255,16 @@ export default function SettingsForm() {
             </div>
             <button
               type="button"
-              onClick={() => toggleNotification("report")}
+              onClick={() => toggleNotification("weeklyReport")}
               className={`w-[44px] h-[24px] rounded-full p-[2px] transition-colors duration-200 ease-in-out cursor-pointer ${
-                notifications.report ? "bg-[#58CC02]" : "bg-[#E5E5E5]"
+                notifications.weeklyReport ? "bg-[#58CC02]" : "bg-[#E5E5E5]"
               }`}
             >
               <div
                 className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${
-                  notifications.report ? "translate-x-[20px]" : "translate-x-0"
+                  notifications.weeklyReport
+                    ? "translate-x-[20px]"
+                    : "translate-x-0"
                 }`}
               />
             </button>
