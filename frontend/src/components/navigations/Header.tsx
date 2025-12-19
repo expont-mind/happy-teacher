@@ -287,7 +287,7 @@ function HeaderContent() {
                   onMarkAsRead={markAsRead}
                   onMarkAllAsRead={markAllAsRead}
                   onClose={() => setMobileNotificationsOpen(false)}
-                  className="!relative !top-0 !right-0 !w-full !mt-0 !shadow-none !border-0"
+                  className="relative! top-0! right-0! w-full! mt-0! shadow-none! border-0!"
                 />
               ) : (
                 <div className="flex flex-col gap-3">
