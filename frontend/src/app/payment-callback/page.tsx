@@ -104,7 +104,6 @@ function PaymentCallbackContent() {
           }
 
           if (saveData.success) {
-            // localStorage цэвэрлэх
             if (transactionId) {
               localStorage.removeItem(`bonum_invoice_${transactionId}`);
             }
