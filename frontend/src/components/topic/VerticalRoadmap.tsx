@@ -34,6 +34,9 @@ export default function VerticalRoadmap({
   isAdult = false,
 }: VerticalRoadmapProps) {
   const router = useRouter();
+  const planetImage = TOPICS_DATA.find((t) =>
+    t.link.includes(topicKey)
+  )?.planet;
 
   const canEnter = (index: number) => {
     if (index === 0) return true;
@@ -287,16 +290,15 @@ export default function VerticalRoadmap({
         </div>
       </div>
 
-      <Image
-        src={
-          TOPICS_DATA.find((t) => t.link.includes(topicKey))?.image ||
-          "/Planet.png"
-        }
-        alt="Topic End Image"
-        width={200}
-        height={200}
-        className="object-center object-cover mt-8"
-      />
+      {planetImage && (
+        <Image
+          src={planetImage}
+          alt="Topic End Image"
+          width={200}
+          height={200}
+          className="object-center object-cover"
+        />
+      )}
     </div>
   );
 }

@@ -10,6 +10,7 @@ export const TOPICS_DATA = [
     lessonCount: fractionLessons.length,
     price: 3,
     image: "/Fraction.png",
+    planet: "/Planet.png",
   },
   {
     title: "Үржих",
@@ -19,5 +20,6 @@ export const TOPICS_DATA = [
     lessonCount: multiplicationLessons.length,
     price: 3,
     image: "/Multiplication.png",
+    planet: "",
   },
 ];
