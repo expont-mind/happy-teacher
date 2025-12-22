@@ -43,7 +43,7 @@ export const Hero = () => {
         <div className="lg:hidden w-full flex justify-center mt-8">
           <Image
             src="/svg/home1.png"
-            alt="Happy Teacher"
+            alt="Happy Academy"
             width={300}
             height={256}
             className="object-contain"

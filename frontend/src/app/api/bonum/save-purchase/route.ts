@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/src/utils/supabase/server";
+import { createServiceRoleClient } from "@/src/utils/supabase/server";
 
 export async function POST(request: NextRequest) {
-  console.log("=== SAVE PURCHASE START ===");
-
   try {
     const body = await request.json();
     // Support both childIds (string list) and childId (single string)
     const { userId, topicKey, invoiceId, childId, childIds } = body;
-
-    console.log("Request:", { userId, topicKey, invoiceId, childId, childIds });
 
     if (!userId || !topicKey) {
       return NextResponse.json(
@@ -18,7 +14,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    // Use service role client to bypass RLS (needed for child code login)
+    const supabase = createServiceRoleClient();
 
     let rowsToInsert = [];
     if (childIds) {
@@ -44,26 +41,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("Rows to insert:", JSON.stringify(rowsToInsert, null, 2));
-
     // Purchase хадгалах - insert ашиглана (upsert биш)
     const { data: insertedData, error } = await supabase
       .from("purchases")
       .insert(rowsToInsert)
       .select();
 
-    console.log("Insert result:", { insertedData, error });
-
     if (error) {
-      console.error("=== DATABASE ERROR ===");
-      console.error("Error code:", error.code);
-      console.error("Error message:", error.message);
-      console.error("Error details:", error.details);
-      console.error("Error hint:", error.hint);
+      console.error(
+        "Database error saving purchase:",
+        error.code,
+        error.message
+      );
 
       // 23505 = duplicate key (аль хэдийн худалдаж авсан)
       if (error.code === "23505") {
-        console.log("Purchase already exists - treating as success");
         return NextResponse.json({
           success: true,
           message: "Already purchased",
@@ -81,11 +73,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("=== SAVE PURCHASE SUCCESS ===");
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("=== SAVE PURCHASE ERROR ===");
-    console.error("Error:", error);
+    console.error("Error saving purchase:", error);
 
     return NextResponse.json(
       {

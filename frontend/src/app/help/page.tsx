@@ -1,7 +1,7 @@
 const helpData = [
   {
     id: 1,
-    title: "Happy Teacher танилцуулга",
+    title: "Happy Academy танилцуулга",
     description: "Вэб сайтын үндсэн функц, боломжуудтай танилцах",
     video: "",
   },
@@ -35,7 +35,7 @@ export default function Help() {
             Тусламж & Заавар
           </p>
           <p className="text-[#858480] font-extrabold text-xs font-nunito text-center">
-            Happy Teacher хэрхэн ашиглах талаар дэлгэрэнгүй заавар бичлэгүүд. 16
+            Happy Academy хэрхэн ашиглах талаар дэлгэрэнгүй заавар бичлэгүүд. 16
             бичлэгээс өөрт хэрэгтэй мэдээллээ олоорой!
           </p>
         </div>

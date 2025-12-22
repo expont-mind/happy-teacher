@@ -19,7 +19,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Happy Teacher - Математик сурах хөгжилтэй арга",
+  title: "Happy Academy - Математик сурах хөгжилтэй арга",
   description:
     "Хүүхдүүдэд зориулсан математикийн интерактив сургалтын платформ",
 };

@@ -1,8 +1,15 @@
 import { createClient } from "@/src/utils/supabase/server";
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT) || 587,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -78,25 +85,20 @@ export async function GET(request: Request) {
             Гайхалтай ахиц гаргаж байна! Үргэлжлүүлээрэй! 🎉
           </p>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #888;">Happy Teacher Team</p>
+          <p style="font-size: 12px; color: #888;">Happy Academy Team</p>
         </div>
       `;
 
       // Send email
-      if (process.env.RESEND_API_KEY) {
+      if (process.env.SMTP_HOST && process.env.SMTP_USER) {
         try {
-          const { error } = await resend.emails.send({
-            from: "Happy Teacher <noreply@happyteacher.mn>",
+          await transporter.sendMail({
+            from: "Happy Academy <noreply@happyteacher.mn>",
             to: parent.email,
-            subject: "7 хоногийн тайлан - Happy Teacher",
+            subject: "7 хоногийн тайлан - Happy Academy",
             html: reportHtml,
           });
-
-          if (error) {
-            logs.push(`Failed to send to ${parent.email}: ${error.message}`);
-          } else {
-            logs.push(`✅ Email sent to ${parent.email}`);
-          }
+          logs.push(`✅ Email sent to ${parent.email}`);
         } catch (error: any) {
           logs.push(`❌ Error sending to ${parent.email}: ${error.message}`);
         }

@@ -462,15 +462,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (currentProfile?.type === "child") {
       try {
         // Check if lesson was already completed
-        const { data: existingProgress } = await supabase
-          .from("child_progress")
-          .select("id")
-          .eq("child_id", currentProfile.id)
-          .eq("topic_key", topicKey)
-          .eq("lesson_id", lessonId)
-          .maybeSingle();
+        // Check if lesson was already completed using RPC to avoid RLS issues
+        const { data: completedLessons, error: checkError } =
+          await supabase.rpc("get_child_progress", {
+            p_child_id: currentProfile.id,
+            p_topic_key: topicKey,
+          });
 
-        const isFirstCompletion = !existingProgress;
+        const isAlreadyCompleted =
+          !checkError &&
+          completedLessons &&
+          completedLessons.some((l: any) => l.lesson_id === lessonId);
+
+        const isFirstCompletion = !isAlreadyCompleted;
 
         const { error } = await supabase.rpc("mark_child_progress", {
           p_child_id: currentProfile.id,
