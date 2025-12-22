@@ -129,11 +129,12 @@ export default function Paywall({
     // Bonum API transactionId урт хязгаартай (ихэвчлэн 50 тэмдэгт)
     // Тиймээс UUID-уудыг богиносгоно
     const userShort = (user?.id || "guest").slice(0, 8);
-    const childShort = selectedChildIds.length > 0
-      ? selectedChildIds[0].slice(0, 8)
-      : activeProfile?.type === "child"
-      ? activeProfile.id.slice(0, 8)
-      : "x";
+    const childShort =
+      selectedChildIds.length > 0
+        ? selectedChildIds[0].slice(0, 8)
+        : activeProfile?.type === "child"
+        ? activeProfile.id.slice(0, 8)
+        : "x";
     const timeStamp = Date.now().toString(36); // base36 богино болгох
 
     return `${topicKey.slice(0, 4)}_${userShort}_${childShort}_${timeStamp}`;
@@ -148,8 +149,25 @@ export default function Paywall({
         ? activeProfile.id
         : "";
 
-    // Important: For child user, we need to pass their ID as childIds so it gets recorded correctly
-    return `${baseUrl}/payment-callback?topicKey=${topicKey}&userId=${user?.id}&childIds=${childIdsParam}`;
+    // Build URL with proper encoding and validation
+    const params = new URLSearchParams();
+    params.set("topicKey", topicKey);
+
+    // Add userId: for adult use user.id, for child use parentId
+    const parentUserId =
+      user?.id ||
+      (activeProfile?.type === "child" ? activeProfile.parentId : undefined);
+
+    if (parentUserId) {
+      params.set("userId", parentUserId);
+    }
+
+    // Only add childIds if it exists
+    if (childIdsParam) {
+      params.set("childIds", childIdsParam);
+    }
+
+    return `${baseUrl}/payment-callback?${params.toString()}`;
   };
 
   const handlePaymentSuccess = (data: any) => {

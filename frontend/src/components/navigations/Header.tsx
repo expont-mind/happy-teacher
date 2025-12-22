@@ -125,7 +125,7 @@ function HeaderContent() {
             />
 
             <p className="text-base font-extrabold text-[#333333] font-nunito uppercase">
-              HAPPY TEACHER
+              Happy Academy
             </p>
           </Link>
 

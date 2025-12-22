@@ -6,7 +6,7 @@ export const Features = () => {
       <div className="max-w-[1280px] w-full flex flex-col gap-12 lg:gap-20 items-center">
         <div className="flex flex-col gap-6 items-center text-center">
           <p className="text-[#0C0A01] text-3xl lg:text-5xl font-bold font-nunito">
-            Яагаад Happy Teacher вэ?
+            Яагаад Happy Academy вэ?
           </p>
           <p className="text-[#54534D] text-lg lg:text-2xl font-normal font-nunito">
             Бид математикийг хөгжилтэй, амархан, үр дүнтэй болгодог

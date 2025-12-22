@@ -8,7 +8,7 @@ import Loader from "@/src/components/ui/Loader";
 function PaymentCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, activeProfile } = useAuth();
   const [status, setStatus] = useState<string>("Төлбөр шалгаж байна...");
   const processedRef = useRef(false);
 
@@ -24,14 +24,6 @@ function PaymentCallbackContent() {
       const childIds = searchParams.get("childIds");
       const childId = searchParams.get("childId"); // Legacy support
 
-      console.log("Payment callback params:", {
-        topicKey,
-        userId,
-        transactionId,
-        childIds,
-        childId,
-      });
-
       if (!topicKey) {
         setStatus("Алдаа: topicKey олдсонгүй");
         setTimeout(() => router.replace("/topic"), 2000);
@@ -43,12 +35,10 @@ function PaymentCallbackContent() {
 
       if (transactionId) {
         invoiceId = localStorage.getItem(`bonum_invoice_${transactionId}`);
-        console.log("Found invoiceId from transactionId:", invoiceId);
       }
 
       if (!invoiceId) {
         invoiceId = localStorage.getItem("bonum_latest_invoice");
-        console.log("Using latest invoiceId:", invoiceId);
       }
 
       if (!invoiceId) {
@@ -65,7 +55,6 @@ function PaymentCallbackContent() {
 
       // get-invoice-status API дуудах
       setStatus("Төлбөр баталгаажуулж байна...");
-      console.log("Checking invoice status for:", invoiceId);
 
       try {
         const response = await fetch(
@@ -75,32 +64,51 @@ function PaymentCallbackContent() {
         );
         const data = await response.json();
 
-        console.log("Invoice status response:", data);
-
         if (data.isPaid) {
           // Төлбөр амжилттай - purchase хадгалах
           setStatus("Худалдан авалт хадгалж байна...");
+
+          const validUserId =
+            userId && userId !== "undefined"
+              ? userId
+              : user?.id ||
+                (activeProfile?.type === "child"
+                  ? activeProfile.parentId
+                  : undefined);
+
+          if (!validUserId) {
+            setStatus("Хэрэглэгчийн мэдээлэл олдсонгүй");
+            router.replace(`/topic/${topicKey}?payment=error&reason=no_user`);
+            return;
+          }
+
+          // Validate and get childIds
+          const validChildIds =
+            (childIds && childIds !== "undefined" ? childIds : null) ||
+            (childId && childId !== "undefined" ? childId : null) ||
+            (activeProfile?.type === "child" ? activeProfile.id : null);
+
+          if (!validChildIds) {
+            setStatus("Хүүхдийн мэдээлэл олдсонгүй");
+            router.replace(`/topic/${topicKey}?payment=error&reason=no_child`);
+            return;
+          }
 
           const saveResponse = await fetch("/api/bonum/save-purchase", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              userId: userId || user?.id,
+              userId: validUserId,
               topicKey,
               invoiceId,
-              childIds: childIds || childId, // Send either
+              childIds: validChildIds,
             }),
           });
 
           const saveData = await saveResponse.json();
-          console.log("Save purchase response:", saveData);
-          console.log("Save response status:", saveResponse.status);
 
           if (!saveResponse.ok) {
-            console.error("=== SAVE PURCHASE FAILED ===");
-            console.error("Error:", saveData.error);
-            console.error("Code:", saveData.code);
-            console.error("Details:", saveData.details);
+            console.error("Failed to save purchase:", saveData.error);
           }
 
           if (saveData.success) {

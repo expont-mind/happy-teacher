@@ -16,7 +16,7 @@ export const Footer = () => {
                 height={30}
               />
               <p className="text-base font-extrabold text-white font-nunito">
-                HAPPY TEACHER
+                Happy Academy
               </p>
             </div>
           </div>
@@ -112,7 +112,7 @@ export const Footer = () => {
         <div className="border-t border-[#858480] pt-8 w-full flex justify-center">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 justify-between w-full text-center md:text-left">
             <p className="text-sm font-normal text-[#B6B5B2] font-nunito">
-              © 2025 Happy Teacher
+              © 2025 Happy Academy
             </p>
             <p className="text-sm font-normal text-[#B6B5B2] font-nunito">
               Powered by{" "}

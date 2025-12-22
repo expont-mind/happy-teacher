@@ -1,8 +1,15 @@
 import { createClient } from "@/src/utils/supabase/server";
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "re_123");
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT) || 587,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -44,10 +51,10 @@ export async function POST(request: Request) {
 
   if (type === "lesson_progress") {
     if (settings.lessonProgress && user.email) {
-      if (process.env.RESEND_API_KEY) {
+      if (process.env.SMTP_HOST && process.env.SMTP_USER) {
         try {
-          const { error } = await resend.emails.send({
-            from: "Happy Teacher <noreply@happyacademy.mn>",
+          await transporter.sendMail({
+            from: "Happy Academy <noreply@happyacademy.mn>",
             to: user.email,
             subject: title,
             html: `
@@ -55,18 +62,12 @@ export async function POST(request: Request) {
                 <h2 style="color: #58CC02;">${title}</h2>
                 <p style="font-size: 16px;">${message}</p>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-                <p style="font-size: 12px; color: #888;">Happy Teacher Team</p>
+                <p style="font-size: 12px; color: #888;">Happy Academy Team</p>
               </div>
             `,
           });
-
-          if (error) {
-            console.error("Resend Error:", error);
-            results.log.push(`Email failed: ${error.message}`);
-          } else {
-            results.emailSent = true;
-            results.log.push("Email sent via Resend");
-          }
+          results.emailSent = true;
+          results.log.push("Email sent via Nodemailer");
         } catch (e: any) {
           console.error("Email Error:", e);
           results.log.push(`Email error: ${e.message}`);
@@ -85,10 +86,10 @@ export async function POST(request: Request) {
 
   if (type === "inactivity_reminder") {
     if (settings.inactivityReminder && user.email) {
-      if (process.env.RESEND_API_KEY) {
+      if (process.env.SMTP_HOST && process.env.SMTP_USER) {
         try {
-          const { error } = await resend.emails.send({
-            from: "Happy Teacher <noreply@happyacademy.mn>",
+          await transporter.sendMail({
+            from: "Happy Academy <noreply@happyacademy.mn>",
             to: user.email,
             subject: title || "Хичээлээ санаж байна уу?",
             html: `
@@ -98,18 +99,12 @@ export async function POST(request: Request) {
                 }</h2>
                 <p style="font-size: 16px;">${message}</p>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-                <p style="font-size: 12px; color: #888;">Happy Teacher Team</p>
+                <p style="font-size: 12px; color: #888;">Happy Academy Team</p>
               </div>
             `,
           });
-
-          if (error) {
-            console.error("Resend Error:", error);
-            results.log.push(`Email failed: ${error.message}`);
-          } else {
-            results.emailSent = true;
-            results.log.push("Email sent via Resend");
-          }
+          results.emailSent = true;
+          results.log.push("Email sent via Nodemailer");
         } catch (e: any) {
           console.error("Email Error:", e);
           results.log.push(`Email error: ${e.message}`);
@@ -128,10 +123,10 @@ export async function POST(request: Request) {
 
   if (type === "weekly_report") {
     if (settings.weeklyReport && user.email) {
-      if (process.env.RESEND_API_KEY) {
+      if (process.env.SMTP_HOST && process.env.SMTP_USER) {
         try {
-          const { error } = await resend.emails.send({
-            from: "Happy Teacher <noreply@happyacademy.mn>",
+          await transporter.sendMail({
+            from: "Happy Academy <noreply@happyacademy.mn>",
             to: user.email,
             subject: title || "7 хоногийн тайлан",
             html: `
@@ -139,18 +134,12 @@ export async function POST(request: Request) {
                 <h2 style="color: #58CC02;">${title || "7 хоногийн тайлан"}</h2>
                 <p style="font-size: 16px;">${message}</p>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-                <p style="font-size: 12px; color: #888;">Happy Teacher Team</p>
+                <p style="font-size: 12px; color: #888;">Happy Academy Team</p>
               </div>
             `,
           });
-
-          if (error) {
-            console.error("Resend Error:", error);
-            results.log.push(`Email failed: ${error.message}`);
-          } else {
-            results.emailSent = true;
-            results.log.push("Email sent via Resend");
-          }
+          results.emailSent = true;
+          results.log.push("Email sent via Nodemailer");
         } catch (e: any) {
           console.error("Email Error:", e);
           results.log.push(`Email error: ${e.message}`);
@@ -171,7 +160,7 @@ export async function POST(request: Request) {
     success: true,
     ...results,
     debug: {
-      hasKey: !!process.env.RESEND_API_KEY,
+      hasKey: !!(process.env.SMTP_HOST && process.env.SMTP_USER),
       userEmail: user?.email,
       settingsState: settings,
     },
