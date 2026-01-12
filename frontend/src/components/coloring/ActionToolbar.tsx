@@ -1,6 +1,16 @@
 "use client";
 
-import { Undo2, Redo2, Lightbulb, Download, Flag, BookOpen } from "lucide-react";
+import { useState } from "react";
+import {
+  Undo2,
+  Redo2,
+  Lightbulb,
+  Download,
+  Flag,
+  BookOpen,
+  X,
+} from "lucide-react";
+import Image from "next/image";
 
 interface ActionToolbarProps {
   onUndo: () => void;
@@ -11,6 +21,8 @@ interface ActionToolbarProps {
   canUndo: boolean;
   canRedo: boolean;
   onShowIntro?: () => void;
+  topicKey?: string;
+  tableImage?: string;
 }
 
 export default function ActionToolbar({
@@ -22,7 +34,10 @@ export default function ActionToolbar({
   canUndo,
   canRedo,
   onShowIntro,
+  topicKey,
+  tableImage,
 }: ActionToolbarProps) {
+  const [showTableModal, setShowTableModal] = useState(false);
   return (
     <div className="sticky top-6 self-start flex flex-col items-center gap-4">
       {/* Undo Button */}
@@ -79,14 +94,25 @@ export default function ActionToolbar({
         <Download size={28} className="text-purple-500" />
       </button>
 
-      {/* Story/Intro Button */}
-      {onShowIntro && (
+      {/* Story/Intro Button - for fractions */}
+      {onShowIntro && topicKey !== "multiplication" && (
         <button
           onClick={onShowIntro}
           data-tutorial="story-btn"
           className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-blue-200 hover:border-blue-400 transition-all cursor-pointer"
         >
           <BookOpen size={28} className="text-blue-500" />
+        </button>
+      )}
+
+      {/* Multiplication Table Button - for multiplication */}
+      {topicKey === "multiplication" && tableImage && (
+        <button
+          onClick={() => setShowTableModal(true)}
+          data-tutorial="table-btn"
+          className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-orange-200 hover:border-orange-400 transition-all cursor-pointer"
+        >
+          <BookOpen size={28} className="text-orange-500" />
         </button>
       )}
 
@@ -98,6 +124,33 @@ export default function ActionToolbar({
       >
         <Flag size={28} className="text-white" />
       </button>
+
+      {/* Table Image Modal */}
+      {showTableModal && tableImage && (
+        <div
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowTableModal(false)}
+        >
+          <div
+            className="relative bg-white rounded-4xl p-4 max-w-[90vw] max-h-[90vh] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowTableModal(false)}
+              className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer z-10"
+            >
+              <X size={24} className="text-gray-600" />
+            </button>
+            <Image
+              src={tableImage}
+              alt="Үржвэрийн хүснэгт"
+              width={600}
+              height={600}
+              className="rounded-xl max-h-[80vh] w-auto object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

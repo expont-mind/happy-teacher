@@ -371,6 +371,8 @@ export default function LessonMultPage() {
                 onEnd={markCompleted}
                 canUndo={canUndo}
                 canRedo={canRedo}
+                topicKey="multiplication"
+                tableImage={lesson.tableImage}
               />
             </div>
           </div>

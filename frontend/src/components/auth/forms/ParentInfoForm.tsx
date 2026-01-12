@@ -34,10 +34,10 @@ export default function ParentInfoForm({
         </div>
         <div className="flex flex-col max-w-[204px]">
           <p className="text-lg font-extrabold text-[#333333] font-nunito">
-            Эхлэцгээе!
+            Эхэлцгээе!
           </p>
           <p className="text-sm font-semibold text-[#858480] font-nunito">
-            Таны холбоо барих мэдээллийг бөглөнө үү.
+            Та холбоо барих мэдээллээ бөглөнө үү.
           </p>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function ParentInfoForm({
               htmlFor="email"
               className="text-base font-medium text-black font-nunito"
             >
-              Имайл хаяг
+              Имэйл хаяг
             </label>
             <input
               id="email"
@@ -111,7 +111,7 @@ export default function ParentInfoForm({
         <div className="w-full h-px bg-[#0C0A0126]"></div>
 
         <p className="text-base font-normal text-[#0C0A01] font-nunito text-center">
-          Аль хэдийн бүртгэлтэй юу?{" "}
+          Та бүртгэлтэй юу?{" "}
           <Link href="/login" className="text-[#58CC02] font-bold underline">
             Нэвтрэх
           </Link>

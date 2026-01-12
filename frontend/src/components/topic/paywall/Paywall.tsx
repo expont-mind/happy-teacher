@@ -8,6 +8,7 @@ import { X, Check } from "lucide-react";
 import Image from "next/image";
 import { CreateInvoiceButton } from "@/src/components/bonum";
 import { createClient } from "@/src/utils/supabase/client";
+import { TOPICS_DATA } from "@/src/data/topics";
 
 interface PaywallProps {
   topicKey: string;
@@ -22,6 +23,10 @@ interface Child {
 }
 
 const TOPIC_PRICE = 4;
+
+const getTopicData = (topicKey: string) => {
+  return TOPICS_DATA.find((t) => t.link.includes(topicKey));
+};
 
 export default function Paywall({
   topicKey,
@@ -215,11 +220,12 @@ export default function Paywall({
             />
           </div>
           <div className="flex flex-col gap-2 items-center">
-            <h2 className="text-xl font-black text-gray-800 text-center">
-              Хичээл худалдаж аваарай
+            <h2 className="text-lg font-bold text-gray-800 text-center">
+              Хүүхдээ математикт дуртай болгохыг хүсэж байна уу?
             </h2>
+
             <p className="text-sm font-medium text-gray-500 text-center">
-              Энэ хичээлийг үзэхийн тулд худалдаж авах шаардлагатай.
+              Хичээл худалдаж аваарай
             </p>
             <p className="text-3xl font-black text-(--duo-green) mt-2">
               {currentPrice > 0 ? currentPrice : TOPIC_PRICE}₮
@@ -309,7 +315,8 @@ export default function Paywall({
               height={20}
             />
             <p className="text-sm font-medium text-black font-nunito">
-              16 өнгөт зургийн даалгавар
+              {getTopicData(topicKey)?.lessonCount || 16} интерактив зурган
+              даалгавар
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -320,7 +327,9 @@ export default function Paywall({
               height={20}
             />
             <p className="text-sm font-medium text-black font-nunito">
-              Бутархай тооны дэлгэрэнгүй сургалт
+              {topicKey === "fractions"
+                ? "Энгийн бутархайн цогц сургалт"
+                : "Хүрдийг хурдтай цээжлэхэд туслах сургалт"}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -331,7 +340,7 @@ export default function Paywall({
               height={20}
             />
             <p className="text-sm font-medium text-black font-nunito">
-              Медаль болон шагнал авах боломж
+              Медаль, оноо, урамшуулал
             </p>
           </div>
         </div>

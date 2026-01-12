@@ -6,12 +6,11 @@ export const Hero = () => {
     <div className="w-full flex justify-center bg-white py-16 lg:py-[144px] px-4 overflow-hidden">
       <div className="relative max-w-[1280px] w-full flex flex-col items-center lg:items-start text-center lg:text-left gap-6">
         <p className="text-[#1F2937] font-extrabold text-4xl lg:text-[56px] font-nunito max-w-[410px] lg:leading-14 leading-tight z-10">
-          Математикийг <span className="text-[#58CC02]">амархан</span> сур.
-          Үргэлж.
+          Математик сурах <span className="text-[#58CC02]">шинэ ертөнц!</span>
         </p>
         <p className="text-[#54534D] text-lg lg:text-xl font-normal font-nunito max-w-[474px] z-10">
-          Хөгжилтэй тоглоом, өнгөт зураг болон найрсаг багшаар дамжуулан
-          математикийг амархан эзэмшээрэй.
+          Матeматикийг хөгжилтэй, ойлгомжтой, үр дүнтэй аргаар хамтдаа
+          суралцацгаая – бодлого бод, зураг буд, оноо цуглуулаарай!
         </p>
         <Link
           href="/topic"

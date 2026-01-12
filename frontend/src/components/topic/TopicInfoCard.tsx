@@ -6,6 +6,10 @@ import Image from "next/image";
 interface TopicInfoCardProps {
   title: string;
   description: string;
+  gradeText?: string;
+  gradeRange?: string | null;
+  childGrade?: number;
+  childGrades?: number[];
   lessonCount: number;
   taskCount: number;
   progressPercent: number;
@@ -16,11 +20,16 @@ interface TopicInfoCardProps {
   videoUrl?: string;
   isAdult?: boolean;
   onSwitchProfile?: () => void;
+  topicKey?: string;
 }
 
 export default function TopicInfoCard({
   title,
   description,
+  gradeText,
+  gradeRange,
+  childGrade,
+  childGrades,
   lessonCount,
   taskCount,
   progressPercent,
@@ -31,7 +40,38 @@ export default function TopicInfoCard({
   videoUrl,
   isAdult = false,
   onSwitchProfile,
+  topicKey,
 }: TopicInfoCardProps) {
+  // Ангийн текстийг бэлдэх
+  const getGradeDisplay = () => {
+    if (!gradeText) return null;
+
+    // Хэрэв gradeRange тогтмол өгөгдсөн бол (жишээ: "1-5")
+    if (gradeRange) {
+      return `${gradeText} - ${gradeRange}-р анги`;
+    }
+
+    // Хэрэв олон хүүхдийн ангиуд өгөгдсөн бол (3-7 гэх мэтээр харуулах)
+    if (childGrades && childGrades.length > 0) {
+      const uniqueGrades = [...new Set(childGrades)].sort((a, b) => a - b);
+      if (uniqueGrades.length === 1) {
+        return `${gradeText} - ${uniqueGrades[0]}-р анги`;
+      }
+      // Олон анги байвал хамгийн бага - хамгийн их гэж харуулах
+      const minGrade = Math.min(...uniqueGrades);
+      const maxGrade = Math.max(...uniqueGrades);
+      return `${gradeText} - ${minGrade}-${maxGrade}-р анги`;
+    }
+
+    // Ганц хүүхдийн анги
+    if (childGrade) {
+      return `${gradeText} - ${childGrade}-р анги`;
+    }
+
+    return null;
+  };
+
+  const gradeDisplay = getGradeDisplay();
   return (
     <div className="bg-white rounded-[16px] border-2 border-[#0C0A0126] p-5 lg:sticky lg:top-[125px] flex flex-col gap-6">
       {videoUrl && (
@@ -46,13 +86,20 @@ export default function TopicInfoCard({
       )}
 
       {!videoUrl && (
-        <div className="relative aspect-video bg-linear-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden flex items-center justify-center">
-          <div className="text-center">
+        <div className="relative bg-linear-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden flex items-center justify-center">
+          {/* <div className="text-center">
             <div className="w-16 h-16 bg-white/80 rounded-full flex items-center justify-center mx-auto mb-3">
               <Play size={28} className="text-gray-400" />
             </div>
             <p className="text-sm text-gray-500 font-medium">Тайлбар видео</p>
-          </div>
+          </div> */}
+          <Image
+            src={topicKey === "multiplication" ? "/test2.png" : "/test1.png"}
+            alt={topicKey === "multiplication" ? "Multiplication" : "Fraction"}
+            width={1000}
+            height={1000}
+            className={`${topicKey === "multiplication" ? "object-center" : "object-bottom"} object-cover w-full h-[340px]`}
+          />
         </div>
       )}
 
@@ -68,6 +115,12 @@ export default function TopicInfoCard({
         <p className="text-black font-semibold text-xl font-nunito">
           {description}
         </p>
+
+        {gradeDisplay && (
+          <p className="text-[#58CC02] font-bold text-base font-nunito">
+            /{gradeDisplay}/
+          </p>
+        )}
 
         <div className="flex gap-[10px]">
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F3F4F6] rounded-[10px]">

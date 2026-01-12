@@ -111,6 +111,9 @@ function FractionsRoadmapContent() {
           <TopicInfoCard
             title={fractionsData.title}
             description={fractionsData.description}
+            gradeText={fractionsData.gradeText}
+            gradeRange={fractionsData.gradeRange}
+            childGrade={activeProfile?.type === "child" ? activeProfile.class : undefined}
             lessonCount={fractionLessons.length}
             taskCount={fractionLessons.length}
             progressPercent={progressPercent}
@@ -120,6 +123,7 @@ function FractionsRoadmapContent() {
             onShowPaywall={() => setShowPaywall(true)}
             isAdult={isAdult}
             onSwitchProfile={handleSwitchProfile}
+            topicKey="fractions"
           />
 
           {/* Right Column - Vertical Roadmap */}

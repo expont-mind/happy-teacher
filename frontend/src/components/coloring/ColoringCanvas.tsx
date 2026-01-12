@@ -425,9 +425,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             if (onShowRelax) onShowRelax();
             wrongClickCountRef.current = 0;
           } else {
-            showMessage(
-              "Энэ хэсэгт өөр өнгө сонгоорой!\n\nЗөв өнгө сонгоно уу."
-            );
+            showMessage("Бодлогоо дахин бодоод !\n\nЗөв өнгөө сонгоорой");
           }
           return;
         }

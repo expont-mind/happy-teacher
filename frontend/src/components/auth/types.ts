@@ -9,6 +9,7 @@ export interface UserProfile {
   xp?: number;
   level?: number;
   avatar?: string;
+  class?: number;
 }
 
 export interface AuthContextType {

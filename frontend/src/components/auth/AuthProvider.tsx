@@ -212,7 +212,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (profile.type === "child") {
         const { data, error } = await supabase
           .from("children")
-          .select("streak_count, xp, level")
+          .select("streak_count, xp, level, class")
           .eq("id", profile.id)
           .single();
         if (!error && data) {
@@ -220,6 +220,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             streak: data.streak_count || 0,
             xp: data.xp || 0,
             level: data.level || 1,
+            class: data.class || undefined,
           };
         }
       } else {

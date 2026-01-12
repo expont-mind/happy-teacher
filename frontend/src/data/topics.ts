@@ -3,9 +3,12 @@ import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 
 export const TOPICS_DATA = [
   {
-    title: "Бутархай",
-    description: "Бутархай тоонуудтай танилцаж, хөгжилтэй аргаар суралцаарай.",
-    icon: "/svg/Strategy.svg",
+    title: "Энгийн бутархай",
+    description:
+      "Энгийн бутархайн бодлогыг шат дараатай эзэмшиж, хөгжилтэй тоглоомын аргаар суралцаарай",
+    gradeText: "Таны хүүхдэд зориулсан",
+    gradeRange: null, // Хүүхдийн сонгосон ангийг харуулна
+    icon: "/svg/ControllerBlack.tiff",
     link: "/topic/fractions",
     lessonCount: fractionLessons.length,
     price: 3,
@@ -13,8 +16,11 @@ export const TOPICS_DATA = [
     planet: "/Planet.png",
   },
   {
-    title: "Үржих",
-    description: "Үржих хүрдээ цээжилж, тоо бодох хурдаа нэмэгдүүлээрэй.",
+    title: "Хүрд",
+    description:
+      "Хүрдийг хялбар аргаар цээжилснээр тоо бодох хурд нэмэгдэж, математикийн хичээлд дурлах эхлэл тавигдана",
+    gradeText: "Таны хүүхдэд зориулсан",
+    gradeRange: "1-5", // Тогтмол 1-5-р анги
     icon: "/svg/Calculator.svg",
     link: "/topic/multiplication",
     lessonCount: multiplicationLessons.length,

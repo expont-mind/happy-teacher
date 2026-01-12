@@ -16,55 +16,69 @@ export const Features = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 w-full">
           <div className="w-full bg-white border-2 border-[#0C0A0126] rounded-[20px] py-8 px-6 lg:pl-8 lg:pr-16 flex flex-col gap-6 lg:gap-8 h-full">
             <Image
-              src="/svg/RainbowCloud.svg"
+              src="/svg/Controller.png"
               alt="Icon"
               width={60}
               height={60}
+              className="w-[60px] h-[60px]"
             />
             <div className="flex flex-col gap-3">
               <p className="text-black font-bold text-xl lg:text-[26px] font-nunito">
-                Өнгөт сургалт
+                Тоглоом шиг үе шаттай суралц
               </p>
               <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed">
-                Бодлого бодоод зураг будах замаар математикийн ойлголтыг
-                гүнзгийрүүлнэ. Хүүхэд бүр уран бүтээлчээр дамжуулан суралцана.
+                Хүүхэд бодлого бодож, зураг будаж, даалгавраа гүйцэтгэх бүртээ
+                үе давж оноо цуглуулж дараагийн шат руу шилжинэ. Ингэснээр
+                суралцах үйл явц нь тоглоом мэт сонирхолтой болж, уйдахгүйгээр
+                мэдлэгээ ахиулна.
               </p>
             </div>
           </div>
           <div className="w-full bg-white border-2 border-[#0C0A0126] rounded-[20px] py-8 px-6 lg:pl-8 lg:pr-16 flex flex-col gap-6 lg:gap-8 h-full">
-            <Image src="/svg/Bird.svg" alt="Icon" width={60} height={60} />
+            <Image src="/svg/Head.png" alt="Icon" width={60} height={60} />
             <div className="flex flex-col gap-3">
               <p className="text-black font-bold text-xl lg:text-[26px] font-nunito">
-                Найрсаг дүр
+                Ганцаараа биш найрсаг дүр үргэлж хамт
               </p>
               <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed">
-                Манай хөгжилтэй дүр хүүхдэд алхам бүрд нь туслаж, урамшуулж,
-                тайлбарлаж өгнө. Суралцах явцад ганцаараа байхгүй.
+                Манай найрсаг дүр хичээл бүрийн турш урам өгч, чиглүүлж, тусалж
+                дэмжинэ. Мөн түүхээр дамжуулан хүүхэд амжилтад хүрэх баяр хөөр,
+                алдаа гаргасан үедээ бууж өгөхгүй байх өөртөө итгэх сэтгэл зүйг
+                сурна.
               </p>
             </div>
           </div>
 
           <div className="w-full bg-white border-2 border-[#0C0A0126] rounded-[20px] py-8 px-6 lg:pl-8 lg:pr-16 flex flex-col gap-6 lg:gap-8 h-full">
-            <Image src="/svg/Strategy.svg" alt="Icon" width={60} height={60} />
+            <Image
+              src="/svg/GreenBrain.png"
+              alt="Icon"
+              width={60}
+              height={60}
+              className="w-[60px] h-[60px]"
+            />
             <div className="flex flex-col gap-3">
               <p className="text-black font-bold text-xl lg:text-[26px] font-nunito">
-                Тоглоомжуулалт
+                Тархины судалгаанд суурилсан
               </p>
-              <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed h-auto lg:h-[128px]">
-                Оноо цуглуулж, медаль авч, жагсаалтын дээгүүрт гараарай. Сурах
-                мотиваци байнга өндөр байна.
+              <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed">
+                Тархины судалгаанд үндэслэн бүтээгдсэн ба хүүхэд өдөр бүр
+                тогтмол суралцах үед батламж авна. Энэ нь тархинд допамин хэмээх
+                урамшууллын гормон ялгарч, суралцах үйл явцад аз жаргалын
+                мэдрэмж нэмэгдэнэ.
               </p>
             </div>
           </div>
           <div className="w-full bg-white border-2 border-[#0C0A0126] rounded-[20px] py-8 px-6 lg:pl-8 lg:pr-16 flex flex-col gap-6 lg:gap-8 h-full">
-            <Image src="/svg/Users.svg" alt="Icon" width={60} height={60} />
+            <Image src="/svg/Users.png" alt="Icon" width={60} height={60} />
             <div className="flex flex-col gap-3">
               <p className="text-black font-bold text-xl lg:text-[26px] font-nunito">
                 Эцэг эхтэй холбогдох
               </p>
               <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed">
-                3 хичээл бүрт SMS/имайлаар хүүхдийнхээ явцыг мэдэх. Гэр бүлийн
-                халуун уур амьсгалыг бүрдүүлнэ.
+                Хичээл бүрт SMS/Имэйлээр хүүхдийнхээ явцыг мэдэх. Эцэг эх
+                хүүхдийнхээ хичээлд оролцож, амжилтыг нь хамтдаа баярлан,
+                дэмжлэгийг нь цаг тухайд нь үзүүлэх боломжтой.
               </p>
             </div>
           </div>

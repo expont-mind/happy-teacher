@@ -59,13 +59,12 @@ export const Footer = () => {
                 >
                   Тусламж
                 </Link>
-                <Link
-                  href="/contact"
-                  prefetch={true}
+                <a
+                  href="tel:88086681"
                   className="text-sm font-semibold text-[#F3F4F6] font-nunito hover:text-[#58CC02] transition-colors"
                 >
                   Холбоо барих
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -74,6 +73,7 @@ export const Footer = () => {
             <div className="flex gap-[10px] items-center justify-start lg:justify-end py-1.5">
               <Link
                 href="#"
+                target="blank"
                 className="cursor-pointer hover:opacity-80 transition-opacity"
               >
                 <Image
@@ -84,7 +84,8 @@ export const Footer = () => {
                 />
               </Link>
               <Link
-                href="#"
+                href="https://www.facebook.com/happymathmn"
+                target="blank"
                 className="cursor-pointer hover:opacity-80 transition-opacity"
               >
                 <Image
@@ -96,6 +97,7 @@ export const Footer = () => {
               </Link>
               <Link
                 href="#"
+                target="blank"
                 className="cursor-pointer hover:opacity-80 transition-opacity"
               >
                 <Image
@@ -112,7 +114,7 @@ export const Footer = () => {
         <div className="border-t border-[#858480] pt-8 w-full flex justify-center">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 justify-between w-full text-center md:text-left">
             <p className="text-sm font-normal text-[#B6B5B2] font-nunito">
-              © 2025 Happy Academy
+              © 2026 Happy Academy
             </p>
             <p className="text-sm font-normal text-[#B6B5B2] font-nunito">
               Powered by{" "}

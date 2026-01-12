@@ -116,6 +116,11 @@ function MultiplicationContent() {
           <TopicInfoCard
             title={multiplicationData.title}
             description={multiplicationData.description}
+            gradeText={multiplicationData.gradeText}
+            gradeRange={multiplicationData.gradeRange}
+            childGrade={
+              activeProfile?.type === "child" ? activeProfile.class : undefined
+            }
             lessonCount={multiplicationLessons.length}
             taskCount={multiplicationLessons.length}
             progressPercent={progressPercent}
@@ -125,6 +130,7 @@ function MultiplicationContent() {
             onShowPaywall={() => setShowPaywall(true)}
             isAdult={isAdult}
             onSwitchProfile={handleSwitchProfile}
+            topicKey="multiplication"
           />
 
           {/* Right Column - Vertical Roadmap */}
@@ -132,7 +138,7 @@ function MultiplicationContent() {
             items={items}
             topicKey="multiplication"
             completedIds={completedIds}
-            headerTitle="Үржүүлэх дасгал"
+            headerTitle="Хүрдээ амархан цээжилье"
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
             isAdult={isAdult}

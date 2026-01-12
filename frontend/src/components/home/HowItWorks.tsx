@@ -6,10 +6,10 @@ export const HowItWorks = () => {
       <div className="max-w-[1280px] w-full flex flex-col gap-12 lg:gap-20 items-center">
         <div className="flex flex-col gap-6 items-center text-center">
           <p className="text-[#0C0A01] text-3xl lg:text-5xl font-bold font-nunito">
-            Хэрхэн ажилладаг вэ?
+            Хүүхдээ математикт дуртай болгохыг <br /> хүсэж байна уу?
           </p>
           <p className="text-[#54534D] text-lg lg:text-2xl font-normal font-nunito">
-            3 хялбар алхамаар математикийн аялалаа эхлүүлээрэй
+            Математикийн сонирхолтой аялалаа эхлүүлээрэй.
           </p>
         </div>
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-5 w-full mt-4 lg:mt-0">
@@ -29,7 +29,7 @@ export const HowItWorks = () => {
               </p>
               <p className="text-black text-lg lg:text-2xl font-normal font-nunito">
                 Эцэг эх бүртгүүлээд хүүхдийнхээ профайл үүсгэнэ. Утасны дугаар,
-                имайл, хүүхдийн нэр л хангалттай.
+                имэйл, хүүхдийн нэр л хангалттай.
               </p>
             </div>
           </div>
