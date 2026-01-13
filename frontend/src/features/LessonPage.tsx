@@ -376,6 +376,7 @@ export default function LessonPage() {
             {/* Center - Canvas */}
             <div className="flex-1 max-w-5xl">
               <ColoringCanvas
+                key={lesson.id}
                 ref={canvasRef}
                 mainImage={lesson.mainImage}
                 maskImage={lesson.maskImage}

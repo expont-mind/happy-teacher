@@ -48,7 +48,7 @@ export default function LessonHeader({
   canRedo = false,
 }: LessonHeaderProps) {
   return (
-    <div className="sticky top-0 lg:static bg-(--duo-green) px-2 lg:px-6 py-2 lg:py-4 flex items-center gap-2 rounded-t-2xl lg:rounded-b-none">
+    <div className="sticky top-0 z-10 lg:static bg-(--duo-green) px-2 lg:px-6 py-2 lg:py-4 flex items-center gap-2 rounded-t-2xl lg:rounded-b-none">
       {/* Back button */}
       <button
         onClick={onBack}

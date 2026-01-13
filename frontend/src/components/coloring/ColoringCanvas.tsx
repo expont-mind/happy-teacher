@@ -58,6 +58,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
+    const [isMaskReady, setIsMaskReady] = useState(false);
 
     const mistakeCountRef = useRef<number>(0);
 
@@ -380,22 +381,44 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       [saveToHistory]
     );
 
-    // Canvas click
-    const handleClick = useCallback(
-      (e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Process click/touch at coordinates
+    const processClick = useCallback(
+      (clientX: number, clientY: number) => {
         if (!canvasRef.current || !maskImageDataRef.current) return;
         const rect = canvasRef.current.getBoundingClientRect();
         const x = Math.floor(
-          ((e.clientX - rect.left) / rect.width) * canvasRef.current.width
+          ((clientX - rect.left) / rect.width) * canvasRef.current.width
         );
         const y = Math.floor(
-          ((e.clientY - rect.top) / rect.height) * canvasRef.current.height
+          ((clientY - rect.top) / rect.height) * canvasRef.current.height
         );
 
+        // Bounds check - ensure x, y are within canvas
+        if (
+          x < 0 ||
+          x >= canvasRef.current.width ||
+          y < 0 ||
+          y >= canvasRef.current.height
+        ) {
+          return;
+        }
+
         const pos = (y * maskImageDataRef.current.width + x) * 4;
+
+        // Safety check for mask data bounds
+        if (pos < 0 || pos + 2 >= maskImageDataRef.current.data.length) {
+          return;
+        }
+
         const r = maskImageDataRef.current.data[pos];
         const g = maskImageDataRef.current.data[pos + 1];
         const b = maskImageDataRef.current.data[pos + 2];
+
+        // Safety check for undefined values
+        if (r === undefined || g === undefined || b === undefined) {
+          return;
+        }
+
         const maskColor = `#${[r, g, b]
           .map((c) => c.toString(16).padStart(2, "0"))
           .join("")}`.toLowerCase();
@@ -451,12 +474,107 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       ]
     );
 
+    // Mouse click handler
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLCanvasElement>) => {
+        processClick(e.clientX, e.clientY);
+      },
+      [processClick]
+    );
+
+    // Track touch start position for distinguishing tap from scroll
+    const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(
+      null
+    );
+
+    // Store handlers in refs for proper cleanup on iOS Safari
+    const touchStartHandlerRef = useRef<((e: TouchEvent) => void) | null>(null);
+    const touchEndHandlerRef = useRef<((e: TouchEvent) => void) | null>(null);
+
+    // Use native event listeners for iOS Safari compatibility
+    // React's synthetic events don't support { passive: false } which is needed for preventDefault()
+    // Only attach listeners after mask is ready to prevent issues on first load
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas || !isMaskReady) return;
+
+      // Remove any existing handlers first (critical for iOS Safari)
+      if (touchStartHandlerRef.current) {
+        canvas.removeEventListener("touchstart", touchStartHandlerRef.current);
+      }
+      if (touchEndHandlerRef.current) {
+        canvas.removeEventListener("touchend", touchEndHandlerRef.current);
+      }
+
+      const handleTouchStart = (e: TouchEvent) => {
+        const touch = e.touches[0];
+        if (touch) {
+          touchStartRef.current = {
+            x: touch.clientX,
+            y: touch.clientY,
+            time: Date.now(),
+          };
+        }
+      };
+
+      const handleTouchEnd = (e: TouchEvent) => {
+        // Check if mask data is ready before processing
+        if (!maskImageDataRef.current) return;
+
+        const touch = e.changedTouches[0];
+        if (!touch || !touchStartRef.current) return;
+
+        const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+        const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+        const deltaTime = Date.now() - touchStartRef.current.time;
+
+        // Only process as tap if movement is small (< 10px) and quick (< 300ms)
+        if (deltaX < 10 && deltaY < 10 && deltaTime < 300) {
+          e.preventDefault();
+          processClick(touch.clientX, touch.clientY);
+        }
+
+        touchStartRef.current = null;
+      };
+
+      // Store handlers in refs for cleanup
+      touchStartHandlerRef.current = handleTouchStart;
+      touchEndHandlerRef.current = handleTouchEnd;
+
+      // Add native event listeners with { passive: false } for iOS Safari
+      canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
+      canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
+
+      return () => {
+        // Use the stored refs for cleanup to ensure we remove the correct handlers
+        if (touchStartHandlerRef.current) {
+          canvas.removeEventListener("touchstart", touchStartHandlerRef.current);
+          touchStartHandlerRef.current = null;
+        }
+        if (touchEndHandlerRef.current) {
+          canvas.removeEventListener("touchend", touchEndHandlerRef.current);
+          touchEndHandlerRef.current = null;
+        }
+        touchStartRef.current = null;
+      };
+    }, [processClick, isMaskReady]);
+
     // Load images
     useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx) return;
+
+      // Reset all refs and state when loading new image
+      // This is critical for lesson switching without refresh
+      setIsMaskReady(false);
+      maskImageDataRef.current = null;
+      originalImageDataRef.current = null;
+      historyRef.current = [];
+      historyIndexRef.current = -1;
+      setCanUndo(false);
+      setCanRedo(false);
 
       const img = new window.Image();
       img.src = mainImage;
@@ -517,12 +635,13 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             img.width,
             img.height
           );
+          setIsMaskReady(true);
         };
       };
     }, [mainImage, maskImage, setImageLoaded]);
 
     return (
-      <div className="relative flex-1 overflow-hidden rounded-3xl">
+      <div className="relative overflow-hidden rounded-3xl">
         <Image
           src={backgroundImage}
           alt="background"

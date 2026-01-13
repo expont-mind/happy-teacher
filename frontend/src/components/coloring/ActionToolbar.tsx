@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   Undo2,
   Redo2,
@@ -38,6 +39,12 @@ export default function ActionToolbar({
   tableImage,
 }: ActionToolbarProps) {
   const [showTableModal, setShowTableModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className="sticky top-6 self-start flex flex-col items-center gap-4">
       {/* Undo Button */}
@@ -75,15 +82,15 @@ export default function ActionToolbar({
       </button>
 
       {/* Help/Hint Button */}
-      {onHelp && (
-        <button
-          onClick={onHelp}
-          data-tutorial="lesson-help-btn"
-          className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-yellow-200 hover:border-yellow-400 transition-all cursor-pointer"
-        >
-          <Lightbulb size={28} className="text-yellow-500" />
-        </button>
-      )}
+      {/* {onHelp && ( */}
+      <button
+        onClick={onHelp}
+        data-tutorial="lesson-help-btn"
+        className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-yellow-200 hover:border-yellow-400 transition-all cursor-pointer"
+      >
+        <Lightbulb size={28} className="text-yellow-500" />
+      </button>
+      {/* )} */}
 
       {/* Download Button */}
       <button
@@ -125,32 +132,36 @@ export default function ActionToolbar({
         <Flag size={28} className="text-white" />
       </button>
 
-      {/* Table Image Modal */}
-      {showTableModal && tableImage && (
-        <div
-          className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() => setShowTableModal(false)}
-        >
+      {/* Table Image Modal - rendered via Portal to appear above all content */}
+      {mounted &&
+        showTableModal &&
+        tableImage &&
+        createPortal(
           <div
-            className="relative bg-white rounded-4xl p-4 max-w-[90vw] max-h-[90vh] shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowTableModal(false)}
           >
-            <button
-              onClick={() => setShowTableModal(false)}
-              className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer z-10"
+            <div
+              className="relative bg-white rounded-4xl p-4 max-w-[90vw] max-h-[90vh] shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X size={24} className="text-gray-600" />
-            </button>
-            <Image
-              src={tableImage}
-              alt="Үржвэрийн хүснэгт"
-              width={600}
-              height={600}
-              className="rounded-xl max-h-[80vh] w-auto object-contain"
-            />
-          </div>
-        </div>
-      )}
+              <button
+                onClick={() => setShowTableModal(false)}
+                className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer z-10"
+              >
+                <X size={24} className="text-gray-600" />
+              </button>
+              <Image
+                src={tableImage}
+                alt="Үржвэрийн хүснэгт"
+                width={600}
+                height={600}
+                className="rounded-xl max-h-[80vh] w-auto object-contain"
+              />
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
