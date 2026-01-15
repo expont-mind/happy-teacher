@@ -23,6 +23,9 @@ const translateAuthError = (message: string) => {
   if (message.includes("User already registered")) {
     return "Хэрэглэгч бүртгэлтэй байна";
   }
+  if (message.includes("Email not confirmed")) {
+    return "Имэйл хаягаа баталгаажуулна уу";
+  }
   return message;
 };
 

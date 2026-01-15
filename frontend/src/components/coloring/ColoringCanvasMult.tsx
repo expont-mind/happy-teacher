@@ -679,10 +679,10 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         <canvas
           ref={canvasRef}
           onClick={handleClick}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full cursor-crosshair touch-action-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full cursor-crosshair touch-action-manipulation"
           style={{
             mixBlendMode: "multiply",
-            touchAction: "none",
+            touchAction: "manipulation",
             WebkitTouchCallout: "none",
             WebkitUserSelect: "none",
             WebkitTapHighlightColor: "transparent",

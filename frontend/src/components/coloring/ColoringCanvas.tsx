@@ -663,10 +663,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         <canvas
           ref={canvasRef}
           onClick={handleClick}
-          className="relative w-full h-auto cursor-crosshair touch-action-none"
+          className="relative w-full h-auto cursor-crosshair touch-action-manipulation"
           style={{
             mixBlendMode: "multiply",
-            touchAction: "none",
+            touchAction: "manipulation",
             WebkitTouchCallout: "none",
             WebkitUserSelect: "none",
             WebkitTapHighlightColor: "transparent",
