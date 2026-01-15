@@ -333,17 +333,27 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       [saveToHistory]
     );
 
-    // Canvas click
-    const handleClick = useCallback(
-      (e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Process click/touch at coordinates
+    const processClick = useCallback(
+      (clientX: number, clientY: number) => {
         if (!canvasRef.current || !maskImageDataRef.current) return;
         const rect = canvasRef.current.getBoundingClientRect();
         const x = Math.floor(
-          ((e.clientX - rect.left) / rect.width) * canvasRef.current.width
+          ((clientX - rect.left) / rect.width) * canvasRef.current.width
         );
         const y = Math.floor(
-          ((e.clientY - rect.top) / rect.height) * canvasRef.current.height
+          ((clientY - rect.top) / rect.height) * canvasRef.current.height
         );
+
+        // Bounds check
+        if (
+          x < 0 ||
+          x >= canvasRef.current.width ||
+          y < 0 ||
+          y >= canvasRef.current.height
+        ) {
+          return;
+        }
 
         // Use eraser mode (white) or selected color
         const fillColor = isEraserMode ? "#ffffff" : selectedColor;
@@ -351,6 +361,10 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         // Check mask color at click position
         const maskData = maskImageDataRef.current;
         const pos = (y * canvasRef.current.width + x) * 4;
+
+        // Safety check for mask data bounds
+        if (pos < 0 || pos + 2 >= maskData.data.length) return;
+
         const r = maskData.data[pos];
         const g = maskData.data[pos + 1];
         const b = maskData.data[pos + 2];
@@ -410,6 +424,97 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       ]
     );
 
+    // Canvas click
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLCanvasElement>) => {
+        processClick(e.clientX, e.clientY);
+      },
+      [processClick]
+    );
+
+    // Track touch start position for distinguishing tap from scroll
+    const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(
+      null
+    );
+
+    // Store handlers in refs for proper cleanup on iOS Safari
+    const touchStartHandlerRef = useRef<((e: TouchEvent) => void) | null>(null);
+    const touchEndHandlerRef = useRef<((e: TouchEvent) => void) | null>(null);
+
+    // Use native event listeners for iOS Safari compatibility
+    // React's synthetic events don't support { passive: false } which is needed for preventDefault()
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      // Remove any existing handlers first
+      if (touchStartHandlerRef.current) {
+        canvas.removeEventListener("touchstart", touchStartHandlerRef.current);
+      }
+      if (touchEndHandlerRef.current) {
+        canvas.removeEventListener("touchend", touchEndHandlerRef.current);
+      }
+
+      const handleTouchStart = (e: TouchEvent) => {
+        const touch = e.touches[0];
+        if (touch) {
+          touchStartRef.current = {
+            x: touch.clientX,
+            y: touch.clientY,
+            time: Date.now(),
+          };
+        }
+      };
+
+      const handleTouchEnd = (e: TouchEvent) => {
+        // Check if mask data is ready before processing
+        if (!maskImageDataRef.current) return;
+
+        const touch = e.changedTouches[0];
+        if (!touch || !touchStartRef.current) return;
+
+        const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+        const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+        const deltaTime = Date.now() - touchStartRef.current.time;
+
+        // Only process as tap if movement is small (< 10px) and quick (< 300ms)
+        if (deltaX < 10 && deltaY < 10 && deltaTime < 300) {
+          if (e.cancelable) e.preventDefault(); // Check cancelable to avoid errors
+          processClick(touch.clientX, touch.clientY);
+        }
+
+        touchStartRef.current = null;
+      };
+
+      // Store handlers in refs for cleanup
+      touchStartHandlerRef.current = handleTouchStart;
+      touchEndHandlerRef.current = handleTouchEnd;
+
+      // Add native event listeners with { passive: true/false }
+      // touchstart is passive: true for better scroll performance usually,
+      // but here we might want to ensure we track it.
+      // touchend needs passive: false if we want to preventDefault (though we only do it on tap)
+      canvas.addEventListener("touchstart", handleTouchStart, {
+        passive: true,
+      });
+      canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
+
+      return () => {
+        if (touchStartHandlerRef.current) {
+          canvas.removeEventListener(
+            "touchstart",
+            touchStartHandlerRef.current
+          );
+          touchStartHandlerRef.current = null;
+        }
+        if (touchEndHandlerRef.current) {
+          canvas.removeEventListener("touchend", touchEndHandlerRef.current);
+          touchEndHandlerRef.current = null;
+        }
+        touchStartRef.current = null;
+      };
+    }, [processClick]);
+
     // Load images
     useEffect(() => {
       const canvas = canvasRef.current;
@@ -418,6 +523,7 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       if (!ctx) return;
 
       const img = new window.Image();
+      img.crossOrigin = "Anonymous";
       img.src = mainImage;
       img.onload = () => {
         canvas.width = img.width;
@@ -439,6 +545,7 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         setImageLoaded(true);
 
         const maskImg = new window.Image();
+        maskImg.crossOrigin = "Anonymous";
         maskImg.src = maskImage;
         maskImg.onload = () => {
           const maskCanvas = document.createElement("canvas");
@@ -446,6 +553,10 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           maskCanvas.height = img.height;
           const maskCtx = maskCanvas.getContext("2d");
           if (!maskCtx) return;
+
+          // Disable smoothing to preserve exact colors when scaling mask
+          maskCtx.imageSmoothingEnabled = false;
+
           maskCtx.drawImage(maskImg, 0, 0, img.width, img.height);
           maskImageDataRef.current = maskCtx.getImageData(
             0,
@@ -568,8 +679,14 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         <canvas
           ref={canvasRef}
           onClick={handleClick}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full cursor-crosshair"
-          style={{ mixBlendMode: "multiply" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full cursor-crosshair touch-action-none"
+          style={{
+            mixBlendMode: "multiply",
+            touchAction: "none",
+            WebkitTouchCallout: "none",
+            WebkitUserSelect: "none",
+            WebkitTapHighlightColor: "transparent",
+          }}
         />
 
         {/* Color Palette - Position based on palettePosition prop */}

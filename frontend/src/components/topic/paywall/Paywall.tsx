@@ -22,8 +22,6 @@ interface Child {
   avatar: string;
 }
 
-const TOPIC_PRICE = 4;
-
 const getTopicData = (topicKey: string) => {
   return TOPICS_DATA.find((t) => t.link.includes(topicKey));
 };
@@ -184,11 +182,15 @@ export default function Paywall({
     alert("Төлбөр үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.");
   };
 
-  // If child, price is always TOPIC_PRICE (1). If adult, times selections.
+  // Get the topic price from TOPICS_DATA
+  const topicData = getTopicData(topicKey);
+  const topicPrice = topicData?.price || 0;
+
+  // If child, price is always topicPrice (1x). If adult, times selections.
   const currentPrice =
     (activeProfile?.type === "child"
       ? 1
-      : Math.max(1, selectedChildIds.length)) * TOPIC_PRICE;
+      : Math.max(1, selectedChildIds.length)) * topicPrice;
 
   if (loading) {
     return (
@@ -228,7 +230,10 @@ export default function Paywall({
               Хичээл худалдаж аваарай
             </p>
             <p className="text-3xl font-black text-(--duo-green) mt-2">
-              {currentPrice > 0 ? currentPrice : TOPIC_PRICE}₮
+              {(currentPrice > 0 ? currentPrice : topicPrice).toLocaleString(
+                "en-US"
+              )}
+              ₮
             </p>
           </div>
         </div>

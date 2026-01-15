@@ -34,7 +34,7 @@ export default function TopicInfoCard({
   taskCount,
   progressPercent,
   icon,
-  price = 3,
+  price,
   isPaid = true,
   onShowPaywall,
   videoUrl,
@@ -98,7 +98,9 @@ export default function TopicInfoCard({
             alt={topicKey === "multiplication" ? "Multiplication" : "Fraction"}
             width={1000}
             height={1000}
-            className={`${topicKey === "multiplication" ? "object-center" : "object-bottom"} object-cover w-full h-[340px]`}
+            className={`${
+              topicKey === "multiplication" ? "object-center" : "object-bottom"
+            } object-cover w-full h-[340px]`}
           />
         </div>
       )}
@@ -169,7 +171,7 @@ export default function TopicInfoCard({
           className="duo-button duo-button-green w-full py-3 text-sm cursor-pointer flex items-center justify-center gap-2"
         >
           <ShoppingCart size={18} />
-          {price}₮ Худалдаж авах
+          {price?.toLocaleString("en-US")}₮ Худалдаж авах
         </button>
       )}
     </div>

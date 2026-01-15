@@ -542,13 +542,18 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       touchEndHandlerRef.current = handleTouchEnd;
 
       // Add native event listeners with { passive: false } for iOS Safari
-      canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
+      canvas.addEventListener("touchstart", handleTouchStart, {
+        passive: true,
+      });
       canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
 
       return () => {
         // Use the stored refs for cleanup to ensure we remove the correct handlers
         if (touchStartHandlerRef.current) {
-          canvas.removeEventListener("touchstart", touchStartHandlerRef.current);
+          canvas.removeEventListener(
+            "touchstart",
+            touchStartHandlerRef.current
+          );
           touchStartHandlerRef.current = null;
         }
         if (touchEndHandlerRef.current) {
@@ -577,6 +582,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       setCanRedo(false);
 
       const img = new window.Image();
+      img.crossOrigin = "Anonymous";
       img.src = mainImage;
       img.onload = () => {
         canvas.width = img.width;
@@ -621,6 +627,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         setImageLoaded(true);
 
         const maskImg = new window.Image();
+        maskImg.crossOrigin = "Anonymous";
         maskImg.src = maskImage;
         maskImg.onload = () => {
           const maskCanvas = document.createElement("canvas");
@@ -628,6 +635,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           maskCanvas.height = img.height;
           const maskCtx = maskCanvas.getContext("2d");
           if (!maskCtx) return;
+
+          // Disable smoothing to preserve exact colors when scaling mask
+          maskCtx.imageSmoothingEnabled = false;
+
           maskCtx.drawImage(maskImg, 0, 0, img.width, img.height);
           maskImageDataRef.current = maskCtx.getImageData(
             0,
@@ -652,8 +663,14 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         <canvas
           ref={canvasRef}
           onClick={handleClick}
-          className="relative w-full h-auto cursor-crosshair"
-          style={{ mixBlendMode: "multiply" }}
+          className="relative w-full h-auto cursor-crosshair touch-action-none"
+          style={{
+            mixBlendMode: "multiply",
+            touchAction: "none",
+            WebkitTouchCallout: "none",
+            WebkitUserSelect: "none",
+            WebkitTapHighlightColor: "transparent",
+          }}
         />
       </div>
     );
