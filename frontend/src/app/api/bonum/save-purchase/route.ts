@@ -4,6 +4,7 @@ import { createServiceRoleClient } from "@/src/utils/supabase/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
     // Support both childIds (string list) and childId (single string)
     const { userId, topicKey, invoiceId, childId, childIds } = body;
 
