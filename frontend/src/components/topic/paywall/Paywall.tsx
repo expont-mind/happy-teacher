@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Loader from "@/src/components/ui/Loader";
 import { X, Check } from "lucide-react";
 import Image from "next/image";
-import { CreateInvoiceButton } from "@/src/components/bonum";
+import QPayDialog from "@/src/components/qpay/QPayDialog";
 import { createClient } from "@/src/utils/supabase/client";
 import { TOPICS_DATA } from "@/src/data/topics";
 
@@ -38,6 +38,7 @@ export default function Paywall({
   const [purchasedChildIds, setPurchasedChildIds] = useState<Set<string>>(
     new Set()
   );
+  const [showQPayDialog, setShowQPayDialog] = useState(false);
 
   const { user, activeProfile, checkPurchase } = useAuth();
   const router = useRouter();
@@ -126,60 +127,6 @@ export default function Paywall({
 
   const handleLoginRedirect = () => {
     router.push("/login");
-  };
-
-  const generateTransactionId = () => {
-    // Bonum API transactionId урт хязгаартай (ихэвчлэн 50 тэмдэгт)
-    // Тиймээс UUID-уудыг богиносгоно
-    const userShort = (user?.id || "guest").slice(0, 8);
-    const childShort =
-      selectedChildIds.length > 0
-        ? selectedChildIds[0].slice(0, 8)
-        : activeProfile?.type === "child"
-        ? activeProfile.id.slice(0, 8)
-        : "x";
-    const timeStamp = Date.now().toString(36); // base36 богино болгох
-
-    return `${topicKey.slice(0, 4)}_${userShort}_${childShort}_${timeStamp}`;
-  };
-
-  const getCallbackUrl = () => {
-    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-    const childIdsParam =
-      selectedChildIds.length > 0
-        ? selectedChildIds.join(",")
-        : activeProfile?.type === "child"
-        ? activeProfile.id
-        : "";
-
-    // Build URL with proper encoding and validation
-    const params = new URLSearchParams();
-    params.set("topicKey", topicKey);
-
-    // Add userId: for adult use user.id, for child use parentId
-    const parentUserId =
-      user?.id ||
-      (activeProfile?.type === "child" ? activeProfile.parentId : undefined);
-
-    if (parentUserId) {
-      params.set("userId", parentUserId);
-    }
-
-    // Only add childIds if it exists
-    if (childIdsParam) {
-      params.set("childIds", childIdsParam);
-    }
-
-    return `${baseUrl}/payment-callback?${params.toString()}`;
-  };
-
-  const handlePaymentSuccess = (data: any) => {
-    console.log("Payment initiated:", data);
-  };
-
-  const handlePaymentError = (error: string) => {
-    console.error("Payment error:", error);
-    alert("Төлбөр үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.");
   };
 
   // Get the topic price from TOPICS_DATA
@@ -352,20 +299,17 @@ export default function Paywall({
 
         <div className="flex gap-6 w-full">
           {user || activeProfile ? (
-            <CreateInvoiceButton
-              amount={currentPrice}
-              callback={getCallbackUrl()}
-              transactionId={generateTransactionId()}
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
+            <button
+              onClick={() => setShowQPayDialog(true)}
+              disabled={activeProfile?.type === "adult" && selectedChildIds.length === 0}
               className={`duo-button duo-button-green w-full py-3 text-sm flex items-center justify-center gap-2 ${
                 activeProfile?.type === "adult" && selectedChildIds.length === 0
-                  ? "opacity-50 cursor-not-allowed pointer-events-none"
+                  ? "opacity-50 cursor-not-allowed"
                   : "cursor-pointer"
               }`}
             >
               Худалдаж авах
-            </CreateInvoiceButton>
+            </button>
           ) : (
             <button
               onClick={handleLoginRedirect}
@@ -383,6 +327,34 @@ export default function Paywall({
           </button>
         </div>
       </div>
+
+      {/* QPay Dialog */}
+      <QPayDialog
+        isOpen={showQPayDialog}
+        onClose={() => setShowQPayDialog(false)}
+        amount={currentPrice}
+        topicKey={topicKey}
+        childIds={
+          selectedChildIds.length > 0
+            ? selectedChildIds
+            : activeProfile?.type === "child"
+            ? [activeProfile.id]
+            : []
+        }
+        userId={
+          user?.id ||
+          (activeProfile?.type === "child" ? activeProfile.parentId : undefined)
+        }
+        onSuccess={() => {
+          setShowQPayDialog(false);
+          setUnlocked(true);
+          onUnlocked?.();
+          onClose?.();
+        }}
+        onError={(error) => {
+          console.error("QPay error:", error);
+        }}
+      />
     </div>
   );
 }
