@@ -1,3 +1,6 @@
+"use client";
+
+import { memo, useCallback } from "react";
 import { FractionLabel } from "@/src/components/ui/Fraction";
 
 interface ColorPaletteProps {
@@ -7,13 +10,18 @@ interface ColorPaletteProps {
   isEraserMode?: boolean;
 }
 
-export default function ColorPalette({
+// Memoized to prevent re-renders when parent state changes (rerender-memo)
+const ColorPalette = memo(function ColorPalette({
   colors,
   selectedColor,
   setSelectedColor,
   isEraserMode,
 }: ColorPaletteProps) {
-  const isSelected = (color: string) => selectedColor === color && !isEraserMode;
+  // Memoized check function to avoid recreation
+  const isSelected = useCallback(
+    (color: string) => selectedColor === color && !isEraserMode,
+    [selectedColor, isEraserMode]
+  );
 
   return (
     <div className="sticky top-6 self-start" data-tutorial="color-palette">
@@ -54,4 +62,6 @@ export default function ColorPalette({
       </div>
     </div>
   );
-}
+});
+
+export default ColorPalette;

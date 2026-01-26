@@ -8,6 +8,22 @@ import {
   useState,
 } from "react";
 import Image from "next/image";
+import {
+  isBlackPixel,
+  rgbToHex,
+  createColorSet,
+  floodFill,
+  checkCompletion,
+  saveToHistory,
+  undo as historyUndo,
+  redo as historyRedo,
+  resetHistory,
+  clientToCanvasCoords,
+  loadMainImage,
+  loadMaskImage,
+  loadSavedProgress,
+} from "./core";
+import type { TouchPosition, CompletionResult } from "./core";
 
 interface ColoringCanvasProps {
   mainImage: string;
@@ -23,7 +39,7 @@ interface ColoringCanvasProps {
 }
 
 export interface ColoringCanvasRef {
-  checkCompletion: () => { isComplete: boolean; missingColors: string[] };
+  checkCompletion: () => CompletionResult;
   getMistakeCount: () => number;
   undo: () => void;
   redo: () => void;
@@ -47,7 +63,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       onShowRelax,
       onSuccessfulFill,
     },
-    ref,
+    ref
   ) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const originalImageDataRef = useRef<ImageData | null>(null);
@@ -55,232 +71,87 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const historyRef = useRef<ImageData[]>([]);
     const historyIndexRef = useRef<number>(-1);
     const wrongClickCountRef = useRef<number>(0);
+    const mistakeCountRef = useRef<number>(0);
+    const touchStartRef = useRef<TouchPosition | null>(null);
 
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [isMaskReady, setIsMaskReady] = useState(false);
+
+    // Debug info only in development
     const [debugInfo, setDebugInfo] = useState<{
       device: string;
       canvasSize: string;
       pixelRatio: number;
       screenSize: string;
     } | null>(null);
+    const isDev = process.env.NODE_ENV === "development";
 
-    const mistakeCountRef = useRef<number>(0);
+    const storageKey = `coloring_progress_${mainImage}`;
 
     // Show message via callback
     const showMessage = useCallback(
       (message: string) => {
-        if (onShowMessage) {
-          onShowMessage(message);
-        }
+        onShowMessage?.(message);
       },
-      [onShowMessage],
+      [onShowMessage]
     );
 
-    // Check completion status
-    const checkCompletion = useCallback((): {
-      isComplete: boolean;
-      missingColors: string[];
-    } => {
+    // Check completion status using core module
+    const handleCheckCompletion = useCallback((): CompletionResult => {
       const canvas = canvasRef.current;
       const maskData = maskImageDataRef.current;
       if (!canvas || !maskData) {
         return { isComplete: false, missingColors: [] };
       }
-
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) {
-        return { isComplete: false, missingColors: [] };
-      }
-
-      const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const canvasPixels = canvasData.data;
-      const maskPixels = maskData.data;
-
-      // Get allowed colors from palette prop (convert to lowercase for comparison)
-      const allowedColors = [
-        ...palette.map((color) => color.toLowerCase()),
-        "#ffffff", // White is always allowed (for eraser)
-      ];
-
-      // Find required colors from mask (excluding white)
-      const requiredColors = new Set<string>();
-      const colorPixels = new Map<string, Set<number>>();
-
-      for (let i = 0; i < maskPixels.length; i += 4) {
-        const r = maskPixels[i];
-        const g = maskPixels[i + 1];
-        const b = maskPixels[i + 2];
-        const maskColor = `#${[r, g, b]
-          .map((x) => x.toString(16).padStart(2, "0"))
-          .join("")}`.toLowerCase();
-
-        // Skip white (background)
-        if (allowedColors.includes(maskColor) && maskColor !== "#ffffff") {
-          requiredColors.add(maskColor);
-          if (!colorPixels.has(maskColor)) {
-            colorPixels.set(maskColor, new Set());
-          }
-          colorPixels.get(maskColor)?.add(i);
-        }
-      }
-
-      // Check if each required color area is filled
-      const missingColors: string[] = [];
-      const tolerance = 30;
-
-      requiredColors.forEach((requiredColor) => {
-        const pixels = colorPixels.get(requiredColor);
-        if (!pixels) return;
-
-        const [reqR, reqG, reqB] = [
-          parseInt(requiredColor.slice(1, 3), 16),
-          parseInt(requiredColor.slice(3, 5), 16),
-          parseInt(requiredColor.slice(5, 7), 16),
-        ];
-
-        let filledCount = 0;
-        let totalCount = 0;
-
-        pixels.forEach((pos) => {
-          totalCount++;
-          const canvasR = canvasPixels[pos];
-          const canvasG = canvasPixels[pos + 1];
-          const canvasB = canvasPixels[pos + 2];
-
-          // Check if pixel matches the required color (with tolerance)
-          if (
-            Math.abs(canvasR - reqR) <= tolerance &&
-            Math.abs(canvasG - reqG) <= tolerance &&
-            Math.abs(canvasB - reqB) <= tolerance
-          ) {
-            filledCount++;
-          }
-        });
-
-        // Consider filled if at least 80% of pixels match
-        const fillPercentage = totalCount > 0 ? filledCount / totalCount : 0;
-        if (fillPercentage < 0.8) {
-          missingColors.push(requiredColor);
-        }
-      });
-
-      return {
-        isComplete: missingColors.length === 0,
-        missingColors,
-      };
+      return checkCompletion({ canvas, maskData, palette });
     }, [palette]);
 
-    // Save state to history
-    const saveToHistory = useCallback(() => {
+    // History operations using core module
+    const getHistoryOptions = useCallback(() => {
       const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return;
+      if (!canvas) return null;
+      return {
+        canvas,
+        historyRef,
+        historyIndexRef,
+        setCanUndo,
+        setCanRedo,
+        storageKey,
+      };
+    }, [storageKey]);
 
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const handleSaveToHistory = useCallback(() => {
+      const options = getHistoryOptions();
+      if (options) saveToHistory(options);
+    }, [getHistoryOptions]);
 
-      // Remove any future history if we're not at the end
-      if (historyIndexRef.current < historyRef.current.length - 1) {
-        historyRef.current = historyRef.current.slice(
-          0,
-          historyIndexRef.current + 1,
-        );
-      }
+    const handleUndo = useCallback(() => {
+      const options = getHistoryOptions();
+      if (options) historyUndo(options);
+    }, [getHistoryOptions]);
 
-      // Add new state
-      historyRef.current.push(imageData);
-      historyIndexRef.current = historyRef.current.length - 1;
+    const handleRedo = useCallback(() => {
+      const options = getHistoryOptions();
+      if (options) historyRedo(options);
+    }, [getHistoryOptions]);
 
-      // Limit history size
-      if (historyRef.current.length > 50) {
-        historyRef.current.shift();
-        historyIndexRef.current--;
-      }
-
-      // Update button states
-      setCanUndo(historyIndexRef.current > 0);
-      setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
-
-      // Save to localStorage
-      try {
-        const dataUrl = canvas.toDataURL();
-        localStorage.setItem(`coloring_progress_${mainImage}`, dataUrl);
-      } catch (e) {
-        console.error("Error saving progress:", e);
-      }
-    }, [mainImage]);
-
-    // Undo function
-    const undo = useCallback(() => {
-      if (historyIndexRef.current <= 0) return;
-
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      historyIndexRef.current--;
-      const imageData = historyRef.current[historyIndexRef.current];
-      ctx.putImageData(imageData, 0, 0);
-
-      setCanUndo(historyIndexRef.current > 0);
-      setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
-
-      // Save undo state to localStorage
-      try {
-        const dataUrl = canvas.toDataURL();
-        localStorage.setItem(`coloring_progress_${mainImage}`, dataUrl);
-      } catch (e) {
-        console.error("Error saving progress:", e);
-      }
-    }, [mainImage]);
-
-    // Redo function
-    const redo = useCallback(() => {
-      if (historyIndexRef.current >= historyRef.current.length - 1) return;
-
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      historyIndexRef.current++;
-      const imageData = historyRef.current[historyIndexRef.current];
-      ctx.putImageData(imageData, 0, 0);
-
-      setCanUndo(historyIndexRef.current > 0);
-      setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
-
-      // Save redo state to localStorage
-      try {
-        const dataUrl = canvas.toDataURL();
-        localStorage.setItem(`coloring_progress_${mainImage}`, dataUrl);
-      } catch (e) {
-        console.error("Error saving progress:", e);
-      }
-    }, [mainImage]);
-
-    // Reset canvas
-    const resetCanvas = useCallback(() => {
+    const handleResetCanvas = useCallback(() => {
       const ctx = canvasRef.current?.getContext("2d");
       if (!ctx || !originalImageDataRef.current) return;
       ctx.putImageData(originalImageDataRef.current, 0, 0);
-
-      // Reset history
-      historyRef.current = [originalImageDataRef.current];
-      historyIndexRef.current = 0;
-      setCanUndo(false);
-      setCanRedo(false);
-
-      // Clear localStorage
-      localStorage.removeItem(`coloring_progress_${mainImage}`);
+      resetHistory(
+        historyRef,
+        historyIndexRef,
+        originalImageDataRef.current,
+        setCanUndo,
+        setCanRedo
+      );
+      localStorage.removeItem(storageKey);
       window.location.reload();
-    }, [mainImage]);
+    }, [storageKey]);
 
-    // Download canvas as image
-    const downloadCanvas = useCallback(() => {
+    const handleDownloadCanvas = useCallback(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const link = document.createElement("a");
@@ -293,176 +164,76 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     useImperativeHandle(
       ref,
       () => ({
-        checkCompletion,
+        checkCompletion: handleCheckCompletion,
         getMistakeCount: () => mistakeCountRef.current,
-        undo,
-        redo,
+        undo: handleUndo,
+        redo: handleRedo,
         canUndo,
         canRedo,
-        resetCanvas,
-        downloadCanvas,
+        resetCanvas: handleResetCanvas,
+        downloadCanvas: handleDownloadCanvas,
       }),
       [
-        checkCompletion,
-        undo,
-        redo,
+        handleCheckCompletion,
+        handleUndo,
+        handleRedo,
         canUndo,
         canRedo,
-        resetCanvas,
-        downloadCanvas,
-      ],
-    );
-
-    // Flood fill logic
-    const floodFill = useCallback(
-      (startX: number, startY: number, fillColor: string) => {
-        const canvas = canvasRef.current;
-        const maskData = maskImageDataRef.current;
-        if (!canvas || !maskData) return;
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        if (!ctx) return;
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const pixels = imageData.data;
-
-        const startPos = (startY * canvas.width + startX) * 4;
-        const startR = pixels[startPos];
-        const startG = pixels[startPos + 1];
-        const startB = pixels[startPos + 2];
-
-        const fillR = parseInt(fillColor.slice(1, 3), 16);
-        const fillG = parseInt(fillColor.slice(3, 5), 16);
-        const fillB = parseInt(fillColor.slice(5, 7), 16);
-
-        if (startR === fillR && startG === fillG && startB === fillB) return;
-
-        const isBlack = (r: number, g: number, b: number) =>
-          r < 50 && g < 50 && b < 50;
-        // Always block black pixels (SVG outlines) - both for painting and erasing
-        if (isBlack(startR, startG, startB)) return;
-
-        // Get mask color at start position for boundary detection
-        const startMaskR = maskData.data[startPos];
-        const startMaskG = maskData.data[startPos + 1];
-        const startMaskB = maskData.data[startPos + 2];
-
-        const stack: Array<[number, number]> = [[startX, startY]];
-        const visited = new Set<string>();
-
-        const matchColor = (pos: number) => {
-          const r = pixels[pos];
-          const g = pixels[pos + 1];
-          const b = pixels[pos + 2];
-          // Always treat black pixels as boundaries (SVG outlines)
-          if (isBlack(r, g, b)) return false;
-
-          // Use mask color for boundary detection (exact match required)
-          const maskR = maskData.data[pos];
-          const maskG = maskData.data[pos + 1];
-          const maskB = maskData.data[pos + 2];
-
-          return (
-            maskR === startMaskR &&
-            maskG === startMaskG &&
-            maskB === startMaskB
-          );
-        };
-
-        const colorPixel = (pos: number) => {
-          pixels[pos] = fillR;
-          pixels[pos + 1] = fillG;
-          pixels[pos + 2] = fillB;
-          pixels[pos + 3] = 255;
-        };
-
-        while (stack.length) {
-          const current = stack.pop();
-          if (!current) break;
-          const [x, y] = current;
-          const key = `${x},${y}`;
-          if (visited.has(key)) continue;
-          if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height)
-            continue;
-
-          const pos = (y * canvas.width + x) * 4;
-          if (!matchColor(pos)) continue;
-
-          visited.add(key);
-          colorPixel(pos);
-          stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
-          if (visited.size > 500000) break;
-        }
-
-        ctx.putImageData(imageData, 0, 0);
-        saveToHistory();
-      },
-      [saveToHistory],
+        handleResetCanvas,
+        handleDownloadCanvas,
+      ]
     );
 
     // Process click/touch at coordinates
     const processClick = useCallback(
       (clientX: number, clientY: number) => {
-        if (!canvasRef.current || !maskImageDataRef.current) return;
-        const rect = canvasRef.current.getBoundingClientRect();
-        const x = Math.floor(
-          ((clientX - rect.left) / rect.width) * canvasRef.current.width,
-        );
-        const y = Math.floor(
-          ((clientY - rect.top) / rect.height) * canvasRef.current.height,
-        );
+        const canvas = canvasRef.current;
+        const maskData = maskImageDataRef.current;
+        if (!canvas || !maskData) return;
 
-        // Bounds check - ensure x, y are within canvas
-        if (
-          x < 0 ||
-          x >= canvasRef.current.width ||
-          y < 0 ||
-          y >= canvasRef.current.height
-        ) {
-          return;
-        }
+        const coords = clientToCanvasCoords(clientX, clientY, canvas);
+        if (!coords) return;
+        const { x, y } = coords;
 
-        const pos = (y * maskImageDataRef.current.width + x) * 4;
+        const pos = (y * maskData.width + x) * 4;
+        if (pos < 0 || pos + 2 >= maskData.data.length) return;
 
-        // Safety check for mask data bounds
-        if (pos < 0 || pos + 2 >= maskImageDataRef.current.data.length) {
-          return;
-        }
+        const r = maskData.data[pos];
+        const g = maskData.data[pos + 1];
+        const b = maskData.data[pos + 2];
+        if (r === undefined || g === undefined || b === undefined) return;
 
-        const r = maskImageDataRef.current.data[pos];
-        const g = maskImageDataRef.current.data[pos + 1];
-        const b = maskImageDataRef.current.data[pos + 2];
+        const maskColor = rgbToHex(r, g, b);
+        const allowedColorsSet = createColorSet(palette);
 
-        // Safety check for undefined values
-        if (r === undefined || g === undefined || b === undefined) {
-          return;
-        }
-
-        const maskColor = `#${[r, g, b]
-          .map((c) => c.toString(16).padStart(2, "0"))
-          .join("")}`.toLowerCase();
-
-        const allowedColors = [
-          ...palette.map((color) => color.toLowerCase()),
-          "#ffffff", // White is always allowed (for eraser)
-        ];
-
-        if (!allowedColors.includes(maskColor)) {
+        // If mask color is not in palette, just fill without checking
+        if (!allowedColorsSet.has(maskColor)) {
           const fillColor = isEraserMode ? "#ffffff" : selectedColor;
-          floodFill(x, y, fillColor);
+          if (
+            floodFill({ canvas, maskData, startX: x, startY: y, fillColor })
+          ) {
+            handleSaveToHistory();
+          }
           return;
         }
 
-        // Цагаан хэсгийг ямар ч өнгөөр будаж болно
+        // White can be painted with any color
         if (maskColor === "#ffffff") {
           const fillColor = isEraserMode ? "#ffffff" : selectedColor;
-          floodFill(x, y, fillColor);
+          if (
+            floodFill({ canvas, maskData, startX: x, startY: y, fillColor })
+          ) {
+            handleSaveToHistory();
+          }
           return;
         }
 
+        // Check if selected color matches
         if (maskColor !== selectedColor.toLowerCase()) {
           mistakeCountRef.current += 1;
           wrongClickCountRef.current += 1;
           if (wrongClickCountRef.current >= 5) {
-            if (onShowRelax) onShowRelax();
+            onShowRelax?.();
             wrongClickCountRef.current = 0;
           } else {
             showMessage("Бодлогоо дахин бодоод !\n\nЗөв өнгөө сонгоорой");
@@ -472,23 +243,22 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
         // Reset wrong click counter on successful fill
         wrongClickCountRef.current = 0;
+        onSuccessfulFill?.();
 
-        // Notify parent of successful fill
-        if (onSuccessfulFill) onSuccessfulFill();
-
-        // Use eraser mode (white) or selected color
         const fillColor = isEraserMode ? "#ffffff" : selectedColor;
-        floodFill(x, y, fillColor);
+        if (floodFill({ canvas, maskData, startX: x, startY: y, fillColor })) {
+          handleSaveToHistory();
+        }
       },
       [
         selectedColor,
-        floodFill,
         isEraserMode,
         palette,
         onShowRelax,
         showMessage,
         onSuccessfulFill,
-      ],
+        handleSaveToHistory,
+      ]
     );
 
     // Mouse click handler
@@ -496,32 +266,13 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       (e: React.MouseEvent<HTMLCanvasElement>) => {
         processClick(e.clientX, e.clientY);
       },
-      [processClick],
+      [processClick]
     );
 
-    // Track touch start position for distinguishing tap from scroll
-    const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(
-      null,
-    );
-
-    // Store handlers in refs for proper cleanup on iOS Safari
-    const touchStartHandlerRef = useRef<((e: TouchEvent) => void) | null>(null);
-    const touchEndHandlerRef = useRef<((e: TouchEvent) => void) | null>(null);
-
-    // Use native event listeners for iOS Safari compatibility
-    // React's synthetic events don't support { passive: false } which is needed for preventDefault()
-    // Only attach listeners after mask is ready to prevent issues on first load
+    // Touch event handlers for iOS Safari compatibility
     useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas || !isMaskReady) return;
-
-      // Remove any existing handlers first (critical for iOS Safari)
-      if (touchStartHandlerRef.current) {
-        canvas.removeEventListener("touchstart", touchStartHandlerRef.current);
-      }
-      if (touchEndHandlerRef.current) {
-        canvas.removeEventListener("touchend", touchEndHandlerRef.current);
-      }
 
       const handleTouchStart = (e: TouchEvent) => {
         const touch = e.touches[0];
@@ -535,9 +286,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       };
 
       const handleTouchEnd = (e: TouchEvent) => {
-        // Check if mask data is ready before processing
         if (!maskImageDataRef.current) return;
-
         const touch = e.changedTouches[0];
         if (!touch || !touchStartRef.current) return;
 
@@ -545,51 +294,29 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
         const deltaTime = Date.now() - touchStartRef.current.time;
 
-        // Only process as tap if movement is small (< 10px) and quick (< 300ms)
         if (deltaX < 10 && deltaY < 10 && deltaTime < 300) {
           e.preventDefault();
           processClick(touch.clientX, touch.clientY);
         }
-
         touchStartRef.current = null;
       };
 
-      // Store handlers in refs for cleanup
-      touchStartHandlerRef.current = handleTouchStart;
-      touchEndHandlerRef.current = handleTouchEnd;
-
-      // Add native event listeners with { passive: false } for iOS Safari
-      canvas.addEventListener("touchstart", handleTouchStart, {
-        passive: true,
-      });
+      canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
       canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
 
       return () => {
-        // Use the stored refs for cleanup to ensure we remove the correct handlers
-        if (touchStartHandlerRef.current) {
-          canvas.removeEventListener(
-            "touchstart",
-            touchStartHandlerRef.current,
-          );
-          touchStartHandlerRef.current = null;
-        }
-        if (touchEndHandlerRef.current) {
-          canvas.removeEventListener("touchend", touchEndHandlerRef.current);
-          touchEndHandlerRef.current = null;
-        }
+        canvas.removeEventListener("touchstart", handleTouchStart);
+        canvas.removeEventListener("touchend", handleTouchEnd);
         touchStartRef.current = null;
       };
     }, [processClick, isMaskReady]);
 
-    // Load images
+    // Load images using core modules
     useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return;
 
       // Reset all refs and state when loading new image
-      // This is critical for lesson switching without refresh
       setIsMaskReady(false);
       maskImageDataRef.current = null;
       originalImageDataRef.current = null;
@@ -598,84 +325,43 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       setCanUndo(false);
       setCanRedo(false);
 
-      const img = new window.Image();
-      img.crossOrigin = "Anonymous";
-      img.src = mainImage;
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+      loadMainImage(canvas, mainImage)
+        .then(async ({ originalImageData }) => {
+          originalImageDataRef.current = originalImageData;
 
-        // Debug info for device/canvas diagnostics
-        setDebugInfo({
-          device: navigator.userAgent,
-          canvasSize: `${canvas.width} x ${canvas.height}`,
-          pixelRatio: window.devicePixelRatio,
-          screenSize: `${screen.width} x ${screen.height}`,
-        });
+          setDebugInfo({
+            device: navigator.userAgent,
+            canvasSize: `${canvas.width} x ${canvas.height}`,
+            pixelRatio: window.devicePixelRatio,
+            screenSize: `${screen.width} x ${screen.height}`,
+          });
 
-        originalImageDataRef.current = ctx.getImageData(
-          0,
-          0,
-          canvas.width,
-          canvas.height,
-        );
-
-        // Check for saved progress
-        const savedDataUrl = localStorage.getItem(
-          `coloring_progress_${mainImage}`,
-        );
-
-        if (savedDataUrl) {
-          const savedImg = new window.Image();
-          savedImg.src = savedDataUrl;
-          savedImg.onload = () => {
-            ctx.drawImage(savedImg, 0, 0);
-            const currentData = ctx.getImageData(
-              0,
-              0,
-              canvas.width,
-              canvas.height,
-            );
-            historyRef.current = [currentData];
+          // Check for saved progress
+          const savedProgress = await loadSavedProgress(canvas, storageKey);
+          if (savedProgress) {
+            historyRef.current = [savedProgress];
             historyIndexRef.current = 0;
-            setCanUndo(false);
-            setCanRedo(false);
-          };
-        } else {
-          // Save initial state to history
-          historyRef.current = [originalImageDataRef.current];
-          historyIndexRef.current = 0;
+          } else {
+            historyRef.current = [originalImageData];
+            historyIndexRef.current = 0;
+          }
           setCanUndo(false);
           setCanRedo(false);
-        }
+          setImageLoaded(true);
 
-        setImageLoaded(true);
-
-        const maskImg = new window.Image();
-        maskImg.crossOrigin = "Anonymous";
-        maskImg.src = maskImage;
-        maskImg.onload = () => {
-          const maskCanvas = document.createElement("canvas");
-          maskCanvas.width = img.width;
-          maskCanvas.height = img.height;
-          const maskCtx = maskCanvas.getContext("2d");
-          if (!maskCtx) return;
-
-          // Disable smoothing to preserve exact colors when scaling mask
-          maskCtx.imageSmoothingEnabled = false;
-
-          maskCtx.drawImage(maskImg, 0, 0, img.width, img.height);
-          maskImageDataRef.current = maskCtx.getImageData(
-            0,
-            0,
-            img.width,
-            img.height,
+          // Load mask
+          const { maskImageData } = await loadMaskImage(
+            maskImage,
+            canvas.width,
+            canvas.height
           );
+          maskImageDataRef.current = maskImageData;
           setIsMaskReady(true);
-        };
-      };
-    }, [mainImage, maskImage, setImageLoaded]);
+        })
+        .catch((error) => {
+          console.error("Error loading images:", error);
+        });
+    }, [mainImage, maskImage, setImageLoaded, storageKey]);
 
     return (
       <div className="relative overflow-hidden rounded-3xl">
@@ -698,8 +384,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             WebkitTapHighlightColor: "transparent",
           }}
         />
-        {/* Debug info overlay */}
-        {debugInfo && (
+        {isDev && debugInfo && (
           <div className="absolute top-2 left-2 bg-black/70 text-white text-xs p-2 rounded max-w-[300px] wrap-break-word z-50">
             <p>
               <strong>Device:</strong> {debugInfo.device}
@@ -717,7 +402,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         )}
       </div>
     );
-  },
+  }
 );
 
 ColoringCanvas.displayName = "ColoringCanvas";

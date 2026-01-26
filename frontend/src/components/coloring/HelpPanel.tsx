@@ -1,3 +1,6 @@
+import { memo } from "react";
+import Image from "next/image";
+
 interface HelpPanelProps {
   helpOpen: boolean;
   setHelpOpen: (open: boolean) => void;
@@ -5,7 +8,8 @@ interface HelpPanelProps {
   helpVideoId?: string;
 }
 
-export default function HelpPanel({
+// Memoized to prevent re-renders when parent state changes (rerender-memo)
+const HelpPanel = memo(function HelpPanel({
   helpOpen,
   setHelpOpen,
   helpImage,
@@ -37,9 +41,19 @@ export default function HelpPanel({
             />
           </div>
         ) : (
-          <img src={helpImage} alt="Help" className="w-full rounded-xl" />
+          <div className="relative w-full aspect-video">
+            <Image
+              src={helpImage}
+              alt="Help"
+              fill
+              className="object-contain rounded-xl"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 672px, 896px"
+            />
+          </div>
         )}
       </div>
     </div>
   );
-}
+});
+
+export default HelpPanel;

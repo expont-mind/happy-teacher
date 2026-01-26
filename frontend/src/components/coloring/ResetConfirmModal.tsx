@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { X, RotateCcw } from "lucide-react";
 
 interface ResetConfirmModalProps {
@@ -8,7 +9,8 @@ interface ResetConfirmModalProps {
   onConfirm: () => void;
 }
 
-export default function ResetConfirmModal({
+// Memoized to prevent re-renders when parent state changes (rerender-memo)
+const ResetConfirmModal = memo(function ResetConfirmModal({
   isVisible,
   onClose,
   onConfirm,
@@ -56,4 +58,6 @@ export default function ResetConfirmModal({
       </div>
     </div>
   );
-}
+});
+
+export default ResetConfirmModal;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore, memo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import {
   Undo2,
@@ -26,7 +26,8 @@ interface ActionToolbarProps {
   tableImage?: string;
 }
 
-export default function ActionToolbar({
+// Memoized to prevent re-renders when parent state changes (rerender-memo)
+const ActionToolbar = memo(function ActionToolbar({
   onUndo,
   onRedo,
   onHelp,
@@ -39,11 +40,17 @@ export default function ActionToolbar({
   tableImage,
 }: ActionToolbarProps) {
   const [showTableModal, setShowTableModal] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // Use useSyncExternalStore for SSR-safe mounted check (avoids useEffect setState warning)
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Memoized handlers to avoid recreation
+  const openTableModal = useCallback(() => setShowTableModal(true), []);
+  const closeTableModal = useCallback(() => setShowTableModal(false), []);
+  const stopPropagation = useCallback((e: React.MouseEvent) => e.stopPropagation(), []);
 
   return (
     <div className="sticky top-6 self-start flex flex-col items-center gap-4">
@@ -113,15 +120,15 @@ export default function ActionToolbar({
       )}
 
       {/* Multiplication Table Button - for multiplication */}
-      {topicKey === "multiplication" && tableImage && (
+      {topicKey === "multiplication" && tableImage ? (
         <button
-          onClick={() => setShowTableModal(true)}
+          onClick={openTableModal}
           data-tutorial="table-btn"
           className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-orange-200 hover:border-orange-400 transition-all cursor-pointer"
         >
           <BookOpen size={28} className="text-orange-500" />
         </button>
-      )}
+      ) : null}
 
       {/* Finish Button */}
       <button
@@ -133,35 +140,36 @@ export default function ActionToolbar({
       </button>
 
       {/* Table Image Modal - rendered via Portal to appear above all content */}
-      {mounted &&
-        showTableModal &&
-        tableImage &&
-        createPortal(
-          <div
-            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            onClick={() => setShowTableModal(false)}
-          >
+      {mounted && showTableModal && tableImage
+        ? createPortal(
             <div
-              className="relative bg-white rounded-4xl p-4 max-w-[90vw] max-h-[90vh] shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              onClick={closeTableModal}
             >
-              <button
-                onClick={() => setShowTableModal(false)}
-                className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer z-10"
+              <div
+                className="relative bg-white rounded-4xl p-4 max-w-[90vw] max-h-[90vh] shadow-2xl"
+                onClick={stopPropagation}
               >
-                <X size={24} className="text-gray-600" />
-              </button>
-              <Image
-                src={tableImage}
-                alt="Үржвэрийн хүснэгт"
-                width={600}
-                height={600}
-                className="rounded-xl max-h-[80vh] w-auto object-contain"
-              />
-            </div>
-          </div>,
-          document.body
-        )}
+                <button
+                  onClick={closeTableModal}
+                  className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer z-10"
+                >
+                  <X size={24} className="text-gray-600" />
+                </button>
+                <Image
+                  src={tableImage}
+                  alt="Үржвэрийн хүснэгт"
+                  width={600}
+                  height={600}
+                  className="rounded-xl max-h-[80vh] w-auto object-contain"
+                />
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
-}
+});
+
+export default ActionToolbar;

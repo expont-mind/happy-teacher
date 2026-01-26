@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { BottomSheet } from "@/src/components/ui/BottomSheet";
 import { Undo2, Redo2, Lightbulb, Download, Flag } from "lucide-react";
 
@@ -15,7 +16,8 @@ interface MobileActionToolbarProps {
   canRedo: boolean;
 }
 
-export function MobileActionToolbar({
+// Memoized to prevent re-renders when parent state changes (rerender-memo)
+export const MobileActionToolbar = memo(function MobileActionToolbar({
   isOpen,
   onClose,
   onUndo,
@@ -26,10 +28,14 @@ export function MobileActionToolbar({
   canUndo,
   canRedo,
 }: MobileActionToolbarProps) {
-  const handleAction = (action: () => void) => {
-    action();
-    onClose();
-  };
+  // Memoized handler to avoid recreation
+  const handleAction = useCallback(
+    (action: () => void) => {
+      action();
+      onClose();
+    },
+    [onClose]
+  );
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
@@ -78,4 +84,4 @@ export function MobileActionToolbar({
       </div>
     </BottomSheet>
   );
-}
+});

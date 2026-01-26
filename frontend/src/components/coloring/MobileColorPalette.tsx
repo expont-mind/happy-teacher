@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { BottomSheet } from "@/src/components/ui/BottomSheet";
 
 interface MobileColorPaletteProps {
@@ -10,17 +11,22 @@ interface MobileColorPaletteProps {
   onSelectColor: (color: string) => void;
 }
 
-export function MobileColorPalette({
+// Memoized to prevent re-renders when parent state changes (rerender-memo)
+export const MobileColorPalette = memo(function MobileColorPalette({
   isOpen,
   onClose,
   colors,
   selectedColor,
   onSelectColor,
 }: MobileColorPaletteProps) {
-  const handleSelectColor = (color: string) => {
-    onSelectColor(color);
-    onClose();
-  };
+  // Memoized handler to avoid recreation
+  const handleSelectColor = useCallback(
+    (color: string) => {
+      onSelectColor(color);
+      onClose();
+    },
+    [onSelectColor, onClose]
+  );
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Өнгө сонгох">
@@ -41,4 +47,4 @@ export function MobileColorPalette({
       </div>
     </BottomSheet>
   );
-}
+});

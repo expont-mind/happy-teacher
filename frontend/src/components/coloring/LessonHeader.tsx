@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   Trophy,
   ArrowLeft,
@@ -32,7 +33,8 @@ interface LessonHeaderProps {
   canRedo?: boolean;
 }
 
-export default function LessonHeader({
+// Memoized to prevent re-renders when parent state changes (rerender-memo)
+const LessonHeader = memo(function LessonHeader({
   title,
   onBack,
   selectedColor,
@@ -203,4 +205,6 @@ export default function LessonHeader({
       </div>
     </div>
   );
-}
+});
+
+export default LessonHeader;

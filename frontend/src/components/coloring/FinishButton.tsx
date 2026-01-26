@@ -1,12 +1,14 @@
 "use client";
 
+import { memo } from "react";
 import { Flag } from "lucide-react";
 
 interface FinishButtonProps {
   onClick: () => void;
 }
 
-export default function FinishButton({ onClick }: FinishButtonProps) {
+// Memoized to prevent re-renders when parent state changes (rerender-memo)
+const FinishButton = memo(function FinishButton({ onClick }: FinishButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -16,4 +18,6 @@ export default function FinishButton({ onClick }: FinishButtonProps) {
       <Flag size={24} className="text-white" />
     </button>
   );
-}
+});
+
+export default FinishButton;
