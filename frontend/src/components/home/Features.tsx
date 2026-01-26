@@ -5,9 +5,9 @@ export const Features = () => {
     <div className="w-full flex justify-center bg-[#D6F5D6] py-16 lg:py-[126px] px-4">
       <div className="max-w-[1280px] w-full flex flex-col gap-12 lg:gap-20 items-center">
         <div className="flex flex-col gap-6 items-center text-center">
-          <p className="text-[#0C0A01] text-3xl lg:text-5xl font-bold font-nunito">
+          <h2 className="text-[#0C0A01] text-3xl lg:text-5xl font-bold font-nunito">
             Яагаад Happy Academy вэ?
-          </p>
+          </h2>
           <p className="text-[#54534D] text-lg lg:text-2xl font-normal font-nunito">
             Бид математикийг хөгжилтэй, амархан, үр дүнтэй болгодог
           </p>
@@ -17,15 +17,15 @@ export const Features = () => {
           <div className="w-full bg-white border-2 border-[#0C0A0126] rounded-[20px] py-8 px-6 lg:pl-8 lg:pr-16 flex flex-col gap-6 lg:gap-8 h-full">
             <Image
               src="/svg/Controller.png"
-              alt="Icon"
+              alt="Тоглоом шиг суралцах дүрс"
               width={60}
               height={60}
               className="w-[60px] h-[60px]"
             />
             <div className="flex flex-col gap-3">
-              <p className="text-black font-bold text-xl lg:text-[26px] font-nunito">
+              <h3 className="text-black font-bold text-xl lg:text-[26px] font-nunito">
                 Тоглоом шиг үе шаттай суралц
-              </p>
+              </h3>
               <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed">
                 Хүүхэд бодлого бодож, зураг будаж, даалгавраа гүйцэтгэх бүртээ
                 үе давж оноо цуглуулж дараагийн шат руу шилжинэ. Ингэснээр
@@ -35,11 +35,11 @@ export const Features = () => {
             </div>
           </div>
           <div className="w-full bg-white border-2 border-[#0C0A0126] rounded-[20px] py-8 px-6 lg:pl-8 lg:pr-16 flex flex-col gap-6 lg:gap-8 h-full">
-            <Image src="/svg/Head.png" alt="Icon" width={60} height={60} />
+            <Image src="/svg/Head.png" alt="Найрсаг дүрийн тусламж" width={60} height={60} />
             <div className="flex flex-col gap-3">
-              <p className="text-black font-bold text-xl lg:text-[26px] font-nunito">
+              <h3 className="text-black font-bold text-xl lg:text-[26px] font-nunito">
                 Ганцаараа биш найрсаг дүр үргэлж хамт
-              </p>
+              </h3>
               <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed">
                 Манай найрсаг дүр хичээл бүрийн турш урам өгч, чиглүүлж, тусалж
                 дэмжинэ. Мөн түүхээр дамжуулан хүүхэд амжилтад хүрэх баяр хөөр,
@@ -52,15 +52,15 @@ export const Features = () => {
           <div className="w-full bg-white border-2 border-[#0C0A0126] rounded-[20px] py-8 px-6 lg:pl-8 lg:pr-16 flex flex-col gap-6 lg:gap-8 h-full">
             <Image
               src="/svg/GreenBrain.png"
-              alt="Icon"
+              alt="Тархины судалгаанд суурилсан"
               width={60}
               height={60}
               className="w-[60px] h-[60px]"
             />
             <div className="flex flex-col gap-3">
-              <p className="text-black font-bold text-xl lg:text-[26px] font-nunito">
+              <h3 className="text-black font-bold text-xl lg:text-[26px] font-nunito">
                 Тархины судалгаанд суурилсан
-              </p>
+              </h3>
               <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed">
                 Тархины судалгаанд үндэслэн бүтээгдсэн ба хүүхэд өдөр бүр
                 тогтмол суралцах үед батламж авна. Энэ нь тархинд допамин хэмээх
@@ -70,11 +70,11 @@ export const Features = () => {
             </div>
           </div>
           <div className="w-full bg-white border-2 border-[#0C0A0126] rounded-[20px] py-8 px-6 lg:pl-8 lg:pr-16 flex flex-col gap-6 lg:gap-8 h-full">
-            <Image src="/svg/Users.png" alt="Icon" width={60} height={60} />
+            <Image src="/svg/Users.png" alt="Эцэг эхтэй холбогдох" width={60} height={60} />
             <div className="flex flex-col gap-3">
-              <p className="text-black font-bold text-xl lg:text-[26px] font-nunito">
+              <h3 className="text-black font-bold text-xl lg:text-[26px] font-nunito">
                 Эцэг эхтэй холбогдох
-              </p>
+              </h3>
               <p className="text-black text-lg lg:text-2xl font-normal font-nunito leading-relaxed">
                 Хичээл бүрт SMS/Имэйлээр хүүхдийнхээ явцыг мэдэх. Эцэг эх
                 хүүхдийнхээ хичээлд оролцож, амжилтыг нь хамтдаа баярлан,

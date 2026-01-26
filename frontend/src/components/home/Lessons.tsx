@@ -29,9 +29,9 @@ export const Lessons = () => {
     <div className="w-full flex justify-center bg-white py-16 lg:py-[126px] px-4">
       <div className="max-w-[1280px] w-full flex flex-col gap-20 items-center">
         <div className="flex flex-col gap-6 items-center text-center">
-          <p className="text-[#0C0A01] text-3xl md:text-5xl font-bold font-nunito">
+          <h2 className="text-[#0C0A01] text-3xl md:text-5xl font-bold font-nunito">
             Таны хүүхдэд зориулсан хичээл
-          </p>
+          </h2>
           <p className="text-[#54534D] text-lg md:text-2xl font-normal font-nunito">
             Үе шаттайгаар өсөн дэвших математикийн сургалт
           </p>
@@ -61,9 +61,9 @@ export const Lessons = () => {
                     />
                   </div>
                   <div className="flex flex-col gap-3">
-                    <p className="text-black font-bold text-[26px] font-nunito group-hover:text-[#58CC02] transition-colors">
+                    <h3 className="text-black font-bold text-[26px] font-nunito group-hover:text-[#58CC02] transition-colors">
                       {lesson.title}
-                    </p>
+                    </h3>
                     <p className="text-[#54534D] text-xl md:text-2xl font-normal font-nunito">
                       {lesson.description}
                     </p>
