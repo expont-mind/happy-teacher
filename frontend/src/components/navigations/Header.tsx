@@ -219,7 +219,7 @@ function HeaderContent() {
                     Буцах
                   </button>
                 ) : !isAuthPage ? (
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-3">
                     <Link href="/help" prefetch={true}>
                       <p className="text-xs font-extrabold text-[#333333] font-nunito cursor-pointer">
                         Тусламж

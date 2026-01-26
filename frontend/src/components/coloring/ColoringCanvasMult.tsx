@@ -265,7 +265,8 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const floodFill = useCallback(
       (startX: number, startY: number, fillColor: string) => {
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        const maskData = maskImageDataRef.current;
+        if (!canvas || !maskData) return;
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
         if (!ctx) return;
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -282,10 +283,14 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
         if (startR === fillR && startG === fillG && startB === fillB) return;
 
-        const tolerance = 30;
         const isBlack = (r: number, g: number, b: number) =>
           r < 50 && g < 50 && b < 50;
         if (isBlack(startR, startG, startB)) return;
+
+        // Get mask color at start position for boundary detection
+        const startMaskR = maskData.data[startPos];
+        const startMaskG = maskData.data[startPos + 1];
+        const startMaskB = maskData.data[startPos + 2];
 
         const stack: Array<[number, number]> = [[startX, startY]];
         const visited = new Set<string>();
@@ -294,11 +299,18 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           const r = pixels[pos];
           const g = pixels[pos + 1];
           const b = pixels[pos + 2];
+          // Always treat black pixels as boundaries (SVG outlines)
           if (isBlack(r, g, b)) return false;
+
+          // Use mask color for boundary detection (exact match required)
+          const maskR = maskData.data[pos];
+          const maskG = maskData.data[pos + 1];
+          const maskB = maskData.data[pos + 2];
+
           return (
-            Math.abs(r - startR) <= tolerance &&
-            Math.abs(g - startG) <= tolerance &&
-            Math.abs(b - startB) <= tolerance
+            maskR === startMaskR &&
+            maskG === startMaskG &&
+            maskB === startMaskB
           );
         };
 

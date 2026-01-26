@@ -89,11 +89,17 @@ The admin follows a similar pattern:
 
 #### Database Tables
 
-The application uses these Supabase tables:
-
+Core tables:
 - **profiles**: User profile information (extended from auth.users)
-- **purchases**: Tracks which topics users have purchased
-- **user_progress**: Tracks completed lessons per topic
+- **purchases**: Topic purchase tracking
+- **user_progress**: Completed lessons tracking
+
+Additional tables:
+- **pending_invoices**: QPay invoices awaiting payment
+- **coupons**: Discount coupon codes
+- **child_progress**: Child-specific progress tracking
+- **notifications**: User notifications
+- **gamification**: Gamification features (streaks, achievements)
 
 #### Client vs Server
 
@@ -129,6 +135,28 @@ Lessons are defined in `src/data/lessons/` as TypeScript objects containing:
 
 The coloring canvas (`ColoringCanvas.tsx`) uses these images to create an interactive SVG coloring experience with flood-fill functionality.
 
+### Payment Integration
+
+The frontend integrates with QPay via the Bonum payment gateway:
+
+- `src/components/qpay/QPayDialog.tsx`: QR code payment modal with polling
+- `src/app/api/bonum/`: API routes for payment processing
+
+**Payment Flow:**
+1. Create invoice via `/api/bonum/qpay`
+2. Display QR code to user
+3. Poll `/api/bonum/get-invoice-status-qpay` every 3 seconds
+4. Save purchase via `/api/bonum/save-purchase` on success
+
+### API Routes (Frontend)
+
+- `/api/bonum/qpay`: Create QPay invoice
+- `/api/bonum/get-invoice-status-qpay`: Check payment status
+- `/api/bonum/save-purchase`: Record successful purchase
+- `/api/cron/reminders`: Scheduled reminder notifications
+- `/api/cron/weekly-report`: Weekly user reports
+- `/api/send-notification`: Send push notifications
+
 ### Environment Variables
 
 Both apps require:
@@ -136,6 +164,19 @@ Both apps require:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-project-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+```
+
+Frontend additionally requires (for payments):
+```bash
+BONUM_BASE_URL=<bonum-api-url>
+BONUM_TOKEN_BASE_URL=<bonum-token-url>
+BONUM_APP_SECRET=<bonum-app-secret>
+BONUM_DEFAULT_TERMINAL_ID=<terminal-id>
+```
+
+Admin additionally requires:
+```bash
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 ```
 
 Create `.env` files in both `frontend/` and `admin/` directories.
