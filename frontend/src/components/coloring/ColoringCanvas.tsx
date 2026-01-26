@@ -47,7 +47,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       onShowRelax,
       onSuccessfulFill,
     },
-    ref
+    ref,
   ) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const originalImageDataRef = useRef<ImageData | null>(null);
@@ -59,6 +59,12 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [isMaskReady, setIsMaskReady] = useState(false);
+    const [debugInfo, setDebugInfo] = useState<{
+      device: string;
+      canvasSize: string;
+      pixelRatio: number;
+      screenSize: string;
+    } | null>(null);
 
     const mistakeCountRef = useRef<number>(0);
 
@@ -69,7 +75,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           onShowMessage(message);
         }
       },
-      [onShowMessage]
+      [onShowMessage],
     );
 
     // Check completion status
@@ -179,7 +185,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       if (historyIndexRef.current < historyRef.current.length - 1) {
         historyRef.current = historyRef.current.slice(
           0,
-          historyIndexRef.current + 1
+          historyIndexRef.current + 1,
         );
       }
 
@@ -304,7 +310,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         canRedo,
         resetCanvas,
         downloadCanvas,
-      ]
+      ],
     );
 
     // Flood fill logic
@@ -378,7 +384,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         ctx.putImageData(imageData, 0, 0);
         saveToHistory();
       },
-      [saveToHistory]
+      [saveToHistory],
     );
 
     // Process click/touch at coordinates
@@ -387,10 +393,10 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         if (!canvasRef.current || !maskImageDataRef.current) return;
         const rect = canvasRef.current.getBoundingClientRect();
         const x = Math.floor(
-          ((clientX - rect.left) / rect.width) * canvasRef.current.width
+          ((clientX - rect.left) / rect.width) * canvasRef.current.width,
         );
         const y = Math.floor(
-          ((clientY - rect.top) / rect.height) * canvasRef.current.height
+          ((clientY - rect.top) / rect.height) * canvasRef.current.height,
         );
 
         // Bounds check - ensure x, y are within canvas
@@ -471,7 +477,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         onShowRelax,
         showMessage,
         onSuccessfulFill,
-      ]
+      ],
     );
 
     // Mouse click handler
@@ -479,12 +485,12 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       (e: React.MouseEvent<HTMLCanvasElement>) => {
         processClick(e.clientX, e.clientY);
       },
-      [processClick]
+      [processClick],
     );
 
     // Track touch start position for distinguishing tap from scroll
     const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(
-      null
+      null,
     );
 
     // Store handlers in refs for proper cleanup on iOS Safari
@@ -552,7 +558,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         if (touchStartHandlerRef.current) {
           canvas.removeEventListener(
             "touchstart",
-            touchStartHandlerRef.current
+            touchStartHandlerRef.current,
           );
           touchStartHandlerRef.current = null;
         }
@@ -588,16 +594,25 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
+
+        // Debug info for device/canvas diagnostics
+        setDebugInfo({
+          device: navigator.userAgent,
+          canvasSize: `${canvas.width} x ${canvas.height}`,
+          pixelRatio: window.devicePixelRatio,
+          screenSize: `${screen.width} x ${screen.height}`,
+        });
+
         originalImageDataRef.current = ctx.getImageData(
           0,
           0,
           canvas.width,
-          canvas.height
+          canvas.height,
         );
 
         // Check for saved progress
         const savedDataUrl = localStorage.getItem(
-          `coloring_progress_${mainImage}`
+          `coloring_progress_${mainImage}`,
         );
 
         if (savedDataUrl) {
@@ -609,7 +624,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
               0,
               0,
               canvas.width,
-              canvas.height
+              canvas.height,
             );
             historyRef.current = [currentData];
             historyIndexRef.current = 0;
@@ -644,7 +659,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             0,
             0,
             img.width,
-            img.height
+            img.height,
           );
           setIsMaskReady(true);
         };
@@ -672,9 +687,26 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             WebkitTapHighlightColor: "transparent",
           }}
         />
+        {/* Debug info overlay */}
+        {debugInfo && (
+          <div className="absolute top-2 left-2 bg-black/70 text-white text-xs p-2 rounded max-w-[300px] wrap-break-word z-50">
+            <p>
+              <strong>Device:</strong> {debugInfo.device}
+            </p>
+            <p>
+              <strong>Canvas:</strong> {debugInfo.canvasSize}
+            </p>
+            <p>
+              <strong>Pixel Ratio:</strong> {debugInfo.pixelRatio}
+            </p>
+            <p>
+              <strong>Screen:</strong> {debugInfo.screenSize}
+            </p>
+          </div>
+        )}
       </div>
     );
-  }
+  },
 );
 
 ColoringCanvas.displayName = "ColoringCanvas";
