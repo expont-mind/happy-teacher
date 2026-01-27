@@ -41,7 +41,6 @@ export const HomePage = () => {
           );
         }
       } else {
-        console.log("Users fetched successfully:", data?.length || 0, "users");
         setUsers(data || []);
       }
       setLoading(false);
