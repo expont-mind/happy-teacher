@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   forwardRef,
   useState,
+  useMemo,
 } from "react";
 import Image from "next/image";
 import {
@@ -24,6 +25,12 @@ import {
   loadSavedProgress,
 } from "./core";
 import type { TouchPosition, CompletionResult } from "./core";
+import { useAuth } from "@/src/components/auth/AuthProvider";
+import {
+  saveColoringProgress,
+  loadColoringProgress,
+  deleteColoringProgress,
+} from "@/src/utils/coloringProgressStorage";
 
 interface ColoringCanvasProps {
   mainImage: string;
@@ -45,7 +52,7 @@ export interface ColoringCanvasRef {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
-  resetCanvas: () => void;
+  resetCanvas: () => Promise<void>;
   downloadCanvas: () => void;
 }
 
@@ -63,7 +70,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       onShowRelax,
       onSuccessfulFill,
     },
-    ref
+    ref,
   ) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const originalImageDataRef = useRef<ImageData | null>(null);
@@ -73,28 +80,85 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const wrongClickCountRef = useRef<number>(0);
     const mistakeCountRef = useRef<number>(0);
     const touchStartRef = useRef<TouchPosition | null>(null);
+    const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const pendingDataUrlRef = useRef<string | null>(null);
+    const isResettingRef = useRef<boolean>(false);
 
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [isMaskReady, setIsMaskReady] = useState(false);
 
-    // Debug info only in development
-    const [debugInfo, setDebugInfo] = useState<{
-      device: string;
-      canvasSize: string;
-      pixelRatio: number;
-      screenSize: string;
-    } | null>(null);
-    const isDev = process.env.NODE_ENV === "development";
+    const { activeProfile } = useAuth();
 
-    const storageKey = `coloring_progress_${mainImage}`;
+    const profileInfo = useMemo(
+      () =>
+        activeProfile
+          ? {
+              id: activeProfile.id,
+              type: activeProfile.type,
+              parentId: activeProfile.parentId,
+            }
+          : null,
+      [activeProfile],
+    );
+
+    // Flush any pending save immediately
+    const flushSave = useCallback(() => {
+      if (isResettingRef.current) return;
+      if (saveTimeoutRef.current !== null) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+      const dataUrl = pendingDataUrlRef.current;
+      if (dataUrl) {
+        pendingDataUrlRef.current = null;
+        saveColoringProgress(profileInfo, mainImage, dataUrl);
+      }
+    }, [profileInfo, mainImage]);
+
+    // Debounced save to Supabase (1s trailing)
+    const debouncedSave = useCallback(
+      (dataUrl: string) => {
+        if (isResettingRef.current) return;
+        pendingDataUrlRef.current = dataUrl;
+        if (saveTimeoutRef.current !== null)
+          clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = setTimeout(() => {
+          if (isResettingRef.current) return;
+          pendingDataUrlRef.current = null;
+          saveColoringProgress(profileInfo, mainImage, dataUrl);
+          saveTimeoutRef.current = null;
+        }, 500);
+      },
+      [profileInfo, mainImage],
+    );
+
+    // Flush pending save on page unload, tab switch, or component unmount
+    useEffect(() => {
+      const handleBeforeUnload = () => flushSave();
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === "hidden") flushSave();
+      };
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange,
+        );
+        flushSave();
+      };
+    }, [flushSave]);
 
     // Show message via callback
     const showMessage = useCallback(
       (message: string) => {
         onShowMessage?.(message);
       },
-      [onShowMessage]
+      [onShowMessage],
     );
 
     // Check completion status using core module
@@ -117,9 +181,9 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         historyIndexRef,
         setCanUndo,
         setCanRedo,
-        storageKey,
+        onSave: debouncedSave,
       };
-    }, [storageKey]);
+    }, [debouncedSave]);
 
     const handleSaveToHistory = useCallback(() => {
       const options = getHistoryOptions();
@@ -136,20 +200,46 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       if (options) historyRedo(options);
     }, [getHistoryOptions]);
 
-    const handleResetCanvas = useCallback(() => {
+    const handleResetCanvas = useCallback(async () => {
+      // Set resetting flag to true to block any pending saves or new saves
+      isResettingRef.current = true;
+
+      // Cancel any pending debounced save
+      if (saveTimeoutRef.current !== null) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+      pendingDataUrlRef.current = null;
+
       const ctx = canvasRef.current?.getContext("2d");
-      if (!ctx || !originalImageDataRef.current) return;
+      if (!ctx || !originalImageDataRef.current) {
+        isResettingRef.current = false;
+        return;
+      }
+
       ctx.putImageData(originalImageDataRef.current, 0, 0);
       resetHistory(
         historyRef,
         historyIndexRef,
         originalImageDataRef.current,
         setCanUndo,
-        setCanRedo
+        setCanRedo,
       );
-      localStorage.removeItem(storageKey);
-      window.location.reload();
-    }, [storageKey]);
+      mistakeCountRef.current = 0;
+      wrongClickCountRef.current = 0;
+
+      try {
+        const blankDataUrl = canvasRef.current?.toDataURL("image/png");
+        if (blankDataUrl) {
+          await saveColoringProgress(profileInfo, mainImage, blankDataUrl);
+        }
+      } finally {
+        // Only allow saving again after overwrite is done
+        setTimeout(() => {
+          isResettingRef.current = false;
+        }, 500);
+      }
+    }, [profileInfo, mainImage]);
 
     const handleDownloadCanvas = useCallback(() => {
       const canvas = canvasRef.current;
@@ -181,7 +271,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         canRedo,
         handleResetCanvas,
         handleDownloadCanvas,
-      ]
+      ],
     );
 
     // Process click/touch at coordinates
@@ -228,6 +318,22 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           return;
         }
 
+        // If eraser mode, allow erasing
+        if (isEraserMode) {
+          if (
+            floodFill({
+              canvas,
+              maskData,
+              startX: x,
+              startY: y,
+              fillColor: "#ffffff",
+            })
+          ) {
+            handleSaveToHistory();
+          }
+          return;
+        }
+
         // Check if selected color matches
         if (maskColor !== selectedColor.toLowerCase()) {
           mistakeCountRef.current += 1;
@@ -258,7 +364,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         showMessage,
         onSuccessfulFill,
         handleSaveToHistory,
-      ]
+      ],
     );
 
     // Mouse click handler
@@ -266,7 +372,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       (e: React.MouseEvent<HTMLCanvasElement>) => {
         processClick(e.clientX, e.clientY);
       },
-      [processClick]
+      [processClick],
     );
 
     // Touch event handlers for iOS Safari compatibility
@@ -301,7 +407,9 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         touchStartRef.current = null;
       };
 
-      canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
+      canvas.addEventListener("touchstart", handleTouchStart, {
+        passive: true,
+      });
       canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
 
       return () => {
@@ -329,15 +437,12 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         .then(async ({ originalImageData }) => {
           originalImageDataRef.current = originalImageData;
 
-          setDebugInfo({
-            device: navigator.userAgent,
-            canvasSize: `${canvas.width} x ${canvas.height}`,
-            pixelRatio: window.devicePixelRatio,
-            screenSize: `${screen.width} x ${screen.height}`,
-          });
-
-          // Check for saved progress
-          const savedProgress = await loadSavedProgress(canvas, storageKey);
+          // Check for saved progress from Supabase
+          const savedDataUrl = await loadColoringProgress(
+            profileInfo,
+            mainImage,
+          );
+          const savedProgress = await loadSavedProgress(canvas, savedDataUrl);
           if (savedProgress) {
             historyRef.current = [savedProgress];
             historyIndexRef.current = 0;
@@ -353,7 +458,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
           const { maskImageData } = await loadMaskImage(
             maskImage,
             canvas.width,
-            canvas.height
+            canvas.height,
           );
           maskImageDataRef.current = maskImageData;
           setIsMaskReady(true);
@@ -361,7 +466,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         .catch((error) => {
           console.error("Error loading images:", error);
         });
-    }, [mainImage, maskImage, setImageLoaded, storageKey]);
+    }, [mainImage, maskImage, setImageLoaded, profileInfo]);
 
     return (
       <div className="relative overflow-hidden rounded-3xl">
@@ -384,25 +489,9 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
             WebkitTapHighlightColor: "transparent",
           }}
         />
-        {isDev && debugInfo && (
-          <div className="absolute top-2 left-2 bg-black/70 text-white text-xs p-2 rounded max-w-[300px] wrap-break-word z-50">
-            <p>
-              <strong>Device:</strong> {debugInfo.device}
-            </p>
-            <p>
-              <strong>Canvas:</strong> {debugInfo.canvasSize}
-            </p>
-            <p>
-              <strong>Pixel Ratio:</strong> {debugInfo.pixelRatio}
-            </p>
-            <p>
-              <strong>Screen:</strong> {debugInfo.screenSize}
-            </p>
-          </div>
-        )}
       </div>
     );
-  }
+  },
 );
 
 ColoringCanvas.displayName = "ColoringCanvas";

@@ -33,8 +33,6 @@ interface QPayStatusResponse {
 }
 
 export async function POST(request: NextRequest) {
-    console.log('=== BONUM QPAY GET INVOICE STATUS START ===');
-
     try {
         const BONUM_BASE_URL = process.env.BONUM_BASE_URL;
         const BONUM_TOKEN_BASE_URL = process.env.BONUM_TOKEN_BASE_URL;
@@ -52,8 +50,6 @@ export async function POST(request: NextRequest) {
         const body: QPayStatusRequest = await request.json();
         const { qrCode } = body;
 
-        console.log('Checking qrCode:', qrCode?.substring(0, 50) + '...');
-
         if (!qrCode) {
             return NextResponse.json(
                 { error: 'qrCode is required', isPaid: false },
@@ -63,7 +59,6 @@ export async function POST(request: NextRequest) {
 
         // Step 1: Access Token авах (BONUM_BASE_URL ашиглана)
         const tokenUrl = `${BONUM_BASE_URL}/ecommerce/auth/create`;
-        console.log('Getting token from:', tokenUrl);
 
         const tokenResponse = await fetch(tokenUrl, {
             method: 'GET',
@@ -85,12 +80,9 @@ export async function POST(request: NextRequest) {
 
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.accessToken;
-        console.log('Got access token:', !!accessToken);
 
         // Step 2: QPay Invoice Status шалгах
         const statusUrl = `${BONUM_TOKEN_BASE_URL}/merchant/transaction/qr`;
-
-        console.log('Status URL:', statusUrl);
 
         const response = await fetch(statusUrl, {
             method: 'POST',
@@ -102,10 +94,6 @@ export async function POST(request: NextRequest) {
         });
 
         const data: QPayStatusResponse = await response.json();
-
-        console.log('=== BONUM QPAY STATUS RESPONSE ===');
-        console.log('Status:', response.status);
-        console.log('Invoice Status:', data.data?.invoice?.status);
 
         if (!response.ok || data.errorCode) {
             console.error('=== BONUM QPAY STATUS ERROR ===');
@@ -127,11 +115,6 @@ export async function POST(request: NextRequest) {
         // Төлбөр төлөгдсөн эсэхийг шалгах
         const invoiceStatus = data.data?.invoice?.status;
         const isPaid = invoiceStatus === 'PAID' || invoiceStatus === 'SUCCESS' || invoiceStatus === 'COMPLETED';
-
-        console.log('=== BONUM QPAY GET STATUS SUCCESS ===');
-        console.log('Invoice ID:', data.data?.invoice?.invoiceId);
-        console.log('Status:', invoiceStatus);
-        console.log('Is Paid:', isPaid);
 
         return NextResponse.json({
             isPaid,

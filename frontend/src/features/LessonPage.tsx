@@ -9,6 +9,7 @@ import ColorPalette from "@/src/components/coloring/ColorPalette";
 import LessonHeader from "@/src/components/coloring/LessonHeader";
 import ActionToolbar from "@/src/components/coloring/ActionToolbar";
 import HelpPanel from "@/src/components/coloring/HelpPanel";
+import ResetConfirmModal from "@/src/components/coloring/ResetConfirmModal";
 import { fractionLessons } from "@/src/data/lessons/fractions";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import {
@@ -29,6 +30,9 @@ import {
   showCharacterToast,
   showErrorToastTopRight,
 } from "@/src/components/ui/CharacterToast";
+import TimerDisplay from "@/src/components/coloring/TimerDisplay";
+import TimeUpModal from "@/src/components/coloring/TimeUpModal";
+import { saveLessonTime, getLessonTime } from "@/src/utils/lessonTimeStorage";
 
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
@@ -46,13 +50,13 @@ export default function LessonPage() {
 
   const lesson = useMemo(
     () => fractionLessons.find((l) => l.id === params.lessonId),
-    [params.lessonId]
+    [params.lessonId],
   );
 
   // Find the next lesson
   const nextLesson = useMemo(() => {
     const currentIndex = fractionLessons.findIndex(
-      (l) => l.id === params.lessonId
+      (l) => l.id === params.lessonId,
     );
     if (currentIndex === -1 || currentIndex === fractionLessons.length - 1) {
       return null;
@@ -60,22 +64,66 @@ export default function LessonPage() {
     return fractionLessons[currentIndex + 1];
   }, [params.lessonId]);
 
+  // Determine if this is a review lesson (odd 0-based index = even page number)
+  const currentIndex = useMemo(
+    () => fractionLessons.findIndex((l) => l.id === params.lessonId),
+    [params.lessonId],
+  );
+  const isReview = currentIndex % 2 === 1;
+
+  // For review lessons, get the previous lesson's saved time (capped at 30 min)
+  const MAX_TIME_LIMIT = 1800; // 30 minutes
+  const timeLimit = useMemo(() => {
+    if (!isReview || currentIndex < 1) return null;
+    const prevLesson = fractionLessons[currentIndex - 1];
+    const prevTime = getLessonTime("fractions", prevLesson.id);
+    if (prevTime === null) return null;
+    return Math.min(MAX_TIME_LIMIT, Math.max(1, Math.round(prevTime * 0.9)));
+  }, [isReview, currentIndex]);
+
+  // Timer state
+  const [timerRunning, setTimerRunning] = useState(false);
+  const elapsedSecondsRef = useRef(0);
+  const [retryCount, setRetryCount] = useState(0);
+  const [showTimeUpModal, setShowTimeUpModal] = useState(false);
+  const [timerResetKey, setTimerResetKey] = useState(0);
+
+  // After 2 retries, disable the timer (unlimited mode)
+  const isTimerDisabled = retryCount >= 2;
+
+  const handleElapsedChange = useCallback((seconds: number) => {
+    elapsedSecondsRef.current = seconds;
+  }, []);
+
+  const handleTimeUp = useCallback(() => {
+    setTimerRunning(false);
+    setShowTimeUpModal(true);
+  }, []);
+
+  // Start the timer once canvas images are loaded
+  const handleImageLoaded = useCallback((loaded: boolean) => {
+    setImageLoaded(loaded);
+    if (loaded) {
+      setTimerRunning(true);
+    }
+  }, []);
+
+  // Handle restart after time expires: reset canvas, increment retry, restart timer
+  const handleTimerRestart = useCallback(async () => {
+    setShowTimeUpModal(false);
+    await canvasRef.current?.resetCanvas();
+    setRetryCount((prev) => prev + 1);
+    setTimerResetKey((prev) => prev + 1);
+    setTimerRunning(true);
+  }, []);
+
   // Check if user has purchased this topic
   useEffect(() => {
     // Auth ачаалал дуусахыг хүлээх
     if (authLoading) return;
 
     const checkPayment = async () => {
-      console.log("LessonPage: Checking purchase for fractions...");
-      console.log(
-        "LessonPage: user =",
-        user?.id,
-        "activeProfile =",
-        activeProfile?.id
-      );
-
       const purchased = await checkPurchase("fractions");
-      console.log("LessonPage: purchased =", purchased);
 
       setIsPaid(purchased);
 
@@ -101,7 +149,7 @@ export default function LessonPage() {
   }, [isPaid, lesson]);
 
   const [selectedColor, setSelectedColor] = useState(
-    lesson?.palette[0]?.color || "#6b3ab5"
+    lesson?.palette[0]?.color || "#6b3ab5",
   );
   const [helpOpen, setHelpOpen] = useState(false);
   const [, setImageLoaded] = useState(false);
@@ -111,6 +159,13 @@ export default function LessonPage() {
   const [xpEarned, setXpEarned] = useState(0);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [isEraserMode, setIsEraserMode] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  const handleSelectColor = useCallback((color: string) => {
+    setSelectedColor(color);
+    setIsEraserMode(false);
+  }, []);
 
   // Mobile state
   const isPortraitMobile = useIsPortraitMobile();
@@ -252,15 +307,20 @@ export default function LessonPage() {
         .join(", ");
 
       showCharacterMessage(
-        `Дуусаагүй хэсэг байна!\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
+        `Дуусаагүй хэсэг байна!\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`,
       );
       return;
+    }
+
+    // For new (non-review) lessons, save the elapsed coloring time
+    if (!isReview && elapsedSecondsRef.current > 0) {
+      saveLessonTime("fractions", lesson.id, elapsedSecondsRef.current);
     }
 
     // Save to Supabase (with localStorage fallback)
     const { isFirstCompletion } = await markLessonCompleted(
       "fractions",
-      lesson.id
+      lesson.id,
     );
 
     // Check for notification trigger (Every 3 lessons)
@@ -278,8 +338,6 @@ export default function LessonPage() {
 
         // Trigger if count is valid and multiple of 3
         if (count !== null && count > 0 && count % 3 === 0) {
-          console.log("Triggering notification for count:", count);
-
           await fetch("/api/send-notification", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -293,7 +351,7 @@ export default function LessonPage() {
         }
       } else {
         console.warn(
-          "User or ActiveProfile missing, cannot send notification."
+          "User or ActiveProfile missing, cannot send notification.",
         );
       }
     } catch (err) {
@@ -340,14 +398,14 @@ export default function LessonPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-2 lg:p-6">
       {/* Main Box Container */}
-      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-xl flex flex-col max-w-7xl w-full h-full lg:h-auto ">
+      <div className="relative bg-white rounded-2xl lg:rounded-3xl shadow-xl flex flex-col max-w-7xl w-full h-full lg:h-auto ">
         {/* Header inside box */}
         <LessonHeader
           title={lesson.title}
           onBack={handleBack}
           selectedColor={selectedColor}
           colors={paletteForDisplay}
-          onSelectColor={setSelectedColor}
+          onSelectColor={handleSelectColor}
           onUndo={handleUndo}
           onRedo={handleRedo}
           onHelp={handleHelp}
@@ -356,7 +414,32 @@ export default function LessonPage() {
           onShowIntro={handleShowIntro}
           canUndo={canUndo}
           canRedo={canRedo}
+          isEraserMode={isEraserMode}
+          onToggleEraser={() => setIsEraserMode((prev) => !prev)}
+          onReset={() => setShowResetConfirm(true)}
+          timerElement={
+            isReview && timeLimit !== null && !isTimerDisabled ? (
+              <TimerDisplay
+                timeLimit={timeLimit}
+                onTimeUp={handleTimeUp}
+                isRunning={timerRunning}
+                onElapsedChange={handleElapsedChange}
+                visible
+                resetKey={timerResetKey}
+              />
+            ) : undefined
+          }
         />
+
+        {/* Hidden timer for new lessons to track elapsed time */}
+        {!isReview && (
+          <TimerDisplay
+            timeLimit={null}
+            isRunning={timerRunning}
+            onElapsedChange={handleElapsedChange}
+            visible={false}
+          />
+        )}
 
         {/* Show Rotate Prompt in Portrait Mode */}
         {isPortraitMobile ? (
@@ -369,7 +452,7 @@ export default function LessonPage() {
               <ColorPalette
                 colors={paletteForDisplay}
                 selectedColor={selectedColor}
-                setSelectedColor={setSelectedColor}
+                setSelectedColor={handleSelectColor}
               />
             </div>
 
@@ -382,8 +465,9 @@ export default function LessonPage() {
                 maskImage={lesson.maskImage}
                 backgroundImage={lesson.backgroundImage}
                 selectedColor={selectedColor}
-                setImageLoaded={setImageLoaded}
+                setImageLoaded={handleImageLoaded}
                 palette={rawPalette}
+                isEraserMode={isEraserMode}
                 onShowMessage={showCharacterMessage}
                 onShowRelax={() => setShowRelaxModal(true)}
               />
@@ -400,6 +484,9 @@ export default function LessonPage() {
                 onShowIntro={handleShowIntro}
                 canUndo={canUndo}
                 canRedo={canRedo}
+                isEraserMode={isEraserMode}
+                onToggleEraser={() => setIsEraserMode((prev) => !prev)}
+                onReset={() => setShowResetConfirm(true)}
               />
             </div>
           </div>
@@ -407,6 +494,16 @@ export default function LessonPage() {
 
         {/* Footer (Desktop only) */}
         <div className="hidden lg:flex p-6 justify-end border-t border-gray-100"></div>
+
+        {/* Reset Confirmation Modal */}
+        <ResetConfirmModal
+          isVisible={showResetConfirm}
+          onClose={() => setShowResetConfirm(false)}
+          onConfirm={async () => {
+            await canvasRef.current?.resetCanvas();
+            setShowResetConfirm(false);
+          }}
+        />
       </div>
 
       {/* Help Panel */}
@@ -426,7 +523,7 @@ export default function LessonPage() {
           // Start tutorial after intro closes
           const isMobile = window.innerWidth < 1024;
           startTutorial(
-            isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop
+            isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop,
           );
         }}
       />
@@ -437,6 +534,9 @@ export default function LessonPage() {
         onClose={() => setShowRelaxModal(false)}
         character="yellow"
       />
+
+      {/* Time Up Modal (review lessons) */}
+      <TimeUpModal isVisible={showTimeUpModal} onRestart={handleTimerRestart} />
 
       {/* Reward Modal */}
       <RewardModal

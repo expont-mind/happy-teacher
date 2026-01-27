@@ -10,6 +10,8 @@ import {
   Flag,
   BookOpen,
   X,
+  Eraser,
+  RotateCcw,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -21,6 +23,9 @@ interface ActionToolbarProps {
   onEnd: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  isEraserMode?: boolean;
+  onToggleEraser?: () => void;
+  onReset?: () => void;
   onShowIntro?: () => void;
   topicKey?: string;
   tableImage?: string;
@@ -35,6 +40,9 @@ const ActionToolbar = memo(function ActionToolbar({
   onEnd,
   canUndo,
   canRedo,
+  isEraserMode = false,
+  onToggleEraser,
+  onReset,
   onShowIntro,
   topicKey,
   tableImage,
@@ -44,13 +52,16 @@ const ActionToolbar = memo(function ActionToolbar({
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
-    () => false
+    () => false,
   );
 
   // Memoized handlers to avoid recreation
   const openTableModal = useCallback(() => setShowTableModal(true), []);
   const closeTableModal = useCallback(() => setShowTableModal(false), []);
-  const stopPropagation = useCallback((e: React.MouseEvent) => e.stopPropagation(), []);
+  const stopPropagation = useCallback(
+    (e: React.MouseEvent) => e.stopPropagation(),
+    [],
+  );
 
   return (
     <div className="sticky top-6 self-start flex flex-col items-center gap-4">
@@ -107,6 +118,35 @@ const ActionToolbar = memo(function ActionToolbar({
       >
         <Download size={28} className="text-purple-500" />
       </button>
+
+      {/* Eraser Button */}
+      {onToggleEraser && (
+        <button
+          onClick={onToggleEraser}
+          data-tutorial="eraser-btn"
+          className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 transition-all cursor-pointer ${
+            isEraserMode
+              ? "bg-red-500 border-red-600 hover:bg-red-600"
+              : "bg-white border-red-200 hover:border-red-400"
+          }`}
+        >
+          <Eraser
+            size={28}
+            className={isEraserMode ? "text-white" : "text-red-500"}
+          />
+        </button>
+      )}
+
+      {/* Reset Button */}
+      {onReset && (
+        <button
+          onClick={onReset}
+          data-tutorial="reset-btn"
+          className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md border-2 bg-white border-orange-200 hover:border-orange-400 transition-all cursor-pointer"
+        >
+          <RotateCcw size={28} className="text-orange-500" />
+        </button>
+      )}
 
       {/* Story/Intro Button - for fractions */}
       {onShowIntro && topicKey !== "multiplication" && (
@@ -165,7 +205,7 @@ const ActionToolbar = memo(function ActionToolbar({
                 />
               </div>
             </div>,
-            document.body
+            document.body,
           )
         : null}
     </div>

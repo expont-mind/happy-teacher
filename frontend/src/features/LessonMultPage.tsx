@@ -8,6 +8,8 @@ import ColoringCanvas, {
 import ColorPalette from "@/src/components/coloring/ColorPalette";
 import LessonHeader from "@/src/components/coloring/LessonHeader";
 import ActionToolbar from "@/src/components/coloring/ActionToolbar";
+import HelpPanel from "@/src/components/coloring/HelpPanel";
+import ResetConfirmModal from "@/src/components/coloring/ResetConfirmModal";
 import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 import { useAuth } from "@/src/components/auth/AuthProvider";
 import {
@@ -27,6 +29,9 @@ import {
   showCustomCharacterToast,
   showErrorToastTopRight,
 } from "@/src/components/ui/CharacterToast";
+import TimerDisplay from "@/src/components/coloring/TimerDisplay";
+import TimeUpModal from "@/src/components/coloring/TimeUpModal";
+import { saveLessonTime, getLessonTime } from "@/src/utils/lessonTimeStorage";
 
 export default function LessonMultPage() {
   const params = useParams<{ lessonId: string }>();
@@ -44,13 +49,13 @@ export default function LessonMultPage() {
 
   const lesson = useMemo(
     () => multiplicationLessons.find((l) => l.id === params.lessonId),
-    [params.lessonId]
+    [params.lessonId],
   );
 
   // Find the next lesson
   const nextLesson = useMemo(() => {
     const currentIndex = multiplicationLessons.findIndex(
-      (l) => l.id === params.lessonId
+      (l) => l.id === params.lessonId,
     );
     if (
       currentIndex === -1 ||
@@ -60,6 +65,62 @@ export default function LessonMultPage() {
     }
     return multiplicationLessons[currentIndex + 1];
   }, [params.lessonId]);
+
+  // Timer: groups of 3 — position 0: new (no timer), 1: review (90%), 2: combined (81%)
+  const currentIndex = useMemo(
+    () => multiplicationLessons.findIndex((l) => l.id === params.lessonId),
+    [params.lessonId],
+  );
+  const groupPosition = currentIndex % 3; // 0=new, 1=review, 2=combined
+  const isTimedLesson = groupPosition > 0;
+
+  // Get the base (position 0) lesson's saved time for this group
+  const MAX_TIME_LIMIT = 1800; // 30 minutes
+  const timeLimit = useMemo(() => {
+    if (!isTimedLesson || currentIndex < 1) return null;
+    const baseIndex = currentIndex - groupPosition; // first lesson in group
+    const baseLesson = multiplicationLessons[baseIndex];
+    const baseTime = getLessonTime("multiplication", baseLesson.id);
+    if (baseTime === null) return null;
+    const factor = groupPosition === 1 ? 0.9 : 0.81; // 90% or 81%
+    return Math.min(MAX_TIME_LIMIT, Math.max(1, Math.round(baseTime * factor)));
+  }, [isTimedLesson, currentIndex, groupPosition]);
+
+  // Timer state
+  const [timerRunning, setTimerRunning] = useState(false);
+  const elapsedSecondsRef = useRef(0);
+  const [retryCount, setRetryCount] = useState(0);
+  const [showTimeUpModal, setShowTimeUpModal] = useState(false);
+  const [timerResetKey, setTimerResetKey] = useState(0);
+
+  // After 2 retries, disable the timer (unlimited mode)
+  const isTimerDisabled = retryCount >= 2;
+
+  const handleElapsedChange = useCallback((seconds: number) => {
+    elapsedSecondsRef.current = seconds;
+  }, []);
+
+  const handleTimeUp = useCallback(() => {
+    setTimerRunning(false);
+    setShowTimeUpModal(true);
+  }, []);
+
+  // Start the timer once canvas images are loaded
+  const handleImageLoaded = useCallback((loaded: boolean) => {
+    setImageLoaded(loaded);
+    if (loaded) {
+      setTimerRunning(true);
+    }
+  }, []);
+
+  // Handle restart after time expires
+  const handleTimerRestart = useCallback(async () => {
+    setShowTimeUpModal(false);
+    await canvasRef.current?.resetCanvas();
+    setRetryCount((prev) => prev + 1);
+    setTimerResetKey((prev) => prev + 1);
+    setTimerRunning(true);
+  }, []);
 
   // Check if user has purchased this topic
   useEffect(() => {
@@ -84,14 +145,15 @@ export default function LessonMultPage() {
     if (isPaid) {
       const isMobile = window.innerWidth < 1024; // lg breakpoint
       startTutorial(
-        isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop
+        isMobile ? lessonPageTutorialMobile : lessonPageTutorialDesktop,
       );
     }
   }, [isPaid, startTutorial]);
 
   const [selectedColor, setSelectedColor] = useState(
-    lesson?.palette[0]?.color || "#6b3ab5"
+    lesson?.palette[0]?.color || "#6b3ab5",
   );
+  const [helpOpen, setHelpOpen] = useState(false);
   const [, setImageLoaded] = useState(false);
   const [showRelaxModal, setShowRelaxModal] = useState(false);
   const canvasRef = useRef<ColoringCanvasRef>(null);
@@ -99,6 +161,8 @@ export default function LessonMultPage() {
   const [xpEarned, setXpEarned] = useState(0);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [isEraserMode, setIsEraserMode] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Track successful fills for character toast - use ref to avoid stale closure
   const successfulFillCountRef = useRef(0);
@@ -147,7 +211,7 @@ export default function LessonMultPage() {
     ) {
       // Pick a random message/character combo
       const randomIndex = Math.floor(
-        Math.random() * lesson.introMessages.length
+        Math.random() * lesson.introMessages.length,
       );
       const { message, character } = lesson.introMessages[randomIndex];
       showCustomCharacterToast(message, character);
@@ -186,6 +250,10 @@ export default function LessonMultPage() {
 
   const handleRedo = () => {
     canvasRef.current?.redo();
+  };
+
+  const handleHelp = () => {
+    setHelpOpen(true);
   };
 
   const handleDownload = () => {
@@ -264,15 +332,20 @@ export default function LessonMultPage() {
         .join(", ");
 
       showCharacterMessage(
-        `Дуусаагүй хэсэг байна!\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`
+        `Дуусаагүй хэсэг байна!\n\nДараах өнгөтэй хэсгүүдийг будна уу: ${missingColorNames}`,
       );
       return;
+    }
+
+    // For new (non-timed) lessons, save the elapsed coloring time
+    if (!isTimedLesson && elapsedSecondsRef.current > 0) {
+      saveLessonTime("multiplication", lesson.id, elapsedSecondsRef.current);
     }
 
     // Save to Supabase (with localStorage fallback)
     const { isFirstCompletion } = await markLessonCompleted(
       "multiplication",
-      lesson.id
+      lesson.id,
     );
 
     // Only award XP on first completion
@@ -325,11 +398,37 @@ export default function LessonMultPage() {
           onSelectColor={setSelectedColor}
           onUndo={handleUndo}
           onRedo={handleRedo}
+          onHelp={handleHelp}
           onDownload={handleDownload}
           onEnd={markCompleted}
           canUndo={canUndo}
           canRedo={canRedo}
+          isEraserMode={isEraserMode}
+          onToggleEraser={() => setIsEraserMode((prev) => !prev)}
+          onReset={() => setShowResetConfirm(true)}
+          timerElement={
+            isTimedLesson && timeLimit !== null && !isTimerDisabled ? (
+              <TimerDisplay
+                timeLimit={timeLimit}
+                onTimeUp={handleTimeUp}
+                isRunning={timerRunning}
+                onElapsedChange={handleElapsedChange}
+                visible
+                resetKey={timerResetKey}
+              />
+            ) : undefined
+          }
         />
+
+        {/* Hidden timer for new lessons to track elapsed time */}
+        {!isTimedLesson && (
+          <TimerDisplay
+            timeLimit={null}
+            isRunning={timerRunning}
+            onElapsedChange={handleElapsedChange}
+            visible={false}
+          />
+        )}
 
         {/* Show Rotate Prompt in Portrait Mode */}
         {isPortraitMobile ? (
@@ -355,11 +454,12 @@ export default function LessonMultPage() {
                 maskImage={lesson.maskImage}
                 backgroundImage={lesson.backgroundImage}
                 selectedColor={selectedColor}
-                setImageLoaded={setImageLoaded}
+                setImageLoaded={handleImageLoaded}
                 palette={rawPalette}
                 onShowMessage={showCharacterMessage}
                 onShowRelax={() => setShowRelaxModal(true)}
                 onSuccessfulFill={handleSuccessfulFill}
+                isEraserMode={isEraserMode}
               />
             </div>
 
@@ -368,10 +468,14 @@ export default function LessonMultPage() {
               <ActionToolbar
                 onUndo={handleUndo}
                 onRedo={handleRedo}
+                onHelp={handleHelp}
                 onDownload={handleDownload}
                 onEnd={markCompleted}
                 canUndo={canUndo}
                 canRedo={canRedo}
+                isEraserMode={isEraserMode}
+                onToggleEraser={() => setIsEraserMode((prev) => !prev)}
+                onReset={() => setShowResetConfirm(true)}
                 topicKey="multiplication"
                 tableImage={lesson.tableImage}
               />
@@ -383,12 +487,33 @@ export default function LessonMultPage() {
         <div className="hidden lg:flex p-6 justify-end border-t border-gray-100"></div>
       </div>
 
+      {/* Help Panel */}
+      <HelpPanel
+        helpOpen={helpOpen}
+        setHelpOpen={setHelpOpen}
+        helpImage={lesson.helpImage}
+        helpVideoId={lesson.helpVideoId}
+      />
+
       {/* Relax Modal */}
       <RelaxModal
         isVisible={showRelaxModal}
         onClose={() => setShowRelaxModal(false)}
         character="yellow"
       />
+
+      {/* Reset Confirm Modal */}
+      <ResetConfirmModal
+        isVisible={showResetConfirm}
+        onClose={() => setShowResetConfirm(false)}
+        onConfirm={async () => {
+          await canvasRef.current?.resetCanvas();
+          setShowResetConfirm(false);
+        }}
+      />
+
+      {/* Time Up Modal (timed lessons) */}
+      <TimeUpModal isVisible={showTimeUpModal} onRestart={handleTimerRestart} />
 
       {/* Reward Modal */}
       <RewardModal

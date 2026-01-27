@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import {
   Trophy,
   ArrowLeft,
@@ -11,6 +11,8 @@ import {
   Download,
   Flag,
   BookOpen,
+  Eraser,
+  RotateCcw,
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 import { FractionLabel } from "@/src/components/ui/Fraction";
@@ -31,6 +33,10 @@ interface LessonHeaderProps {
   onShowIntro?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
+  isEraserMode?: boolean;
+  onToggleEraser?: () => void;
+  onReset?: () => void;
+  timerElement?: ReactNode;
 }
 
 // Memoized to prevent re-renders when parent state changes (rerender-memo)
@@ -48,6 +54,10 @@ const LessonHeader = memo(function LessonHeader({
   onShowIntro,
   canUndo = false,
   canRedo = false,
+  isEraserMode = false,
+  onToggleEraser,
+  onReset,
+  timerElement,
 }: LessonHeaderProps) {
   return (
     <div className="sticky top-0 z-10 lg:static bg-(--duo-green) px-2 lg:px-6 py-2 lg:py-4 flex items-center gap-2 rounded-t-2xl lg:rounded-b-none">
@@ -60,11 +70,12 @@ const LessonHeader = memo(function LessonHeader({
       </button>
 
       {/* Desktop: Trophy and Title */}
-      <div className="hidden lg:flex items-center gap-3">
+      <div className="hidden lg:flex items-center gap-3 flex-1">
         <div className="bg-white/20 p-2 rounded-xl">
           <Trophy size={24} className="text-white" />
         </div>
         <h1 className="text-white font-bold text-lg">{title}</h1>
+        {timerElement && <div className="ml-auto">{timerElement}</div>}
       </div>
 
       {/* Mobile: Color palette in single row */}
@@ -104,6 +115,9 @@ const LessonHeader = memo(function LessonHeader({
           </div>
         </div>
       )}
+
+      {/* Mobile: Timer */}
+      {timerElement && <div className="lg:hidden shrink-0">{timerElement}</div>}
 
       {/* Mobile actions menu */}
       <div className="lg:hidden shrink-0">
@@ -174,6 +188,45 @@ const LessonHeader = memo(function LessonHeader({
                     </span>
                   </button>
                 </Popover.Close>
+
+                {onToggleEraser && (
+                  <Popover.Close asChild>
+                    <button
+                      onClick={onToggleEraser}
+                      className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer ${
+                        isEraserMode
+                          ? "bg-red-500 border-red-600"
+                          : "border-red-200 bg-red-50"
+                      }`}
+                    >
+                      <Eraser
+                        size={20}
+                        className={isEraserMode ? "text-white" : "text-red-500"}
+                      />
+                      <span
+                        className={`font-medium text-sm ${
+                          isEraserMode ? "text-white" : "text-gray-700"
+                        }`}
+                      >
+                        Баллуур
+                      </span>
+                    </button>
+                  </Popover.Close>
+                )}
+
+                {onReset && (
+                  <Popover.Close asChild>
+                    <button
+                      onClick={onReset}
+                      className="flex items-center gap-2 p-3 rounded-xl border-2 border-orange-200 bg-orange-50 cursor-pointer"
+                    >
+                      <RotateCcw size={20} className="text-orange-500" />
+                      <span className="font-medium text-gray-700 text-sm">
+                        Дахин эхлэх
+                      </span>
+                    </button>
+                  </Popover.Close>
+                )}
 
                 {onShowIntro && (
                   <Popover.Close asChild>

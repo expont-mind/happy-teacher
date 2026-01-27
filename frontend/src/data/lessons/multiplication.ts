@@ -6,6 +6,7 @@ export type MultiplicationLesson = {
   maskImage: string;
   backgroundImage: string;
   helpImage: string;
+  helpVideoId?: string; // YouTube video ID (optional)
   tableImage?: string; // Multiplication table image for hint
   palette: { color: string; label: string }[];
 };
@@ -37,6 +38,8 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     backgroundImage: "/multiplication/page_1_background.png",
     helpImage: "/multiplication/page_12_help.png",
     tableImage: "/multiplication/2.png",
+    helpVideoId:
+      "https://res.cloudinary.com/dspzjvmcg/video/upload/v1769503688/2_rqxrss.mp4",
     palette: [
       { color: "#3fbfff", label: "1" },
       { color: "#af4c0f", label: "2" },

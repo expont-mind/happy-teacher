@@ -39,8 +39,6 @@ function generateTransactionId(): string {
 }
 
 export async function POST(request: NextRequest) {
-    console.log('=== BONUM QPAY CREATE INVOICE START ===');
-
     try {
         const BONUM_BASE_URL = process.env.BONUM_BASE_URL;
         const BONUM_TOKEN_BASE_URL = process.env.BONUM_TOKEN_BASE_URL;
@@ -61,8 +59,6 @@ export async function POST(request: NextRequest) {
         // TransactionId автоматаар үүсгэх эсвэл request-ээс авах
         const transactionId = body.transactionId || generateTransactionId();
 
-        console.log('Request:', { amount, transactionId, expiresIn });
-
         if (!amount || amount <= 0) {
             return NextResponse.json(
                 { error: 'Invalid amount' },
@@ -72,7 +68,6 @@ export async function POST(request: NextRequest) {
 
         // Step 1: Access Token авах (BONUM_BASE_URL ашиглана)
         const tokenUrl = `${BONUM_BASE_URL}/ecommerce/auth/create`;
-        console.log('Getting token from:', tokenUrl);
 
         const tokenResponse = await fetch(tokenUrl, {
             method: 'GET',
@@ -94,7 +89,6 @@ export async function POST(request: NextRequest) {
 
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.accessToken;
-        console.log('Got access token:', !!accessToken);
 
         // Step 2: QPay Invoice үүсгэх
         const qpayUrl = `${BONUM_TOKEN_BASE_URL}/merchant/transaction/qr/create`;
@@ -104,9 +98,6 @@ export async function POST(request: NextRequest) {
             transactionId,
             expiresIn: expiresIn || 600, // Default 10 минут
         };
-
-        console.log('QPay URL:', qpayUrl);
-        console.log('QPay Payload:', JSON.stringify(qpayPayload, null, 2));
 
         const response = await fetch(qpayUrl, {
             method: 'POST',
@@ -118,10 +109,6 @@ export async function POST(request: NextRequest) {
         });
 
         const data: QPayResponse = await response.json();
-
-        console.log('=== BONUM QPAY RESPONSE ===');
-        console.log('Status:', response.status);
-        console.log('Response:', JSON.stringify(data, null, 2));
 
         if (!response.ok || data.errorCode) {
             console.error('=== BONUM QPAY ERROR ===');
@@ -138,9 +125,6 @@ export async function POST(request: NextRequest) {
                 { status: response.status }
             );
         }
-
-        console.log('=== BONUM QPAY CREATE INVOICE SUCCESS ===');
-        console.log('Invoice ID:', data.data.invoiceId);
 
         // Frontend-д буцаах өгөгдөл
         return NextResponse.json({

@@ -29,8 +29,6 @@ interface BonumErrorResponse {
 }
 
 export async function POST(request: NextRequest) {
-    console.log('=== CREATE INVOICE START ===');
-
     try {
         const BONUM_BASE_URL = process.env.BONUM_BASE_URL;
         const BONUM_APP_SECRET = process.env.BONUM_APP_SECRET;
@@ -45,8 +43,6 @@ export async function POST(request: NextRequest) {
 
         const body: CreateInvoiceRequest = await request.json();
         const { amount, callback, transactionId, expiresIn, items, extras } = body;
-
-        console.log('Request:', { amount, callback, transactionId });
 
         if (!amount || amount <= 0) {
             return NextResponse.json(
@@ -118,8 +114,6 @@ export async function POST(request: NextRequest) {
             invoicePayload.extras = extras;
         }
 
-        console.log('Creating invoice:', JSON.stringify(invoicePayload, null, 2));
-
         const response = await fetch(invoiceUrl, {
             method: 'POST',
             headers: {
@@ -131,9 +125,6 @@ export async function POST(request: NextRequest) {
         });
 
         const data = await response.json();
-        console.log('=== BONUM RESPONSE ===');
-        console.log('Status:', response.status);
-        console.log('Response body:', JSON.stringify(data, null, 2));
 
         if (!response.ok) {
             const errorData = data as BonumErrorResponse;
@@ -155,10 +146,6 @@ export async function POST(request: NextRequest) {
 
         const invoiceId = data.invoiceId;
         const followUpLink = data.followUpLink;
-
-        console.log('=== CREATE INVOICE SUCCESS ===');
-        console.log('Invoice ID:', invoiceId);
-        console.log('Follow Up Link:', followUpLink);
 
         // invoiceId болон transactionId-г хамт буцаана
         // Frontend localStorage-д хадгална

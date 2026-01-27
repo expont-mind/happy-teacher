@@ -73,9 +73,6 @@ export async function POST(request: Request) {
           results.log.push(`Email error: ${e.message}`);
         }
       } else {
-        console.log(
-          `[Email Service] Mock Sending 'Lesson Progress Report' to ${user.email}: ${title}`
-        );
         results.emailSent = true;
         results.log.push("Email sent via Mock Service (No API Key)");
       }
@@ -110,9 +107,6 @@ export async function POST(request: Request) {
           results.log.push(`Email error: ${e.message}`);
         }
       } else {
-        console.log(
-          `[Email Service] Mock Sending 'Inactivity Reminder' to ${user.email}: ${message}`
-        );
         results.emailSent = true;
         results.log.push("Email sent via Mock Service (No API Key)");
       }
@@ -145,9 +139,6 @@ export async function POST(request: Request) {
           results.log.push(`Email error: ${e.message}`);
         }
       } else {
-        console.log(
-          `[Email Service] Mock Sending 'Weekly Report' to ${user.email}: ${message}`
-        );
         results.emailSent = true;
         results.log.push("Email sent via Mock Service (No API Key)");
       }

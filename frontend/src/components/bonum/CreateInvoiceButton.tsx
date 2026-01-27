@@ -41,18 +41,12 @@ export function CreateInvoiceButton({
 
             const data = await response.json();
 
-            console.log('=== API RESPONSE ===');
-            console.log('Status:', response.status);
-            console.log('Data:', JSON.stringify(data, null, 2));
-
             if (!response.ok) {
                 console.error('=== BONUM API ERROR ===');
                 console.error('Message:', data.message);
                 console.error('Details:', JSON.stringify(data.details, null, 2));
                 throw new Error(data.message || 'Failed to create invoice');
             }
-
-            console.log('Invoice created:', data);
 
             const invoiceId = data.invoiceId;
             const followUpLink = data.followUpLink;
@@ -66,11 +60,9 @@ export function CreateInvoiceButton({
             localStorage.setItem(`bonum_invoice_${transactionId}`, invoiceId);
             localStorage.setItem('bonum_latest_invoice', invoiceId);
             localStorage.setItem('bonum_latest_transaction', transactionId);
-            console.log('Saved mapping:', transactionId, '->', invoiceId);
 
             // Bonum payment page руу redirect
             if (autoOpenDeeplink && followUpLink) {
-                console.log('Opening payment link:', followUpLink);
                 window.location.href = followUpLink;
             }
 

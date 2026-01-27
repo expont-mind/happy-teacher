@@ -1,5 +1,3 @@
-import type { HistoryState } from "./types";
-
 const MAX_HISTORY_SIZE = 50;
 
 export interface HistoryManagerOptions {
@@ -8,7 +6,7 @@ export interface HistoryManagerOptions {
   historyIndexRef: React.MutableRefObject<number>;
   setCanUndo: (canUndo: boolean) => void;
   setCanRedo: (canRedo: boolean) => void;
-  storageKey?: string;
+  onSave?: (dataUrl: string) => void;
 }
 
 /**
@@ -20,7 +18,7 @@ export function saveToHistory({
   historyIndexRef,
   setCanUndo,
   setCanRedo,
-  storageKey,
+  onSave,
 }: HistoryManagerOptions): void {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return;
@@ -31,7 +29,7 @@ export function saveToHistory({
   if (historyIndexRef.current < historyRef.current.length - 1) {
     historyRef.current = historyRef.current.slice(
       0,
-      historyIndexRef.current + 1
+      historyIndexRef.current + 1,
     );
   }
 
@@ -49,11 +47,11 @@ export function saveToHistory({
   setCanUndo(historyIndexRef.current > 0);
   setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
 
-  // Save to localStorage if key provided
-  if (storageKey) {
+  // Save progress via callback
+  if (onSave) {
     try {
       const dataUrl = canvas.toDataURL();
-      localStorage.setItem(storageKey, dataUrl);
+      onSave(dataUrl);
     } catch (e) {
       console.error("Error saving progress:", e);
     }
@@ -69,7 +67,7 @@ export function undo({
   historyIndexRef,
   setCanUndo,
   setCanRedo,
-  storageKey,
+  onSave,
 }: HistoryManagerOptions): boolean {
   if (historyIndexRef.current <= 0) return false;
 
@@ -83,11 +81,11 @@ export function undo({
   setCanUndo(historyIndexRef.current > 0);
   setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
 
-  // Save to localStorage if key provided
-  if (storageKey) {
+  // Save progress via callback
+  if (onSave) {
     try {
       const dataUrl = canvas.toDataURL();
-      localStorage.setItem(storageKey, dataUrl);
+      onSave(dataUrl);
     } catch (e) {
       console.error("Error saving progress:", e);
     }
@@ -105,7 +103,7 @@ export function redo({
   historyIndexRef,
   setCanUndo,
   setCanRedo,
-  storageKey,
+  onSave,
 }: HistoryManagerOptions): boolean {
   if (historyIndexRef.current >= historyRef.current.length - 1) return false;
 
@@ -119,11 +117,11 @@ export function redo({
   setCanUndo(historyIndexRef.current > 0);
   setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
 
-  // Save to localStorage if key provided
-  if (storageKey) {
+  // Save progress via callback
+  if (onSave) {
     try {
       const dataUrl = canvas.toDataURL();
-      localStorage.setItem(storageKey, dataUrl);
+      onSave(dataUrl);
     } catch (e) {
       console.error("Error saving progress:", e);
     }
@@ -140,7 +138,7 @@ export function resetHistory(
   historyIndexRef: React.MutableRefObject<number>,
   initialData: ImageData,
   setCanUndo: (canUndo: boolean) => void,
-  setCanRedo: (canRedo: boolean) => void
+  setCanRedo: (canRedo: boolean) => void,
 ): void {
   historyRef.current = [initialData];
   historyIndexRef.current = 0;

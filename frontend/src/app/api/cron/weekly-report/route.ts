@@ -103,7 +103,6 @@ export async function GET(request: Request) {
           logs.push(`❌ Error sending to ${parent.email}: ${error.message}`);
         }
       } else {
-        console.log(`[Mock] Weekly report for ${parent.email}`);
         logs.push(`📧 Mock email to ${parent.email}`);
       }
 

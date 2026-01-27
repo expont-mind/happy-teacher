@@ -23,35 +23,55 @@ const HelpPanel = memo(function HelpPanel({
         className="absolute inset-0 bg-black/40 cursor-pointer"
         onClick={() => setHelpOpen(false)}
       />
-      <div className="bg-white rounded-2xl lg:rounded-3xl p-3 lg:p-4 shadow-2xl relative max-w-2xl lg:max-w-4xl w-full animate-fadeIn mx-4">
-        <button
-          onClick={() => setHelpOpen(false)}
-          className="absolute top-3 right-3 rounded-full bg-pink-300 hover:bg-pink-400 text-white p-2 font-bold shadow-lg z-10 cursor-pointer"
+      {helpVideoId?.endsWith(".mp4") ? (
+        <div
+          className="relative bg-white rounded-4xl p-4 max-w-[90vw] max-h-[90vh] shadow-2xl animate-fadeIn"
+          onClick={(e) => e.stopPropagation()}
         >
-          ✖
-        </button>
+          <button
+            onClick={() => setHelpOpen(false)}
+            className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer z-10"
+          >
+            <span className="text-gray-600 text-lg font-bold">✕</span>
+          </button>
+          <video
+            src={helpVideoId}
+            controls
+            autoPlay
+            className="rounded-xl max-h-[80vh] w-auto object-contain"
+          />
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl lg:rounded-3xl p-3 lg:p-4 shadow-2xl relative max-w-2xl lg:max-w-4xl w-full animate-fadeIn mx-4">
+          <button
+            onClick={() => setHelpOpen(false)}
+            className="absolute top-3 right-3 rounded-full bg-pink-300 hover:bg-pink-400 text-white p-2 font-bold shadow-lg z-10 cursor-pointer"
+          >
+            ✖
+          </button>
 
-        {helpVideoId ? (
-          <div className="aspect-video w-full">
-            <iframe
-              src={`https://www.youtube.com/embed/${helpVideoId}?autoplay=1`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full rounded-xl"
-            />
-          </div>
-        ) : (
-          <div className="relative w-full aspect-video">
-            <Image
-              src={helpImage}
-              alt="Help"
-              fill
-              className="object-contain rounded-xl"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 672px, 896px"
-            />
-          </div>
-        )}
-      </div>
+          {helpVideoId ? (
+            <div className="aspect-video w-full">
+              <iframe
+                src={`https://www.youtube.com/embed/${helpVideoId}?autoplay=1`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full rounded-xl"
+              />
+            </div>
+          ) : (
+            <div className="relative w-full aspect-video">
+              <Image
+                src={helpImage}
+                alt="Help"
+                fill
+                className="object-contain rounded-xl"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 672px, 896px"
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 });

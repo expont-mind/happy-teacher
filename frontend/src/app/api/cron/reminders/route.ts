@@ -28,10 +28,6 @@ export async function GET(request: Request) {
       };
 
       if (settings.inactivityReminder && parent?.user?.email) {
-        // Send Email Notification
-        console.log(
-          `[Email] Sending inactivity reminder for ${child.name} to parent ${parent.user.email}`
-        );
         logs.push(`Email sent to ${parent.user.email} for ${child.name}`);
       } else {
         logs.push(`Email skipped for ${child.name} (Settings OFF or No Email)`);

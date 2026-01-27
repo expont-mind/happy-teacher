@@ -11,13 +11,9 @@ interface InvoiceStatusResponse {
 }
 
 export async function GET(request: NextRequest) {
-    console.log('=== GET INVOICE STATUS START ===');
-
     try {
         const { searchParams } = new URL(request.url);
         const invoiceId = searchParams.get('invoiceId');
-
-        console.log('Checking invoiceId:', invoiceId);
 
         if (!invoiceId) {
             return NextResponse.json(
@@ -30,12 +26,6 @@ export async function GET(request: NextRequest) {
         const BONUM_APP_SECRET = process.env.BONUM_APP_SECRET;
         const BONUM_DEFAULT_TERMINAL_ID = process.env.BONUM_DEFAULT_TERMINAL_ID;
 
-        console.log('Environment:', {
-            hasBaseUrl: !!BONUM_BASE_URL,
-            hasSecret: !!BONUM_APP_SECRET,
-            hasTerminalId: !!BONUM_DEFAULT_TERMINAL_ID
-        });
-
         if (!BONUM_BASE_URL || !BONUM_APP_SECRET || !BONUM_DEFAULT_TERMINAL_ID) {
             return NextResponse.json(
                 { error: 'Missing required environment variables', isPaid: false },
@@ -45,7 +35,6 @@ export async function GET(request: NextRequest) {
 
         // Step 1: Get access token
         const tokenUrl = `${BONUM_BASE_URL}/ecommerce/auth/create`;
-        console.log('Getting token from:', tokenUrl);
 
         const tokenResponse = await fetch(tokenUrl, {
             method: 'GET',
@@ -55,8 +44,6 @@ export async function GET(request: NextRequest) {
                 'X-TERMINAL-ID': BONUM_DEFAULT_TERMINAL_ID,
             },
         });
-
-        console.log('Token response status:', tokenResponse.status);
 
         if (!tokenResponse.ok) {
             const tokenError = await tokenResponse.text();
@@ -69,11 +56,9 @@ export async function GET(request: NextRequest) {
 
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.accessToken;
-        console.log('Got access token:', !!accessToken);
 
         // Step 2: Get Invoice Status
         const invoiceStatusUrl = `${BONUM_BASE_URL}/ecommerce/invoices/${invoiceId}`;
-        console.log('Getting invoice status from:', invoiceStatusUrl);
 
         const response = await fetch(invoiceStatusUrl, {
             method: 'GET',
@@ -83,10 +68,7 @@ export async function GET(request: NextRequest) {
             },
         });
 
-        console.log('Invoice status response:', response.status);
-
         const responseText = await response.text();
-        console.log('Invoice status response body:', responseText);
 
         let data: any;
         try {
@@ -98,8 +80,6 @@ export async function GET(request: NextRequest) {
                 { status: 500 }
             );
         }
-
-        console.log('Parsed invoice data:', JSON.stringify(data, null, 2));
 
         if (!response.ok) {
             return NextResponse.json(
@@ -116,9 +96,6 @@ export async function GET(request: NextRequest) {
         // Check if payment is successful
         // Bonum status values: PENDING, PAID, SUCCESS, EXPIRED, CANCELLED, etc.
         const isPaid = data.status === 'PAID' || data.status === 'SUCCESS' || data.status === 'COMPLETED';
-
-        console.log('=== GET INVOICE STATUS END ===');
-        console.log('Status:', data.status, '| isPaid:', isPaid);
 
         const result: InvoiceStatusResponse = {
             status: data.status || 'UNKNOWN',

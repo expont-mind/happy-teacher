@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   forwardRef,
   useState,
+  useMemo,
 } from "react";
 import Image from "next/image";
 import {
@@ -33,8 +34,15 @@ import {
   clientToCanvasCoords,
   loadMainImage,
   loadMaskImage,
+  loadSavedProgress,
 } from "./core";
 import type { TouchPosition, CompletionResult } from "./core";
+import { useAuth } from "@/src/components/auth/AuthProvider";
+import {
+  saveColoringProgress,
+  loadColoringProgress,
+  deleteColoringProgress,
+} from "@/src/utils/coloringProgressStorage";
 
 interface ColoringCanvasProps {
   mainImage: string;
@@ -95,12 +103,72 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
     const historyIndexRef = useRef<number>(-1);
     const wrongClickCountRef = useRef<number>(0);
     const touchStartRef = useRef<TouchPosition | null>(null);
+    const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const pendingDataUrlRef = useRef<string | null>(null);
 
     const [isEraserMode, setIsEraserMode] = useState(false);
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+    const { activeProfile } = useAuth();
+
+    const profileInfo = useMemo(
+      () =>
+        activeProfile
+          ? {
+              id: activeProfile.id,
+              type: activeProfile.type,
+              parentId: activeProfile.parentId,
+            }
+          : null,
+      [activeProfile]
+    );
+
+    // Flush any pending save immediately
+    const flushSave = useCallback(() => {
+      if (saveTimeoutRef.current !== null) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+      const dataUrl = pendingDataUrlRef.current;
+      if (dataUrl) {
+        pendingDataUrlRef.current = null;
+        saveColoringProgress(profileInfo, mainImage, dataUrl);
+      }
+    }, [profileInfo, mainImage]);
+
+    // Debounced save to Supabase (1s trailing)
+    const debouncedSave = useCallback(
+      (dataUrl: string) => {
+        pendingDataUrlRef.current = dataUrl;
+        if (saveTimeoutRef.current !== null) clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = setTimeout(() => {
+          pendingDataUrlRef.current = null;
+          saveColoringProgress(profileInfo, mainImage, dataUrl);
+          saveTimeoutRef.current = null;
+        }, 1000);
+      },
+      [profileInfo, mainImage]
+    );
+
+    // Flush pending save on page unload, tab switch, or component unmount
+    useEffect(() => {
+      const handleBeforeUnload = () => flushSave();
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === "hidden") flushSave();
+      };
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        flushSave();
+      };
+    }, [flushSave]);
 
     // Check completion status using core module
     const handleCheckCompletion = useCallback((): CompletionResult => {
@@ -135,8 +203,9 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         historyIndexRef,
         setCanUndo,
         setCanRedo,
+        onSave: debouncedSave,
       };
-    }, []);
+    }, [debouncedSave]);
 
     const handleSaveToHistory = useCallback(() => {
       const options = getHistoryOptions();
@@ -153,7 +222,13 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       if (options) historyRedo(options);
     }, [getHistoryOptions]);
 
-    const handleResetCanvas = useCallback(() => {
+    const handleResetCanvas = useCallback(async () => {
+      // Cancel any pending debounced save to prevent re-saving after delete
+      if (saveTimeoutRef.current !== null) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+      pendingDataUrlRef.current = null;
       const ctx = canvasRef.current?.getContext("2d");
       if (!ctx || !originalImageDataRef.current) return;
       ctx.putImageData(originalImageDataRef.current, 0, 0);
@@ -165,7 +240,8 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         setCanRedo
       );
       setIsEraserMode(false);
-    }, []);
+      await deleteColoringProgress(profileInfo, mainImage);
+    }, [profileInfo, mainImage]);
 
     const handleDownloadCanvas = useCallback(() => {
       const dataUrl = canvasRef.current?.toDataURL("image/png");
@@ -310,8 +386,20 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
       loadMainImage(canvas, mainImage)
         .then(async ({ originalImageData }) => {
           originalImageDataRef.current = originalImageData;
-          historyRef.current = [originalImageData];
-          historyIndexRef.current = 0;
+
+          // Check for saved progress from Supabase
+          const savedDataUrl = await loadColoringProgress(
+            profileInfo,
+            mainImage
+          );
+          const savedProgress = await loadSavedProgress(canvas, savedDataUrl);
+          if (savedProgress) {
+            historyRef.current = [savedProgress];
+            historyIndexRef.current = 0;
+          } else {
+            historyRef.current = [originalImageData];
+            historyIndexRef.current = 0;
+          }
           setCanUndo(false);
           setCanRedo(false);
           setImageLoaded(true);
@@ -326,7 +414,7 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         .catch((error) => {
           console.error("Error loading images:", error);
         });
-    }, [mainImage, maskImage, setImageLoaded]);
+    }, [mainImage, maskImage, setImageLoaded, profileInfo]);
 
     const toggleFullScreen = useCallback(() => {
       const container = containerRef.current;

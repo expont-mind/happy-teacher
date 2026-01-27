@@ -431,9 +431,10 @@ function HeaderContent() {
                         </button>
                       ) : !isAuthPage ? (
                         <div className="flex flex-col gap-4 items-center w-full">
-                          <Link href="/help" prefetch={true} className="w-full">
-                            <button className="duo-button duo-button-gray w-full text-sm font-bold">
-                              Тусламж
+                          <Link href="/help" prefetch={true} className="w-full" onClick={() => setIsOpen(false)}>
+                            <button className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
+                              <HelpCircle size={16} />
+                              <span>Тусламж</span>
                             </button>
                           </Link>
                           <button

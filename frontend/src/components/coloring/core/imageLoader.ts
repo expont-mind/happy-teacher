@@ -86,14 +86,13 @@ export function loadMaskImage(
 }
 
 /**
- * Loads saved progress from localStorage
+ * Loads saved progress from a data URL
  */
 export function loadSavedProgress(
   canvas: HTMLCanvasElement,
-  storageKey: string
+  savedDataUrl: string | null
 ): Promise<ImageData | null> {
   return new Promise((resolve) => {
-    const savedDataUrl = localStorage.getItem(storageKey);
     if (!savedDataUrl) {
       resolve(null);
       return;
