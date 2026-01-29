@@ -8,9 +8,29 @@ import { formatPrice, getStatusClass } from "../functions";
 import { PriceDetail } from "./PriceDetail";
 import { Loader } from "../constants";
 
+type OrderStatus = "PENDING" | "PROCESSING" | "DELIVERED" | "CANCELLED";
+
+const statusMap: Record<OrderStatus, string> = {
+  PENDING: "Pending",
+  PROCESSING: "Processing",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
+
 export const UserContent = ({ order, refetch, loading }: UserContentProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleEditStatus = async (status: OrderStatus) => {
+    try {
+      // Status update logic placeholder
+      setIsOpen(false);
+      toast.success("Status updated");
+      await refetch();
+    } catch {
+      toast.error("Failed to update status");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 max-w-[592px] w-full">

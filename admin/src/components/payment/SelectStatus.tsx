@@ -71,7 +71,7 @@ export const SelectStatus = ({ value, onChange }: SelectStatusProps) => {
                   key={framework.value}
                   value={framework.value}
                   className="text-[#09090B] font-Inter text-sm font-normal hover:bg-[#FAFAFA] cursor-pointer transition-all duration-200"
-                  onSelect={(currentValue) => {
+                  onSelect={(currentValue: string) => {
                     const newValue = currentValue === value ? "" : currentValue;
                     onChange(newValue);
                     setOpen(false);

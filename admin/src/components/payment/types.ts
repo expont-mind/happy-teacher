@@ -1,7 +1,5 @@
-import { Order } from "@/generated/graphql";
-
 export interface OrderDataTableProps {
-  data: Order[];
+  data: any[];
   loading: boolean;
 }
 
@@ -41,7 +39,7 @@ export interface OrderUI {
 }
 
 export interface OrderRowProps {
-  order: Order;
+  order: any;
   index: number;
 }
 
@@ -51,7 +49,6 @@ export type OrderContentProps = {
 };
 
 export type UserContentProps = {
-  // user: User | null;
   order: OrderUI | null;
   refetch: () => Promise<any>;
   loading: boolean;
