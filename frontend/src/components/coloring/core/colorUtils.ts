@@ -4,7 +4,9 @@ import type { RGB } from "./types";
  * Check if a pixel is black (SVG outline)
  * Detects dark grayscale pixels including anti-aliased edges
  */
-export function isBlackPixel(r: number, g: number, b: number): boolean {
+export function isBlackPixel(r: number, g: number, b: number, a?: number): boolean {
+  // Transparent pixels are not black outlines
+  if (a !== undefined && a < 128) return false;
   const brightness = (r + g + b) / 3;
   const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
   // Pixel is black if it's dark AND roughly grayscale (not a colored pixel)

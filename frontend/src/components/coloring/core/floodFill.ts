@@ -37,8 +37,12 @@ export function floodFill({
   // Don't fill if already the same color
   if (startR === fillR && startG === fillG && startB === fillB) return false;
 
+  // Don't fill transparent pixels (gaps in SVG outlines)
+  const startA = pixels[startPos + 3];
+  if (startA < 128) return false;
+
   // Don't fill black pixels (SVG outlines)
-  if (isBlackPixel(startR, startG, startB)) return false;
+  if (isBlackPixel(startR, startG, startB, startA)) return false;
 
   // Get mask color at start position for boundary detection
   const startMaskR = maskData.data[startPos];
@@ -52,14 +56,22 @@ export function floodFill({
     const r = pixels[pos];
     const g = pixels[pos + 1];
     const b = pixels[pos + 2];
+    const a = pixels[pos + 3];
+
+    // Transparent pixels are boundaries (gaps in SVG outlines)
+    if (a < 128) return false;
 
     // Black pixels are boundaries
-    if (isBlackPixel(r, g, b)) return false;
+    if (isBlackPixel(r, g, b, a)) return false;
 
     // Use mask color for boundary detection (exact match required)
     const maskR = maskData.data[pos];
     const maskG = maskData.data[pos + 1];
     const maskB = maskData.data[pos + 2];
+    const maskA = maskData.data[pos + 3];
+
+    // Transparent mask pixels are boundaries
+    if (maskA < 128) return false;
 
     return (
       maskR === startMaskR && maskG === startMaskG && maskB === startMaskB

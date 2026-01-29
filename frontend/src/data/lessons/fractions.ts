@@ -1,3 +1,8 @@
+const CDN = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`;
+const CDN_RAW = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/raw/upload`;
+const CDN_AUTO = `${CDN}/f_auto`;
+const F = "happy-teacher/fractions";
+
 export type FractionLesson = {
   id: string;
   title: string;
@@ -16,10 +21,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "1. Энгийн бутархай /нэмэх, хасах/",
     introMessage:
       "НАСА нь АНУ-ын Засгийн газрын Сансар агаар мандал судлалын үндсэн агентлаг бөгөөд 1958 онд байгуулагдсанаас хойш саран дээр буух, Олон улсын сансрын станц, дэлхий болон бусад гарагуудыг судлах олон төсөл хэрэгжүүлсэн.",
-    mainImage: "/fractions/page_1.svg",
-    maskImage: "/fractions/page_1_mask.png",
-    backgroundImage: "/fractions/page_1_background.png",
-    helpImage: "/fractions/page_1_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_1.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_1_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_1_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_1_help.png`,
     helpVideoId: "3XF4jlmdKEk",
     palette: [
       { color: "#ff3132", label: "1/2" },
@@ -38,24 +43,24 @@ export const fractionLessons: FractionLesson[] = [
     title: "2. Цагтай уралдая",
     introMessage:
       "НАСА-гийн шинжлэх ухааны салбар нь Дэлхийг судлах систем (EOS)-ээр дамжуулан дэлхийг илүү сайн ойлгоход чиглэгддэг. НАСА роботын сансрын нислэгүүдийг хэрэгжүүлж Дэлхий болон Нарны системийг судлах зорилгоор 1000 гаруй хүнгүй нислэгийг зохион байгуулсан. Ангараг гараг нь удаан хугацааны туршид маш их сонирхол татсан гараг ​​байсаар ирсэн бөгөөд хүмүүс ирээдүйд амьдарч болох газар гэж итгэдэг нэгэн мөрөөдөгч хүү байдаг. Тэр хүү мөрөөдөлдөө хүрэх болов уу? Хамтдаа мөрөөдлийн аялалд гарцгаая.",
-    mainImage: "/fractions/page_2.svg",
-    maskImage: "/fractions/page_2_mask.png",
-    backgroundImage: "/fractions/page_2_background.png",
-    helpImage: "/fractions/page_2_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_2.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_2_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_2_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_2_help.png`,
     helpVideoId: "3XF4jlmdKEk",
     palette: [
-      { color: "#04a7e9", label: "0 - 0.5" },
-      { color: "#004aad", label: "0.5 - 1" },
-      { color: "#8c52ff", label: "1 - 1.5" },
-      { color: "#684531", label: "1.5 - 2" },
-      { color: "#7ed957", label: "2 - 2.5" },
-      { color: "#01bf63", label: "2.5 - 3" },
-      { color: "#fed337", label: "3 - 3.5" },
-      { color: "#ff914c", label: "3.5 - 4" },
-      { color: "#ff3132", label: "4 - 4.5" },
-      { color: "#fe66c3", label: "4.5 - 5" },
-      { color: "#95928d", label: "5 - 5.5" },
-      { color: "#323232", label: "5.5 - 6" },
+      { color: "#04a7e9", label: "0 → 0.5" },
+      { color: "#004aad", label: "0.5 → 1" },
+      { color: "#8c52ff", label: "1 → 1.5" },
+      { color: "#684531", label: "1.5 → 2" },
+      { color: "#7ed957", label: "2 → 2.5" },
+      { color: "#01bf63", label: "2.5 → 3" },
+      { color: "#fed337", label: "3 → 3.5" },
+      { color: "#ff914c", label: "3.5 → 4" },
+      { color: "#ff3132", label: "4 → 4.5" },
+      { color: "#fe66c3", label: "4.5 → 5" },
+      { color: "#95928d", label: "5 → 5.5" },
+      { color: "#323232", label: "5.5 → 6" },
     ],
   },
   {
@@ -63,10 +68,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "3. Засагдах бутархай",
     introMessage:
       "Тэр хүүг Элон гэдэг. Бяцхан Элон өдөр бүр одод руу ширтэж “Би яг юунд дуртай юм бол?” гэж боддог байлаа. Элон дандаа ганцаараа цаасаар дүрс хайчилж, бүтээл хийж тоглодог байв. Нарны аймаг нь Нар, түүнийг татах хүчнийх нь улмаас тойрон эргэх найман гараг, таван тогтоогдсон одой гараг (дэлхийн ван), тэдгээрийн дагуулууд, маш олон тооны жижиг биетийг багтаасан систем юм.",
-    mainImage: "/fractions/page_3.svg",
-    maskImage: "/fractions/page_2_mask.png",
-    backgroundImage: "/fractions/page_3_background.png",
-    helpImage: "/fractions/page_2_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_3.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_3_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_3_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_2_help.png`,
     helpVideoId: "SdnsXHZMIRs",
     palette: [
       { color: "#04a7e9", label: "13/4" },
@@ -84,10 +89,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "4-р хуудас: Будацгаая",
     introMessage:
       "Элон хамгийн анх сансар огторгуйн номыг чимээгүйхэн нээж үзээд хуудас бүрд шинэ ертөнц, гайхамшигтай санаанууд нуугдаж байгааг мэдэрсэн. Тэр өдрөөс хойш Элон ном бол мөрөөдлөө олох гайхалтай арга юм гэдгийг ойлгожээ.",
-    mainImage: "/fractions/page_4.svg",
-    maskImage: "/fractions/page_4_mask.png",
-    backgroundImage: "/fractions/page_4_background.png",
-    helpImage: "/fractions/page_4_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_4.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_4_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_4_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_4_help.png`,
     helpVideoId: "SdnsXHZMIRs",
     palette: [
       { color: "#8c52ff", label: "0 - 5/10" },
@@ -111,10 +116,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "5. Холимог бутархай",
     introMessage:
       "Нар болон дэлхийн хоорондох дундаж зай 150 сая километр. Дэлхийд хамгийн ойр орших тэнгэрийн эрхэс бол өөрийнх нь цорын ганц дагуул болох САР юм. Сар нь дэлхийг 384000 км радиустай тойрог замаар эргэдэг.",
-    mainImage: "/fractions/page_5.svg",
-    maskImage: "/fractions/page_5_mask.png",
-    backgroundImage: "/fractions/page_5_background.png",
-    helpImage: "/fractions/page_12_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_5.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_5_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_5_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_12_help.png`,
     helpVideoId: "Qa0HK-G8zQg",
     palette: [
       { color: "#6b3ab5", label: "0 - 1" },
@@ -134,10 +139,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "6-р хуудас: Будацгаая",
     introMessage:
       "Сургууль дээр хүүхдүүд Элоныг бусдаас өөр гэж шоолж дээрэлхдэг байв. Харин Элон зүгээр л нүдээ аниад, өөрийгөө цэнхэр үстэй Соник шиг хурдтай баатар гэж төсөөлнө. “Би тэднээс зугтааж байгаа биш ээ, Би мөрөөдөл рүүгээ гүйж байна” гэж тэр сэтгэлдээ хэлдэг.",
-    mainImage: "/fractions/page_6.svg",
-    maskImage: "/fractions/page_6_mask.png",
-    backgroundImage: "/fractions/page_6_background.png",
-    helpImage: "/fractions/page_6_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_6.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_6_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_6_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_6_help.png`,
     helpVideoId: "Qa0HK-G8zQg",
     palette: [
       { color: "#ff914d", label: "0 - 0.5" },
@@ -159,10 +164,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "Энгийн бутархай /нэмэх, хасах/",
     introMessage:
       "Элон нэг өдөр ном уншиж байгаад “Сансарт хүртэл тоо хэрэгтэй юм байна” гэж мэджээ. Саран дээр буухад пуужингийн хурдны тооцоонд энгийн бутархай чухал үүрэгтэйг ойлгосон Элон “1/10-г буруу тооцвол сарнаас хальчихна шүү дээ!” гэж тэр инээмсэглэв.",
-    mainImage: "/fractions/page_7.svg",
-    maskImage: "/fractions/page_7_mask.png",
-    backgroundImage: "/fractions/page_7_background.png",
-    helpImage: "/fractions/page_12_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_7.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_7_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_7_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_12_help.png`,
     helpVideoId: "HvQ_vWdg0ac",
     palette: [
       { color: "#ff914d", label: "0 - 0.5" },
@@ -184,10 +189,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "8-р хуудас: Будацгаая",
     introMessage:
       "1969 онд АНУ-ын сансрын нисгэгч Нил Армстронг нь хүн төрөлхтний түүхэнд саран дээр хөл тавьсан анхны хүн юм. Чи саран дээр очихыг хүсэж байна уу? Элоны гэр бүлийн уур амьсгал хүндхэн байхад тэр чимээгүйхэн өөрийгөө Тортой адилхан гэж боддог байв. Элон “Гэр бүл бүрд асуудал гардаг, харин би Торын алх шиг хүчтэй зүрхтэй бол бүх зүйлийг эергээр давж чадна” гэдгийг ойлгожээ.",
-    mainImage: "/fractions/page_8.svg",
-    maskImage: "/fractions/page_2_mask.png",
-    backgroundImage: "/fractions/page_8_background.png",
-    helpImage: "/fractions/page_8_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_8.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_8_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_8_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_8_help.png`,
     helpVideoId: "HvQ_vWdg0ac",
     palette: [
       { color: "#ff66c4", label: "0 - 0.5" },
@@ -210,10 +215,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "9. Анхны тоо",
     introMessage:
       "“Тоглоом тоглох уу, хичээлээ хийх үү?” гэж Элон бодлоо. Нэг нь хөгжилтэй, нөгөө нь мөрөөдөлд ойртуулдаг. Бүх сонголт чиний гарт байдаг. Мөрөөдөл рүүгээ алхах эсэхийг зөвхөн ЧИ л шийднэ",
-    mainImage: "/fractions/page_9.svg",
-    maskImage: "/fractions/page_9_mask.png",
-    backgroundImage: "/fractions/page_9_background.png",
-    helpImage: "/fractions/page_9_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_9.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_9_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_9_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_9_help.png`,
     helpVideoId: "-94I0tG8NTo",
     palette: [
       { color: "#04a7e9", label: "Анхны тоо" },
@@ -225,10 +230,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "10-р хуудас: Будацгаая",
     introMessage:
       "Олон Улсын Сансрын Станц-ыг сансарт байнгын судалгаа шинжилгээ явуулах зорилгоор 1998 оны 11 сараас эхлэн тойрог замд угсран байгуулсан. Уг ОУСС-ыг олон судалгаа шинжилгээнд ашиглаж байна. Элон анхныхаа цаасан пуужинг хийхдээ “яах бол?” гэж зөндөө эргэлзсэн. Анхны алхам бол айдас биш, гайхамшиг юм. “Анх удаа шинэ зүйлд хөл тавих нь ертөнцийг өөрчлөх хамгийн хүчирхэг эхлэл юм” гэж Элон хэлсэн.",
-    mainImage: "/fractions/page_10.svg",
-    maskImage: "/fractions/page_10_mask.png",
-    backgroundImage: "/fractions/page_10_background.png",
-    helpImage: "/fractions/page_10_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_10.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_10_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_10_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_10_help.png`,
     helpVideoId: "-94I0tG8NTo",
     palette: [
       { color: "#00bf63", label: "Анхны тоо" },
@@ -241,10 +246,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "11. Хуваагдах тооны шинж",
     introMessage:
       "Элоны пуужин дахин дахин унаж, эвдэрч байсан ч тэр дахиад л цаас аваад эхэлдэг байв. Тэр алдаа болгон минь дараагийн оролдлогын нэг шат юм байна. “Алдаа бүр миний ахих шат” гэдгийг сайн ойлгосон.",
-    mainImage: "/fractions/page_11.svg",
-    maskImage: "/fractions/page_11_mask.png",
-    backgroundImage: "/fractions/page_11_background.png",
-    helpImage: "/fractions/page_12_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_11.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_11_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_11_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_12_help.png`,
     helpVideoId: "VF0RONEuYdo", // huvaah
     palette: [
       { color: "#ff0000", label: "3" },
@@ -261,10 +266,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "12-р хуудас: Будацгаая",
     introMessage:
       "Элон Маск нь 2002 онд SpaceX-ийг үүсгэн байгуулж, сансрын аяллыг хямд, хүртээмжтэй болгох зорилго тавьжээ. 2008 он хүртэл SpaceX компани олон туршилт хийж бүтэлгүйтсэнээр дампуурлын ирмэгт ирсэн байсан.",
-    mainImage: "/fractions/page_12.svg",
-    maskImage: "/fractions/page_12_mask.png",
-    backgroundImage: "/fractions/page_12_background.png",
-    helpImage: "/fractions/page_12_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_12.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_12_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_12_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_12_help.png`,
     helpVideoId: "VF0RONEuYdo", // huvaah
     palette: [
       { color: "#ff0000", label: "3" },
@@ -281,10 +286,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "13. Хамгийн их ерөнхий хуваагч /ХИЕХ/",
     introMessage:
       "Пуужин нь унах бүрд Элон гуниглахын оронд номоо дахин нээдэг байлаа. Тэр хуудас бүрээс “ЯАГААД” гэдэг хариултыг тэвчээртэй уншиж хайдаг. Түүний хамгийн сайн багш бол АЛДАА, харин хамгийн ухаантай багш бол НОМ байв.",
-    mainImage: "/fractions/page_13.svg",
-    maskImage: "/fractions/page_13_mask.png",
-    backgroundImage: "/fractions/page_13_background4.png",
-    helpImage: "/fractions/page_12_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_13.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_13_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_13_background4.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_12_help.png`,
     helpVideoId: "U0fXqnrqGHs",
     palette: [
       { color: "#fadb5e", label: "4" },
@@ -306,10 +311,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "14-р хуудас: Будацгаая",
     introMessage:
       "Хүүхдүүд “Чи чадахгүй” гэж шоолох бүрд Элон дотроо “Би хичээж байгаа л бол бүхнийг чадна” гэж өөртөө үргэлж итгэдэг байв. 2008 онд Falcon 1 амжилттайгаар дэлхийн тойрог замд гарсан анхны хувийн хөрөнгө оруулалтаар бүтсэн пуужин болж, түүхэнд бичигджээ. Falcon 1-ийн амжилт нь SpaceX-д НАСА-тай хамтран ажиллах замыг нээсэн.",
-    mainImage: "/fractions/page_14.svg",
-    maskImage: "/fractions/page_14_mask.png",
-    backgroundImage: "/fractions/page_14_background.png",
-    helpImage: "/fractions/page_14_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_14.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_14_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_14_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_14_help.png`,
     helpVideoId: "U0fXqnrqGHs",
     palette: [
       { color: "#ffd200", label: "4" },
@@ -331,10 +336,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "15. Энгийн бутархайг хураах",
     introMessage:
       "Элон хүү олон найзтай хүүхэдтэй өөрийгөө харьцуулж гунигладаг байлаа. Түүний уншсан номон дээр: “Хүн бүр өөр өөр учир өөрийгөө бусадтай бүү харьцуулаарай, Чи бол өөрийн гэсэн онцгой дүр төрх, зан чанартай шүү.” гэсэн ишлэл түүний ганцаардлыг хөгжих боломж болгосон.",
-    mainImage: "/fractions/page_15.svg",
-    maskImage: "/fractions/page_15_mask.png",
-    backgroundImage: "/fractions/page_15_background.png",
-    helpImage: "/fractions/page_15_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_15.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_15_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_15_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_15_help.png`,
     helpVideoId: "_KI9rMgW-mA",
     palette: [
       { color: "#ffd200", label: "1/2" },
@@ -358,10 +363,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "16. Энгийн бутархайг зэрэгт дэвшүүлэх",
     introMessage:
       "Элон олон удаа оролдож, эцэст нь түүний пуужин жинхэнээсээ тэнгэрт хөөрөв. Тэр догдолж, “БИ ЧАДСАН!” гэж зүрхэндээ чангаар хэлэв. Чи өдөр бүр хичээхэд, нэг л өдөр хүсэл чинь тэнгэрт дүүлэн нисэх болно.",
-    mainImage: "/fractions/page_16.svg",
-    maskImage: "/fractions/page_16_mask.png",
-    backgroundImage: "/fractions/page_16_background.png",
-    helpImage: "/fractions/page_16_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_16.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_16_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_16_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_16_help.png`,
     helpVideoId: "o9NmHmmcg_M",
     palette: [
       { color: "#6b3ab5", label: "0 - 1" },
@@ -382,10 +387,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "17. Энгийн бутархайг үржүүлэх",
     introMessage:
       "Бяцхан Элон хэний ч төсөөлөөгүй зүйлийг мөрөөдөж байсан. Тэр өдөр бүр тасралтгүй хичээснээр одоо тэр дэлхийн хамгийн БАЯН,  дэлхийг авардаг жинхэнэ БААТАР болж чадсан.",
-    mainImage: "/fractions/page_17.svg",
-    maskImage: "/fractions/page_17_mask.png",
-    backgroundImage: "/fractions/page_17_background.png",
-    helpImage: "/fractions/17.png",
+    mainImage: `${CDN_RAW}/${F}/page_17.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_17_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_17_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/17.png`,
     helpVideoId: "GvGlDQoDniY",
     palette: [
       { color: "#6b3ab5", label: "0 - 1" },
@@ -406,10 +411,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "18. Энгийн бутархайг үржүүлэх ",
     introMessage:
       "Элон Маск хүсэл мөрөөдөлдөө хүрэхийн төлөө шаргуу хөдөлмөрлөж, бид бүхний цэнхэр дэлхийг аврахын төлөө шинэлэг компаниудаа улам хөгжүүлж, зогсолтгүй урагшилсаар манай гарагийн ХАМГИЙН БАЯН хүн болсон төдийгүй цаашид ч маш олон гайхамшгийг бүтээхийн төлөө итгэл төгс алхаж байна.",
-    mainImage: "/fractions/page_18.svg",
-    maskImage: "/fractions/page_18_mask.png",
-    backgroundImage: "/fractions/page_18_background.png",
-    helpImage: "/fractions/page_18_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_18.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_18_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_18_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_18_help.png`,
     helpVideoId: "GvGlDQoDniY",
     palette: [
       { color: "#6b3ab5", label: "0 - 1" },
@@ -429,10 +434,10 @@ export const fractionLessons: FractionLesson[] = [
     title: "19. Энгийн бутархайг хуваах",
     introMessage:
       "Одоо Элон Маск хүн төрөлхтнийг аврах пуужин бүтээж, Ангарагт хот байгуулах ажлаа үргэлжлүүлсээр байна. Тэр бол зүгээр нэг баян хүн биш өөрийнхөө мөрөөдөлдөө үнэнч байсан хүү юм.",
-    mainImage: "/fractions/page_19.svg",
-    maskImage: "/fractions/page_19_mask.png",
-    backgroundImage: "/fractions/page_19_background.png",
-    helpImage: "/fractions/page_19_help.png",
+    mainImage: `${CDN_RAW}/${F}/page_19.svg`,
+    maskImage: `${CDN}/q_100,f_png/${F}/page_19_mask`,
+    backgroundImage: `${CDN_AUTO}/${F}/page_19_background.png`,
+    helpImage: `${CDN_AUTO}/${F}/page_19_help.png`,
     helpVideoId: "Fnm8y3deLMI",
     palette: [
       { color: "#6b3ab5", label: "0 - 1" },
