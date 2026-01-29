@@ -146,13 +146,13 @@ export default function EditChildModal({
                 <label className="text-base font-medium text-black font-nunito">
                   Нас
                 </label>
-                <div className="flex gap-2">
-                  {[9, 10, 11, 12, 13].map((age) => (
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  {Array.from({ length: 13 }, (_, i) => i + 6).map((age) => (
                     <button
                       key={age}
                       type="button"
                       onClick={() => setChildAge(age)}
-                      className={`w-[62px] h-12 flex items-center justify-center rounded-[10px] font-bold transition-all cursor-pointer ${
+                      className={`min-w-[52px] h-11 px-3 flex shrink-0 items-center justify-center rounded-[10px] font-bold transition-all cursor-pointer text-sm ${
                         childAge === age
                           ? "bg-[#58CC02] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 text-white"
                           : "bg-white hover:border-[#58CC02] border border-[#0C0A0126] text-[#333333]"
@@ -164,18 +164,17 @@ export default function EditChildModal({
                 </div>
               </div>
 
-              {/* Grade Selection */}
               <div className="w-full flex flex-col gap-2">
                 <label className="text-base font-medium text-black font-nunito">
                   Анги
                 </label>
-                <div className="flex gap-2">
-                  {[4, 5, 6, 7, 8].map((grade) => (
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((grade) => (
                     <button
                       key={grade}
                       type="button"
                       onClick={() => setChildGrade(grade)}
-                      className={`w-[62px] h-12 flex items-center justify-center rounded-[10px] font-bold transition-all cursor-pointer ${
+                      className={`min-w-[52px] h-11 px-3 flex shrink-0 items-center justify-center rounded-[10px] font-bold transition-all cursor-pointer text-sm ${
                         childGrade === grade
                           ? "bg-[#58CC02] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 text-white"
                           : "bg-white hover:border-[#58CC02] border border-[#0C0A0126] text-[#333333]"
