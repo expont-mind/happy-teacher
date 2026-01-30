@@ -11,7 +11,6 @@ export type MultiplicationLesson = {
   maskImage: string;
   backgroundImage: string;
   helpImage: string;
-  helpVideoId?: string; // YouTube video ID (optional)
   tableImage?: string; // Multiplication table image for hint
   palette: { color: string; label: string }[];
 };
@@ -43,8 +42,6 @@ export const multiplicationLessons: MultiplicationLesson[] = [
     backgroundImage: `${CDN_AUTO}/${M}/page_1_background.png`,
     helpImage: `${CDN_AUTO}/${M}/page_12_help.png`,
     tableImage: `${CDN_AUTO}/${M}/2.png`,
-    helpVideoId:
-      "https://res.cloudinary.com/dspzjvmcg/video/upload/v1769503688/2_rqxrss.mp4",
     palette: [
       { color: "#3fbfff", label: "1" },
       { color: "#af4c0f", label: "2" },
@@ -215,7 +212,7 @@ export const multiplicationLessons: MultiplicationLesson[] = [
         character: "hulk",
       },
     ],
-    mainImage: `${CDN_RAW}/${M}/page_5.svg`,
+    mainImage: `${CDN_RAW}/${M}/page_5_test.svg`,
     maskImage: `${CDN}/q_100,f_png/${M}/page_5_mask`,
     backgroundImage: `${CDN_AUTO}/${M}/page_5_background.png`,
     helpImage: `${CDN_AUTO}/${M}/page_12_help.png`,
