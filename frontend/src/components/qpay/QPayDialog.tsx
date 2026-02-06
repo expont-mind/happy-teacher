@@ -293,6 +293,21 @@ export default function QPayDialog({
                                     <Loader2 size={16} className="text-[#58CC02] animate-spin" />
                                     <p className="text-sm text-[#58CC02]">Төлбөр шалгаж байна...</p>
                                 </div>
+
+                                {/* Development Test Button */}
+                                {process.env.NODE_ENV === 'development' && (
+                                    <button
+                                        onClick={() => {
+                                            setStatus('success');
+                                            localStorage.removeItem(`qpay_invoice_${transactionId}`);
+                                            localStorage.removeItem('qpay_latest_qrcode');
+                                            onSuccess();
+                                        }}
+                                        className="mt-4 px-6 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition border-2 border-orange-600"
+                                    >
+                                        🧪 DEV: Төлбөр амжилттай (Тест)
+                                    </button>
+                                )}
                             </div>
 
                             {/* Divider & Bank Links - Mobile only */}

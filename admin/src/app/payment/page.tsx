@@ -1,3 +1,5 @@
+import { PaymentPage } from "@/features/PaymentPage";
+
 export default function Payment() {
-  return <div>Payment </div>;
+  return <PaymentPage />;
 }

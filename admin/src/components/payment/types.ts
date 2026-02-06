@@ -1,5 +1,40 @@
+// DeliveryInfo from shop DeliveryForm
+export interface DeliveryInfo {
+  zone_id: string;
+  zone_name: string;
+  location_id: string;
+  location_name: string;
+  delivery_fee: number;
+  address: string;
+  phone: string;
+  recipient_name: string;
+  notes?: string;
+}
+
+// Order from child_coupons table (shop orders)
+export interface Order {
+  id: string;
+  child_id: string;
+  coupon_id: string;
+  code: string;
+  is_used: boolean;
+  created_at: string;
+  phone?: string; // Phone number entered before payment
+  delivery_info?: DeliveryInfo;
+  delivery_status?: "pending" | "processing" | "shipped" | "delivered";
+  profiles?: {
+    full_name: string;
+    email: string;
+  };
+  coupons?: {
+    title: string;
+    price: number;
+    image: string;
+  };
+}
+
 export interface OrderDataTableProps {
-  data: any[];
+  data: Order[];
   loading: boolean;
 }
 
@@ -39,7 +74,7 @@ export interface OrderUI {
 }
 
 export interface OrderRowProps {
-  order: any;
+  order: Order;
   index: number;
 }
 

@@ -1,16 +1,27 @@
-import { ShoppingBag, Ticket } from "lucide-react";
+import { ShoppingBag, Ticket, Lock } from "lucide-react";
 
 interface ShopTabsProps {
   activeTab: "shop" | "inventory";
   setActiveTab: (tab: "shop" | "inventory") => void;
   inventoryCount: number;
+  isLoggedIn?: boolean;
+  onLoginRequired?: () => void;
 }
 
 export const ShopTabs = ({
   activeTab,
   setActiveTab,
   inventoryCount,
+  isLoggedIn = true,
+  onLoginRequired,
 }: ShopTabsProps) => {
+  const handleInventoryClick = () => {
+    if (!isLoggedIn && onLoginRequired) {
+      onLoginRequired();
+    } else {
+      setActiveTab("inventory");
+    }
+  };
   return (
     <div className="flex justify-center -mt-4 z-10 select-none">
       <div className="relative bg-white p-2 rounded-[24px] shadow-[0_4px_0_#E5E5E5] border-2 border-[#E5E5E5] flex">
@@ -40,20 +51,28 @@ export const ShopTabs = ({
 
         {/* Inventory Tab */}
         <button
-          onClick={() => setActiveTab("inventory")}
+          onClick={handleInventoryClick}
           className={`relative z-10 w-[180px] h-12 rounded-[16px] font-extrabold font-nunito text-sm flex items-center justify-center gap-2 uppercase tracking-wide transition-colors duration-200 cursor-pointer ${
             activeTab === "inventory" ? "text-white" : "text-gray-400"
           }`}
         >
-          <Ticket
-            size={20}
-            strokeWidth={2.5}
-            className={
-              activeTab === "inventory" ? "text-white" : "text-gray-400"
-            }
-          />
+          {!isLoggedIn ? (
+            <Lock
+              size={18}
+              strokeWidth={2.5}
+              className="text-gray-400"
+            />
+          ) : (
+            <Ticket
+              size={20}
+              strokeWidth={2.5}
+              className={
+                activeTab === "inventory" ? "text-white" : "text-gray-400"
+              }
+            />
+          )}
           Купонууд
-          {inventoryCount > 0 && (
+          {isLoggedIn && inventoryCount > 0 && (
             <span
               className={`px-1.5 py-0.5 rounded-md text-xs ml-1 font-black ${
                 activeTab === "inventory"

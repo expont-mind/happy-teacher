@@ -12,6 +12,7 @@ import {
   Bell,
   HelpCircle,
   LogOut,
+  ShoppingBag,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/src/components/auth";
@@ -27,6 +28,7 @@ function HeaderContent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   const { user, loading, signOut, activeProfile } = useAuth();
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
@@ -42,6 +44,11 @@ function HeaderContent() {
   const isLessonPage = /^\/topic\/[^/]+\/[^/]+$/.test(pathname);
 
   const [mobileNotificationsOpen, setMobileNotificationsOpen] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Close notifications when clicking outside
   useEffect(() => {
@@ -131,7 +138,7 @@ function HeaderContent() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-3">
-            {loading ? (
+            {!isMounted || loading ? (
               <div className="flex items-center gap-3">
                 <Skeleton className="w-12 h-11 rounded-[10px]" />
                 <Skeleton className="w-12 h-11 rounded-[10px]" />
@@ -225,6 +232,12 @@ function HeaderContent() {
                         Тусламж
                       </p>
                     </Link>
+                    <Link href="/shop" prefetch={true}>
+                      <button className="px-4 py-[10px] rounded-[10px] border-2 border-[#58CC02] bg-[#58CC02] text-sm font-extrabold text-white cursor-pointer uppercase font-nunito flex items-center gap-2 hover:bg-[#4CAF00] transition-colors shadow-[0_4px_0_#4CAF00] active:shadow-none active:translate-y-[2px]">
+                        <ShoppingBag size={16} />
+                        Дэлгүүр
+                      </button>
+                    </Link>
                     <button
                       onClick={() => router.push("/login")}
                       className="px-6 py-[10px] rounded-[10px] border-2 border-[#FFA239] text-sm font-extrabold text-[#FFA239] cursor-pointer uppercase font-nunito"
@@ -291,7 +304,7 @@ function HeaderContent() {
                 />
               ) : (
                 <div className="flex flex-col gap-3">
-                  {loading ? (
+                  {!isMounted || loading ? (
                     <>
                       <div className="flex gap-2 mb-2">
                         <Skeleton className="flex-1 h-10" />
@@ -435,6 +448,12 @@ function HeaderContent() {
                             <button className="duo-button duo-button-gray w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
                               <HelpCircle size={16} />
                               <span>Тусламж</span>
+                            </button>
+                          </Link>
+                          <Link href="/shop" prefetch={true} className="w-full" onClick={() => setIsOpen(false)}>
+                            <button className="w-full py-3 rounded-[16px] bg-[#58CC02] border-2 border-[#58CC02] shadow-[0_4px_0_#4CAF00] active:shadow-none active:translate-y-[4px] transition-all text-white font-extrabold uppercase flex items-center justify-center gap-2">
+                              <ShoppingBag size={16} />
+                              <span>Дэлгүүр</span>
                             </button>
                           </Link>
                           <button

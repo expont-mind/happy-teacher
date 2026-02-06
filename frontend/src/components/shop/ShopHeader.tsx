@@ -3,7 +3,7 @@ import { UserProfile } from "@/src/components/auth/types";
 import Image from "next/image";
 
 interface ShopHeaderProps {
-  activeProfile: UserProfile;
+  activeProfile?: UserProfile | null;
 }
 
 export const ShopHeader = ({ activeProfile }: ShopHeaderProps) => {
