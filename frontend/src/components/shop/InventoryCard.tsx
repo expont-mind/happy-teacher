@@ -1,6 +1,6 @@
 import { PurchasedCoupon, Coupon } from "@/src/types";
 import Image from "next/image";
-import { MapPin, Phone, Truck, Plus } from "lucide-react";
+import { MapPin, Phone, Truck, Plus, Store } from "lucide-react";
 
 interface InventoryCardProps {
   purchasedCoupon: PurchasedCoupon;
@@ -85,10 +85,21 @@ export const InventoryCard = ({
       {deliveryInfo ? (
         <div className="border-t border-gray-100 p-4 bg-gray-50/50">
           <div className="flex items-center gap-2 mb-3">
-            <Truck className="w-4 h-4 text-[#58CC02]" />
-            <span className="text-sm font-bold text-[#4B5563] font-nunito">
-              Хүргэлтийн мэдээлэл
-            </span>
+            {deliveryInfo.type === "pickup" ? (
+              <>
+                <Store className="w-4 h-4 text-[#58CC02]" />
+                <span className="text-sm font-bold text-[#4B5563] font-nunito">
+                  Очиж авах
+                </span>
+              </>
+            ) : (
+              <>
+                <Truck className="w-4 h-4 text-[#58CC02]" />
+                <span className="text-sm font-bold text-[#4B5563] font-nunito">
+                  Хүргэлтийн мэдээлэл
+                </span>
+              </>
+            )}
             <span className={`ml-auto px-2 py-0.5 rounded-full text-xs font-bold ${statusStyle.bg} ${statusStyle.text}`}>
               {statusStyle.label}
             </span>
@@ -98,15 +109,28 @@ export const InventoryCard = ({
             <div className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="font-bold text-[#4B5563] font-nunito">
-                  {deliveryInfo.recipient_name}
-                </p>
-                <p className="text-gray-400 font-nunito">
-                  {deliveryInfo.location_name}
-                </p>
-                <p className="text-gray-400 font-nunito text-xs">
-                  {deliveryInfo.address}
-                </p>
+                {deliveryInfo.type === "pickup" ? (
+                  <>
+                    <p className="font-bold text-[#4B5563] font-nunito">
+                      {deliveryInfo.pickup_location_name || deliveryInfo.location_name}
+                    </p>
+                    <p className="text-gray-400 font-nunito text-xs">
+                      {deliveryInfo.pickup_location_address || deliveryInfo.address}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-bold text-[#4B5563] font-nunito">
+                      {deliveryInfo.recipient_name}
+                    </p>
+                    <p className="text-gray-400 font-nunito">
+                      {deliveryInfo.location_name}
+                    </p>
+                    <p className="text-gray-400 font-nunito text-xs">
+                      {deliveryInfo.address}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 
@@ -120,14 +144,20 @@ export const InventoryCard = ({
               </a>
             </div>
 
-            {deliveryInfo.delivery_fee > 0 && (
-              <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                <span className="text-gray-400 font-nunito">Хүргэлтийн төлбөр:</span>
+            <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+              <span className="text-gray-400 font-nunito">Хүргэлтийн төлбөр:</span>
+              {deliveryInfo.type === "pickup" ? (
+                <span className="font-bold text-[#58CC02] font-nunito">
+                  Үнэгүй
+                </span>
+              ) : deliveryInfo.delivery_fee > 0 ? (
                 <span className="font-bold text-[#4B5563] font-nunito">
                   {deliveryInfo.delivery_fee.toLocaleString()}₮
                 </span>
-              </div>
-            )}
+              ) : (
+                <span className="font-bold text-[#4B5563] font-nunito">-</span>
+              )}
+            </div>
           </div>
         </div>
       ) : onAddDeliveryInfo ? (

@@ -148,7 +148,7 @@ function HeaderContent() {
               <div className="flex items-center gap-3">
                 {activeProfile?.type === "child" ? (
                   <>
-                    {/* Child View: Stats, Notifications, Help, Logout */}
+                    {/* Child View: Stats, Shop, Notifications, Help, Logout */}
                     <div
                       className="px-3 py-[10px] border-2 border-[#0C0A0126] rounded-[10px] flex items-center gap-1 text-[#B6B5B2] font-extrabold text-base font-nunito leading-5"
                       data-tutorial="streak-stat"
@@ -162,6 +162,13 @@ function HeaderContent() {
                         <Zap size={20} color="#FBBF24" />
                         {activeProfile.xp || 0}
                       </div>
+                    </Link>
+
+                    <Link href="/shop" data-tutorial="shop-btn">
+                      <button className="px-4 py-[10px] rounded-[10px] bg-[#58CC02] text-sm font-extrabold text-white cursor-pointer uppercase font-nunito flex items-center gap-2 hover:bg-[#4CAF00] transition-colors shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-[2px]">
+                        <ShoppingBag size={16} />
+                        Дэлгүүр
+                      </button>
                     </Link>
 
                     <Link href="/profiles" data-tutorial="profiles-btn">
@@ -185,7 +192,14 @@ function HeaderContent() {
                   </>
                 ) : (
                   <>
-                    {/* Adult View: Settings, Users, Notifications, Help, Logout */}
+                    {/* Adult View: Shop, Settings, Users, Notifications, Help, Logout */}
+                    <Link href="/shop" data-tutorial="shop-btn">
+                      <button className="px-4 py-[10px] rounded-[10px] bg-[#58CC02] text-sm font-extrabold text-white cursor-pointer uppercase font-nunito flex items-center gap-2 hover:bg-[#4CAF00] transition-colors shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-[2px]">
+                        <ShoppingBag size={16} />
+                        Дэлгүүр
+                      </button>
+                    </Link>
+
                     <Link href="/profiles" data-tutorial="profiles-btn">
                       <button className="px-3 py-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] rounded-[10px] transition-colors cursor-pointer duration-300">
                         <Users size={20} color="#58CC02" />
@@ -349,6 +363,17 @@ function HeaderContent() {
                           </div>
 
                           <Link
+                            href="/shop"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full"
+                          >
+                            <button className="w-full py-3 rounded-[16px] bg-[#58CC02] border-2 border-[#58CC02] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-[4px] transition-all text-white font-extrabold uppercase flex items-center justify-center gap-2">
+                              <ShoppingBag size={16} />
+                              <span>Дэлгүүр</span>
+                            </button>
+                          </Link>
+
+                          <Link
                             href="/help"
                             onClick={() => setIsOpen(false)}
                             className="w-full"
@@ -381,6 +406,17 @@ function HeaderContent() {
                       ) : (
                         <>
                           {/* Adult View Mobile */}
+                          <Link
+                            href="/shop"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full"
+                          >
+                            <button className="w-full py-3 rounded-[16px] bg-[#58CC02] border-2 border-[#58CC02] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-[4px] transition-all text-white font-extrabold uppercase flex items-center justify-center gap-2">
+                              <ShoppingBag size={16} />
+                              <span>Дэлгүүр</span>
+                            </button>
+                          </Link>
+
                           <Link
                             href="/profiles"
                             onClick={() => setIsOpen(false)}

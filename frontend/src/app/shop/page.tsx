@@ -286,6 +286,13 @@ export default function ShopPage() {
             code: newCode,
           })
         );
+        // For guest users, also save with phone as key
+        if (!activeProfile?.id && customerPhone) {
+          const guestKey = `guest_orders_${customerPhone}`;
+          const existingOrders = JSON.parse(localStorage.getItem(guestKey) || '[]');
+          existingOrders.unshift(localOrder);
+          localStorage.setItem(guestKey, JSON.stringify(existingOrders));
+        }
         setEditingOrderId(localOrder.id);
       } else {
         setPurchasedCoupons([data, ...purchasedCoupons]);
@@ -299,6 +306,14 @@ export default function ShopPage() {
           })
         );
         setEditingOrderId(data.id);
+
+        // For guest users, save to localStorage with phone as key
+        if (!activeProfile?.id && customerPhone) {
+          const guestKey = `guest_orders_${customerPhone}`;
+          const existingOrders = JSON.parse(localStorage.getItem(guestKey) || '[]');
+          existingOrders.unshift({ ...data });
+          localStorage.setItem(guestKey, JSON.stringify(existingOrders));
+        }
 
         showCharacterToast(
           `Төлбөр амжилттай! Код: ${newCode}`,
@@ -347,28 +362,47 @@ export default function ShopPage() {
 
   // Handle delivery form submission (update existing order)
   const handleDeliverySubmit = async (deliveryInfo: DeliveryInfo) => {
-    if (!activeProfile || !editingOrderId) return;
+    if (!editingOrderId) return;
 
     setPurchaseLoading(true);
 
     try {
-      // Update existing order with delivery info
-      // First try with child_id filter for security
-      let { data, error } = await supabase
-        .from("child_coupons")
-        .update({
-          delivery_info: deliveryInfo,
-          delivery_status: "pending",
-        })
-        .eq("id", editingOrderId)
-        .eq("child_id", activeProfile.id)
-        .select()
-        .single();
+      let data;
+      let error;
 
-      // If no match with child_id filter, try without it (order might be from different profile)
-      if (error && error.code === "PGRST116") {
-        console.warn("First update attempt failed, trying without child_id filter");
-        const retryResult = await supabase
+      // If user is logged in, try with child_id filter first for security
+      if (activeProfile?.id) {
+        const result = await supabase
+          .from("child_coupons")
+          .update({
+            delivery_info: deliveryInfo,
+            delivery_status: "pending",
+          })
+          .eq("id", editingOrderId)
+          .eq("child_id", activeProfile.id)
+          .select()
+          .single();
+        data = result.data;
+        error = result.error;
+
+        // If no match with child_id filter, try without it (order might be from guest session)
+        if (error && error.code === "PGRST116") {
+          console.warn("First update attempt failed, trying without child_id filter");
+          const retryResult = await supabase
+            .from("child_coupons")
+            .update({
+              delivery_info: deliveryInfo,
+              delivery_status: "pending",
+            })
+            .eq("id", editingOrderId)
+            .select()
+            .single();
+          data = retryResult.data;
+          error = retryResult.error;
+        }
+      } else {
+        // Guest user - update by order ID only
+        const result = await supabase
           .from("child_coupons")
           .update({
             delivery_info: deliveryInfo,
@@ -377,8 +411,8 @@ export default function ShopPage() {
           .eq("id", editingOrderId)
           .select()
           .single();
-        data = retryResult.data;
-        error = retryResult.error;
+        data = result.data;
+        error = result.error;
       }
 
       if (error) {
@@ -387,7 +421,7 @@ export default function ShopPage() {
           code: error.code,
           details: error.details,
           editingOrderId,
-          childId: activeProfile.id,
+          childId: activeProfile?.id,
         });
 
         // Check if this is a local-only order (ID is not a valid UUID)
@@ -401,10 +435,12 @@ export default function ShopPage() {
               : pc
           );
           setPurchasedCoupons(updatedCoupons);
-          localStorage.setItem(
-            `coupons_${activeProfile.id}`,
-            JSON.stringify(updatedCoupons)
-          );
+          if (activeProfile?.id) {
+            localStorage.setItem(
+              `coupons_${activeProfile.id}`,
+              JSON.stringify(updatedCoupons)
+            );
+          }
 
           toast.error("Захиалга серверт хадгалагдсангүй. Дахин оролдоно уу.");
           setShowDeliveryForm(false);

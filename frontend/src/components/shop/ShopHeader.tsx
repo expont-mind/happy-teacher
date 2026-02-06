@@ -1,4 +1,4 @@
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Sparkles } from "lucide-react";
 import { UserProfile } from "@/src/components/auth/types";
 import Image from "next/image";
 
@@ -23,6 +23,34 @@ export const ShopHeader = ({ activeProfile }: ShopHeaderProps) => {
           <p className="text-white font-medium text-sm font-nunito">
             Цуглуулсан оноогоороо шагнал аваарай!
           </p>
+          <div className="flex items-start gap-2 mt-1">
+            <div className="shrink-0 animate-float">
+              <Image
+                src="/character/yellow-right.png"
+                alt=""
+                width={36}
+                height={36}
+              />
+            </div>
+            <div className="relative bg-white/90 rounded-xl px-3 py-2 shadow-md border-2 border-[#FFD700]/30">
+              <div
+                className="absolute w-0 h-0 left-[-6px] top-3"
+                style={{
+                  borderTop: "6px solid transparent",
+                  borderBottom: "6px solid transparent",
+                  borderRight: "6px solid rgba(255,255,255,0.9)",
+                }}
+              />
+              <div className="flex items-center gap-1.5">
+                <Sparkles size={14} className="text-[#FFD700] shrink-0" />
+                <p className="text-[#4b4b4b] font-semibold text-xs font-nunito leading-tight">
+                  Цаашид хүүхдийн мэдлэгт зориулсан илүү олон бүтээгдэхүүнүүд
+                  гарах бөгөөд эхний хэрэглэгч нарт олон олон давуу талыг олгох
+                  болно
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="bg-[#FFFFFF40] rounded-[20px] px-[10px] py-1.5 flex items-center gap-[10px]">

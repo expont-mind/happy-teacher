@@ -9,7 +9,16 @@ export interface Coupon {
   codePrefix: string;
 }
 
+export interface PickupLocation {
+  id: string;
+  name: string;
+  address: string;
+  description?: string;
+  is_active: boolean;
+}
+
 export interface DeliveryInfo {
+  type?: "delivery" | "pickup";
   zone_id: string;
   zone_name: string;
   location_id: string;
@@ -19,6 +28,9 @@ export interface DeliveryInfo {
   phone: string;
   recipient_name: string;
   notes?: string;
+  pickup_location_id?: string;
+  pickup_location_name?: string;
+  pickup_location_address?: string;
 }
 
 export interface PurchasedCoupon {

@@ -90,7 +90,7 @@ function RegisterContent() {
 
       const pinCode = generatePinCode();
 
-      const { error } = await supabase
+      const { data: createdChild, error } = await supabase
         .from("children")
         .insert({
           parent_id: newParentId,
@@ -107,6 +107,21 @@ function RegisterContent() {
         console.error("Child insert error:", error);
         showErrorToast(`Алдаа: ${error.message}`);
         return;
+      }
+
+      // Link any guest orders made with this phone number to the new child
+      if (phone && createdChild?.id) {
+        const { error: linkError } = await supabase
+          .from("child_coupons")
+          .update({ child_id: createdChild.id })
+          .eq("phone", phone);
+
+        if (linkError) {
+          console.warn("Failed to link guest orders:", linkError);
+        } else {
+          // Clear guest localStorage
+          localStorage.removeItem(`guest_orders_${phone}`);
+        }
       }
 
       setGeneratedCode(pinCode);
