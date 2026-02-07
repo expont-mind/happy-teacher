@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Footer, SearchBar, Sidebar } from "@/components/constants";
 import { createClient } from "@/utils/supabase/client";
 import { OrderDataTable, Order } from "@/components/payment";
@@ -52,33 +51,7 @@ export const PaymentPage = () => {
         coupons: couponsMap.get(order.coupon_id) || null,
       }));
 
-      const error = null;
-
-      if (error) {
-        console.error("Error fetching orders:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          fullError: error,
-        });
-
-        if (error.code === "PGRST116") {
-          toast.error(
-            "child_coupons table not found. Please run the SQL setup script in Supabase."
-          );
-        } else if (error.code === "42501") {
-          toast.error(
-            "Permission denied. Please check Row Level Security policies."
-          );
-        } else {
-          toast.error(
-            `Failed to fetch orders: ${error.message || "Unknown error"}`
-          );
-        }
-      } else {
-        setOrders(data || []);
-      }
+      setOrders(data || []);
       setLoading(false);
     };
 

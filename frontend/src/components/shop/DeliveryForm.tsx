@@ -3,12 +3,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { DeliveryInfo, PickupLocation } from "@/src/types";
 import {
-  deliveryConfig,
-  DeliveryZone,
-  DeliveryLocation,
-  countrysideNames,
-} from "@/src/data/deliveryZones";
-import { getPickupLocations } from "@/src/utils/delivery";
+  getDeliveryConfig,
+  DeliveryZoneDB,
+  DeliveryLocationDB,
+  CountrysideProvinceDB,
+} from "@/src/utils/delivery";
 import {
   MapPin,
   Phone,
@@ -31,51 +30,58 @@ export const DeliveryForm = ({
   onSubmit,
   onCancel,
   isLoading = false,
-  productPrice,
 }: DeliveryFormProps) => {
   const [locationType, setLocationType] = useState<
     "ulaanbaatar" | "countryside" | "pickup"
   >("ulaanbaatar");
-  const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
+
+  // Data from Supabase
+  const [zones, setZones] = useState<DeliveryZoneDB[]>([]);
+  const [countryside, setCountryside] = useState<CountrysideProvinceDB[]>([]);
+  const [pickupLocations, setPickupLocations] = useState<PickupLocation[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Selection state
+  const [selectedZone, setSelectedZone] = useState<DeliveryZoneDB | null>(null);
   const [selectedLocation, setSelectedLocation] =
-    useState<DeliveryLocation | null>(null);
-  const [selectedCountryside, setSelectedCountryside] = useState<string>("");
+    useState<DeliveryLocationDB | null>(null);
+  const [selectedCountryside, setSelectedCountryside] =
+    useState<CountrysideProvinceDB | null>(null);
+  const [selectedPickupLocation, setSelectedPickupLocation] =
+    useState<PickupLocation | null>(null);
+
+  // Form fields
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Pickup state
-  const [pickupLocations, setPickupLocations] = useState<PickupLocation[]>([]);
-  const [selectedPickupLocation, setSelectedPickupLocation] =
-    useState<PickupLocation | null>(null);
-  const [pickupLocationsLoading, setPickupLocationsLoading] = useState(false);
-
-  // Fetch pickup locations when pickup tab is selected
+  // Fetch all delivery config on mount
   useEffect(() => {
-    if (locationType === "pickup" && pickupLocations.length === 0) {
-      const fetchPickupLocations = async () => {
-        setPickupLocationsLoading(true);
-        try {
-          const locations = await getPickupLocations();
-          setPickupLocations(locations);
-        } catch (err) {
-          console.error("Error fetching pickup locations:", err);
-        } finally {
-          setPickupLocationsLoading(false);
-        }
-      };
-      fetchPickupLocations();
-    }
-  }, [locationType, pickupLocations.length]);
+    const fetchData = async () => {
+      setDataLoading(true);
+      try {
+        const config = await getDeliveryConfig();
+        setZones(config.zones);
+        setCountryside(config.countryside);
+        setPickupLocations(config.pickupLocations);
+      } catch (err) {
+        console.error("Error fetching delivery config:", err);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const deliveryFee = useMemo(() => {
     if (locationType === "pickup") {
       return 0;
     }
-    return locationType === "ulaanbaatar"
-      ? selectedLocation?.fee || 0
-      : deliveryConfig.countryside.fees[selectedCountryside] || 0;
+    if (locationType === "ulaanbaatar") {
+      return selectedLocation?.fee || 0;
+    }
+    return selectedCountryside?.fee || 0;
   }, [locationType, selectedLocation, selectedCountryside]);
 
   const isFormValid = useMemo(() => {
@@ -110,7 +116,7 @@ export const DeliveryForm = ({
       setSelectedLocation(null);
     }
     if (type !== "countryside") {
-      setSelectedCountryside("");
+      setSelectedCountryside(null);
     }
     if (type !== "pickup") {
       setSelectedPickupLocation(null);
@@ -137,23 +143,26 @@ export const DeliveryForm = ({
         pickup_location_name: selectedPickupLocation!.name,
         pickup_location_address: selectedPickupLocation!.address,
       };
+    } else if (locationType === "countryside") {
+      deliveryInfo = {
+        type: "delivery",
+        zone_id: "countryside",
+        zone_name: "Хөдөө орон нутаг",
+        location_id: selectedCountryside!.id,
+        location_name: selectedCountryside!.name,
+        delivery_fee: deliveryFee,
+        address,
+        phone,
+        recipient_name: recipientName,
+        notes: notes || undefined,
+      };
     } else {
       deliveryInfo = {
         type: "delivery",
-        zone_id:
-          locationType === "ulaanbaatar" ? selectedZone!.id : "countryside",
-        zone_name:
-          locationType === "ulaanbaatar"
-            ? selectedZone!.name
-            : "Хөдөө орон нутаг",
-        location_id:
-          locationType === "ulaanbaatar"
-            ? selectedLocation!.id
-            : selectedCountryside,
-        location_name:
-          locationType === "ulaanbaatar"
-            ? selectedLocation!.name
-            : countrysideNames[selectedCountryside] || selectedCountryside,
+        zone_id: selectedZone!.id,
+        zone_name: selectedZone!.name,
+        location_id: selectedLocation!.id,
+        location_name: selectedLocation!.name,
         delivery_fee: deliveryFee,
         address,
         phone,
@@ -164,6 +173,22 @@ export const DeliveryForm = ({
 
     onSubmit(deliveryInfo);
   };
+
+  // Get locations for selected zone (filtered and sorted)
+  const zoneLocations = useMemo(() => {
+    if (!selectedZone) return [];
+    return (selectedZone.delivery_locations || [])
+      .filter((l) => l.is_active)
+      .sort((a, b) => a.sort_order - b.sort_order);
+  }, [selectedZone]);
+
+  if (dataLoading) {
+    return (
+      <div className="bg-white rounded-3xl border-2 border-[#E5E5E5] p-6 flex justify-center py-12">
+        <div className="w-8 h-8 border-2 border-[#58CC02]/30 border-t-[#58CC02] rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-3xl border-2 border-[#E5E5E5] p-6 space-y-6">
@@ -230,18 +255,17 @@ export const DeliveryForm = ({
               <select
                 value={selectedZone?.id || ""}
                 onChange={(e) => {
-                  const zone = deliveryConfig.zones.find(
-                    (z) => z.id === e.target.value,
-                  );
+                  const zone = zones.find((z) => z.id === e.target.value);
                   setSelectedZone(zone || null);
                   setSelectedLocation(null);
                 }}
                 className="w-full p-4 pr-10 bg-gray-50 border-2 border-gray-200 rounded-2xl font-nunito font-bold text-[#4B5563] appearance-none focus:outline-none focus:border-[#58CC02] transition-colors"
               >
                 <option value="">Бүс сонгоно уу</option>
-                {deliveryConfig.zones.map((zone) => (
+                {zones.map((zone) => (
                   <option key={zone.id} value={zone.id}>
-                    {zone.name} - {zone.description}
+                    {zone.name}
+                    {zone.description ? ` - ${zone.description}` : ""}
                   </option>
                 ))}
               </select>
@@ -259,7 +283,7 @@ export const DeliveryForm = ({
                 <select
                   value={selectedLocation?.id || ""}
                   onChange={(e) => {
-                    const loc = selectedZone.locations.find(
+                    const loc = zoneLocations.find(
                       (l) => l.id === e.target.value,
                     );
                     setSelectedLocation(loc || null);
@@ -267,9 +291,10 @@ export const DeliveryForm = ({
                   className="w-full p-4 pr-10 bg-gray-50 border-2 border-gray-200 rounded-2xl font-nunito font-bold text-[#4B5563] appearance-none focus:outline-none focus:border-[#58CC02] transition-colors"
                 >
                   <option value="">Байршил сонгоно уу</option>
-                  {selectedZone.locations.map((loc) => (
+                  {zoneLocations.map((loc) => (
                     <option key={loc.id} value={loc.id}>
-                      {loc.name} - {loc.fee.toLocaleString()}₮
+                      {loc.name} -{" "}
+                      {loc.fee > 0 ? `${loc.fee.toLocaleString()}₮` : "Үнэгүй"}
                     </option>
                   ))}
                 </select>
@@ -288,15 +313,19 @@ export const DeliveryForm = ({
           </label>
           <div className="relative">
             <select
-              value={selectedCountryside}
-              onChange={(e) => setSelectedCountryside(e.target.value)}
+              value={selectedCountryside?.id || ""}
+              onChange={(e) => {
+                const province = countryside.find(
+                  (p) => p.id === e.target.value,
+                );
+                setSelectedCountryside(province || null);
+              }}
               className="w-full p-4 pr-10 bg-gray-50 border-2 border-gray-200 rounded-2xl font-nunito font-bold text-[#4B5563] appearance-none focus:outline-none focus:border-[#58CC02] transition-colors"
             >
               <option value="">Аймаг сонгоно уу</option>
-              {Object.entries(countrysideNames).map(([key, name]) => (
-                <option key={key} value={key}>
-                  {name} -{" "}
-                  {deliveryConfig.countryside.fees[key]?.toLocaleString()}₮
+              {countryside.map((province) => (
+                <option key={province.id} value={province.id}>
+                  {province.name} - {province.fee.toLocaleString()}₮
                 </option>
               ))}
             </select>
@@ -313,11 +342,7 @@ export const DeliveryForm = ({
               Очиж авах байршил сонгох
             </label>
 
-            {pickupLocationsLoading ? (
-              <div className="flex justify-center py-8">
-                <div className="w-6 h-6 border-2 border-[#58CC02]/30 border-t-[#58CC02] rounded-full animate-spin" />
-              </div>
-            ) : pickupLocations.length === 0 ? (
+            {pickupLocations.length === 0 ? (
               <div className="text-center py-8 text-gray-400 font-nunito">
                 Одоогоор очиж авах байршил байхгүй байна
               </div>

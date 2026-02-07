@@ -63,8 +63,13 @@ export const Sidebar = (props: SidebarType) => {
           {/* Delivery Section */}
           <div className="p-2 w-full border-t border-gray-100">
             <p className="px-2 py-1 text-xs text-gray-400 uppercase font-Inter">
-              Тохиргоо
+              Хүргэлт
             </p>
+            <SidebarLink
+              href="/delivery"
+              isActive={props.delivery === "zones"}
+              label="Хүргэлтийн бүс"
+            />
             <SidebarLink
               href="/delivery/pickup"
               isActive={props.delivery === "pickup"}

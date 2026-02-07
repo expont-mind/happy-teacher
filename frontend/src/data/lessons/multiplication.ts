@@ -11,6 +11,7 @@ export type MultiplicationLesson = {
   maskImage: string;
   backgroundImage: string;
   helpImage: string;
+  helpVideoId?: string; // Optional video URL for help
   tableImage?: string; // Multiplication table image for hint
   palette: { color: string; label: string }[];
 };
