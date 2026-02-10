@@ -57,8 +57,8 @@ export default function PhoneInputDialog({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-md bg-white rounded-3xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 shadow-2xl">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={handleClose}>
+            <div className="relative w-full max-w-md bg-white rounded-3xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 shadow-2xl" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-100">
                     <div className="flex items-center gap-2">

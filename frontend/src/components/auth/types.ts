@@ -38,4 +38,14 @@ export interface AuthContextType {
   addXP: (
     amount: number
   ) => Promise<{ xp: number; level: number; leveled_up: boolean } | null>;
+  spendXP: (
+    amount: number
+  ) => Promise<{
+    success: boolean;
+    xp?: number;
+    level?: number;
+    error?: string;
+    current_xp?: number;
+    required?: number;
+  } | null>;
 }

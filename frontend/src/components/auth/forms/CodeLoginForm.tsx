@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent } from "react";
-import { Hash } from "lucide-react";
+import { Baby } from "lucide-react";
 import Loader from "@/src/components/ui/Loader";
 
 interface CodeLoginFormProps {
@@ -26,14 +26,14 @@ export default function CodeLoginForm({
     <form onSubmit={onSubmit} className="flex flex-col gap-9">
       <div className="border border-[#0C0A0126] w-full shadow-sm bg-white rounded-[18px] p-3 flex gap-6 justify-center">
         <div className="w-[64px] h-[64px] bg-[#0C0A0126] rounded-full flex items-center justify-center">
-          <Hash size={32} color="#333333" />
+          <Baby size={32} color="#333333" />
         </div>
         <div className="flex flex-col max-w-[204px] justify-center">
           <p className="text-lg font-extrabold text-[#333333] font-nunito">
             Тавтай морил!
           </p>
           <p className="text-sm font-semibold text-[#858480] font-nunito">
-            Кодоор нэвтрэх
+            Нууц кодоо оруулаарай!
           </p>
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function CodeLoginForm({
               placeholder="000000"
             />
             <p className="text-sm font-normal text-[#858480] font-nunito text-center">
-              Хүүхдийн 6 оронтой кодоо оруулна уу
+              Ээж аавын өгсөн кодоо оруулна уу
             </p>
           </div>
 
@@ -67,7 +67,7 @@ export default function CodeLoginForm({
             disabled={loading || pin.length !== 6}
             className="bg-[#58CC02] w-full shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
           >
-            {loading ? <Loader /> : "Нэвтрэх"}
+            {loading ? <Loader variant="spinner" /> : "Орох!"}
           </button>
         </div>
       </div>

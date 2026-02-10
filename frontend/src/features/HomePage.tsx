@@ -10,7 +10,14 @@ import {
   adultHomePageTutorialMobile,
 } from "@/src/components/tutorial";
 import { useAuth } from "@/src/components/auth";
-import { Features, HowItWorks, CTA, Hero, Lessons } from "../components/home";
+import {
+  Hero,
+  SocialProofBar,
+  ProductShowcase,
+  HowItWorks,
+  Features,
+  CTA,
+} from "../components/home";
 import { Footer } from "../components/navigations";
 
 export const HomePage = () => {
@@ -38,8 +45,9 @@ export const HomePage = () => {
   return (
     <div className="w-full">
       <Hero />
+      <SocialProofBar />
+      <ProductShowcase />
       <HowItWorks />
-      <Lessons />
       <Features />
       <CTA />
       <Footer />

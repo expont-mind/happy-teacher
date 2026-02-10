@@ -4,6 +4,7 @@ import { Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { Header } from "@/src/components/navigations/Header";
+import { BottomNavbarWrapper } from "@/src/components/navigations/BottomNavbarWrapper";
 import { AuthProvider } from "@/src/components/auth";
 import { TutorialProvider, TutorialOverlay } from "@/src/components/tutorial";
 
@@ -155,7 +156,8 @@ export default function RootLayout({
                 <Header />
               </Suspense>
 
-              <main>{children}</main>
+              <main className="pb-16 md:pb-0">{children}</main>
+              <BottomNavbarWrapper />
             </div>
             <TutorialOverlay />
             <Toaster richColors position="top-right" />

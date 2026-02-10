@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useAuth } from "@/src/components/auth";
 import { createClient } from "@/src/utils/supabase/client";
 import { UserCircle, Baby, Plus, Trash2, Pencil } from "lucide-react";
@@ -25,6 +25,14 @@ interface ChildProfile {
 }
 
 export default function ProfilesPage() {
+  return (
+    <Suspense>
+      <ProfilesContent />
+    </Suspense>
+  );
+}
+
+function ProfilesContent() {
   const { user, loading, selectProfile, activeProfile } = useAuth();
   const [children, setChildren] = useState<ChildProfile[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -32,6 +40,8 @@ export default function ProfilesPage() {
   const [childToEdit, setChildToEdit] = useState<ChildProfile | null>(null);
   const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
   const supabase = createClient();
 
   useEffect(() => {
@@ -148,29 +158,13 @@ export default function ProfilesPage() {
         type: "adult",
       });
     }
-    router.push("/topic");
+    router.push(redirectParam || "/dashboard");
   };
 
   if (loading || isLoadingProfiles) {
     return (
       <div className="w-full h-[calc(100vh-75px)] flex justify-center items-center bg-[#FFFAF7]">
-        <div className="max-w-[1280px] h-[436px] w-full flex flex-col items-center gap-12">
-          <div className="h-12 w-64 bg-gray-200 rounded-xl animate-pulse" />
-          <div className="flex flex-wrap justify-center gap-8 md:gap-12">
-            <div className="flex flex-col items-center gap-4 w-40 md:w-48">
-              <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] bg-gray-200 animate-pulse" />
-              <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse" />
-            </div>
-            <div className="flex flex-col items-center gap-4 w-40 md:w-48">
-              <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] bg-gray-200 animate-pulse" />
-              <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse" />
-            </div>
-            <div className="flex flex-col items-center gap-4 w-40 md:w-48">
-              <div className="w-40 h-40 md:w-48 md:h-48 rounded-[32px] bg-gray-200 animate-pulse" />
-              <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse" />
-            </div>
-          </div>
-        </div>
+        <video src="/bouncing-loader.webm" autoPlay loop muted playsInline className="w-40 h-40" />
       </div>
     );
   }
@@ -209,8 +203,7 @@ export default function ProfilesPage() {
               onClick={() => handleChildSelect(child)}
               className="group flex flex-col items-center gap-4 cursor-pointer w-40 md:w-48 relative"
             >
-              <div className="w-40 h-40 md:w-48 md:h-48 flex flex-col gap-2 items-center justify-center rounded-[32px] overflow-hidden shadow-[0_8px_0_#0C0A0126] hover:shadow-[0_8px_0_#0C0A0140] active:shadow-none active:translate-y-2 transition-all relative bg-[#58CC02] duration-200">
-                <div className="h-7"></div>
+              <div className="w-40 h-40 md:w-48 md:h-48 flex items-center justify-center rounded-[32px] overflow-hidden shadow-[0_8px_0_#0C0A0126] hover:shadow-[0_8px_0_#0C0A0140] active:shadow-none active:translate-y-2 transition-all relative bg-[#58CC02] duration-200">
                 {child.avatar && child.avatar.startsWith("/") ? (
                   <Image
                     src={child.avatar}
@@ -222,9 +215,6 @@ export default function ProfilesPage() {
                 ) : (
                   <Baby size={80} className="text-black" strokeWidth={2} />
                 )}
-                <p className="text-white font-extrabold font-nunito text-xl tracking-widest text-shadow-sm">
-                  {child.pin_code}
-                </p>
               </div>
               <span className="text-[#333333] font-extrabold text-xl text-center truncate w-full uppercase tracking-wide font-nunito">
                 {child.name}

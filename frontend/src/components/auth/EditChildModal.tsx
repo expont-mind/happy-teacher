@@ -191,7 +191,7 @@ export default function EditChildModal({
                 disabled={loading}
                 className="bg-[#58CC02] w-full shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
               >
-                {loading ? <Loader /> : "Хадгалах"}
+                {loading ? <Loader variant="spinner" /> : "Хадгалах"}
               </button>
             </div>
           </div>

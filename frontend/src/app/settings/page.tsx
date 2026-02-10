@@ -11,6 +11,7 @@ import Loader from "@/src/components/ui/Loader";
 type ChildData = {
   id: string;
   name: string;
+  pin_code: string;
   streak_count: number;
   total_lessons: number;
   xp: number;
@@ -43,7 +44,7 @@ export default function Settings() {
       try {
         const { data: children, error: childrenError } = await supabase
           .from("children")
-          .select("id, name, streak_count, last_active_at, xp, level, avatar")
+          .select("id, name, pin_code, streak_count, last_active_at, xp, level, avatar")
           .eq("parent_id", user.id);
 
         if (childrenError) throw childrenError;
@@ -65,6 +66,7 @@ export default function Settings() {
             return {
               id: child.id,
               name: child.name,
+              pin_code: child.pin_code || "",
               streak_count: child.streak_count || 0,
               total_lessons: count || 0,
               xp: child.xp || 0,

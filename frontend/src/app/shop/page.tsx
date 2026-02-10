@@ -1,22 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/src/components/auth";
 import { Coupon, PurchasedCoupon, DeliveryInfo } from "@/src/types";
 import { toast } from "sonner";
 import { createClient } from "@/src/utils/supabase/client";
 import { showCharacterToast } from "@/src/components/ui/CharacterToast";
-import { ShopHeader } from "@/src/components/shop/ShopHeader";
-import { ShopTabs } from "@/src/components/shop/ShopTabs";
-import { CouponCard } from "@/src/components/shop/CouponCard";
-import { InventoryCard } from "@/src/components/shop/InventoryCard";
-import { EmptyInventory } from "@/src/components/shop/EmptyInventory";
-import { DeliveryForm } from "@/src/components/shop/DeliveryForm";
-import PhoneInputDialog from "@/src/components/shop/PhoneInputDialog";
-import QPayDialog from "@/src/components/qpay/QPayDialog";
+import { Gift, ShoppingBag, BookOpen, Zap } from "lucide-react";
+import { TOPICS_DATA } from "@/src/data/topics";
 
-// LocalStorage key for pending delivery info
+import { XpCouponCard } from "@/src/components/shop/XpCouponCard";
+import { CouponCard } from "@/src/components/shop/CouponCard";
+import { TopicCard } from "@/src/components/shop/TopicCard";
+import { OrderHistorySection } from "@/src/components/shop/OrderHistorySection";
+import { DeliveryForm } from "@/src/components/shop/DeliveryForm";
+import PurchaseConfirmModal from "@/src/components/shop/PurchaseConfirmModal";
+import TopicPurchaseModal from "@/src/components/shop/TopicPurchaseModal";
+import TopicDetailModal from "@/src/components/shop/TopicDetailModal";
+import ProductDetailModal from "@/src/components/shop/ProductDetailModal";
+
 const PENDING_ORDER_KEY = "pending_delivery_order";
 
 interface PendingOrder {
@@ -26,30 +29,114 @@ interface PendingOrder {
 }
 
 export default function ShopPage() {
-  const { activeProfile, user, loading } = useAuth();
-  const [purchasedCoupons, setPurchasedCoupons] = useState<PurchasedCoupon[]>(
-    []
+  return (
+    <Suspense>
+      <ShopPageContent />
+    </Suspense>
   );
-  const [activeTab, setActiveTab] = useState<"shop" | "inventory">("shop");
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [purchaseLoading, setPurchaseLoading] = useState(false);
-  const [loadingCouponId, setLoadingCouponId] = useState<string | null>(null);
-  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
-  const [showPhoneDialog, setShowPhoneDialog] = useState(false);
-  const [showQPayDialog, setShowQPayDialog] = useState(false);
-  const [showDeliveryForm, setShowDeliveryForm] = useState(false);
-  const [customerPhone, setCustomerPhone] = useState('');
-  // Track order being edited (for adding/updating delivery info)
-  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+}
+
+function ShopPageContent() {
+  const { activeProfile, user, loading, spendXP } = useAuth();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  const isChild = activeProfile?.type === "child";
+  const isParent = activeProfile?.type === "adult";
+
+  // Shared state
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [purchasedCoupons, setPurchasedCoupons] = useState<PurchasedCoupon[]>([]);
+  const [purchaseLoading, setPurchaseLoading] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+
+  // XP purchase state (child)
+  const [showXpConfirm, setShowXpConfirm] = useState(false);
+
   const router = useRouter();
 
-  // Check if user is logged in as a child
-  const isLoggedIn = !!activeProfile?.type;
+  // Tab state — read from ?tab= URL param (shown for parent + guest)
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<"lessons" | "products">(
+    tabParam === "products" ? "products" : "lessons"
+  );
+
+  // Topic purchase state (parent)
+  const [selectedTopicKey, setSelectedTopicKey] = useState<string | null>(null);
+  const [showTopicModal, setShowTopicModal] = useState(false);
+  const [topicPurchaseStatus, setTopicPurchaseStatus] = useState<
+    Record<string, Set<string>>
+  >({});
+
+  // Detail modal state
+  const [detailTopic, setDetailTopic] = useState<typeof TOPICS_DATA[number] | null>(null);
+  const [detailCoupon, setDetailCoupon] = useState<Coupon | null>(null);
+  const [detailXpMode, setDetailXpMode] = useState(false);
+
+  // Delivery state
+  const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+
+  // --- Data Fetching ---
 
   useEffect(() => {
     fetchCoupons();
   }, []);
+
+  useEffect(() => {
+    if (isChild) {
+      fetchPurchasedCoupons();
+      checkPendingOrder();
+    }
+  }, [activeProfile]);
+
+  useEffect(() => {
+    if (coupons.length > 0 && isChild) {
+      checkPendingOrder();
+    }
+  }, [coupons]);
+
+  useEffect(() => {
+    if (isParent && user) {
+      fetchTopicPurchaseStatus();
+    }
+  }, [isParent, user]);
+
+  // Check for interrupted payments on page load
+  useEffect(() => {
+    if (!user) return;
+
+    const checkPendingPayments = async () => {
+      try {
+        const res = await fetch("/api/bonum/check-pending-payments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        const data = await res.json();
+
+        if (data.completedPurchases?.length > 0) {
+          if (isParent) fetchTopicPurchaseStatus();
+          if (isChild) fetchPurchasedCoupons();
+
+          for (const purchase of data.completedPurchases) {
+            if (purchase.purchaseType === "topic") {
+              showCharacterToast("Өмнөх төлбөр амжилттай! Хичээл нээгдлээ.", "green");
+            } else {
+              showCharacterToast(
+                `Өмнөх төлбөр амжилттай! Код: ${purchase.code}`,
+                "green"
+              );
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error checking pending payments:", err);
+      }
+    };
+
+    checkPendingPayments();
+  }, [user]);
 
   const fetchCoupons = async () => {
     try {
@@ -76,20 +163,14 @@ export default function ShopPage() {
     }
   };
 
-  useEffect(() => {
-    if (activeProfile?.type === "child") {
-      fetchPurchasedCoupons();
-      checkPendingOrder();
-    }
-  }, [activeProfile]);
-
   const fetchPurchasedCoupons = async () => {
     if (!activeProfile) return;
 
-    // Always check localStorage first
     const localStorageKey = `coupons_${activeProfile.id}`;
     const savedLocal = localStorage.getItem(localStorageKey);
-    const localCoupons: PurchasedCoupon[] = savedLocal ? JSON.parse(savedLocal) : [];
+    const localCoupons: PurchasedCoupon[] = savedLocal
+      ? JSON.parse(savedLocal)
+      : [];
 
     try {
       const { data, error } = await supabase
@@ -99,44 +180,57 @@ export default function ShopPage() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.warn(
-          "Could not fetch coupons from DB, using local storage",
-          error
-        );
-        // Use localStorage data when DB fails
-        if (localCoupons.length > 0) {
-          setPurchasedCoupons(localCoupons);
-        }
+        console.warn("Could not fetch coupons from DB, using local storage", error);
+        if (localCoupons.length > 0) setPurchasedCoupons(localCoupons);
         return;
       }
 
       if (data && data.length > 0) {
-        // Merge: DB data takes priority, but include local-only items
         const dbIds = new Set(data.map((d: PurchasedCoupon) => d.id));
         const localOnly = localCoupons.filter((lc) => !dbIds.has(lc.id));
         const merged = [...data, ...localOnly];
         setPurchasedCoupons(merged);
-
-        // Sync local-only items to localStorage (in case some were missed)
         if (localOnly.length > 0) {
           localStorage.setItem(localStorageKey, JSON.stringify(merged));
         }
-      } else {
-        // No DB data, use localStorage
-        if (localCoupons.length > 0) {
-          setPurchasedCoupons(localCoupons);
-        }
+      } else if (localCoupons.length > 0) {
+        setPurchasedCoupons(localCoupons);
       }
     } catch (err) {
       console.error("Error fetching coupons:", err);
-      // Fallback to localStorage on any error
-      if (localCoupons.length > 0) {
-        setPurchasedCoupons(localCoupons);
-      }
+      if (localCoupons.length > 0) setPurchasedCoupons(localCoupons);
     }
   };
 
-  // Check for pending order that needs delivery info (after page refresh)
+  const fetchTopicPurchaseStatus = async () => {
+    if (!user) return;
+    try {
+      const { data: children } = await supabase
+        .from("children")
+        .select("id")
+        .eq("parent_id", user.id);
+
+      if (!children || children.length === 0) return;
+
+      const { data: purchases } = await supabase
+        .from("purchases")
+        .select("topic_key, child_id")
+        .eq("user_id", user.id)
+        .not("child_id", "is", null);
+
+      if (!purchases) return;
+
+      const status: Record<string, Set<string>> = {};
+      for (const p of purchases) {
+        if (!status[p.topic_key]) status[p.topic_key] = new Set();
+        status[p.topic_key].add(p.child_id);
+      }
+      setTopicPurchaseStatus(status);
+    } catch (err) {
+      console.error("Error fetching topic purchase status:", err);
+    }
+  };
+
   const checkPendingOrder = async () => {
     if (!activeProfile) return;
 
@@ -146,13 +240,13 @@ export default function ShopPage() {
 
       const pending: PendingOrder = JSON.parse(pendingStr);
 
-      // First check localStorage for the order
       const localStorageKey = `coupons_${activeProfile.id}`;
       const savedLocal = localStorage.getItem(localStorageKey);
-      const localCoupons: PurchasedCoupon[] = savedLocal ? JSON.parse(savedLocal) : [];
+      const localCoupons: PurchasedCoupon[] = savedLocal
+        ? JSON.parse(savedLocal)
+        : [];
       const localOrder = localCoupons.find((c) => c.id === pending.orderId);
 
-      // Try Supabase first
       const { data: order, error } = await supabase
         .from("child_coupons")
         .select("*")
@@ -160,31 +254,23 @@ export default function ShopPage() {
         .eq("child_id", activeProfile.id)
         .single();
 
-      // Use DB order if available, otherwise use local order
       const foundOrder = order || localOrder;
 
       if (error && !localOrder) {
-        // Order not found in both DB and localStorage, clear pending
         localStorage.removeItem(PENDING_ORDER_KEY);
         return;
       }
-
       if (!foundOrder) {
         localStorage.removeItem(PENDING_ORDER_KEY);
         return;
       }
 
-      // If order exists but has no delivery info, show the form
       if (!foundOrder.delivery_info) {
         const coupon = coupons.find((c) => c.id === pending.couponId);
-        if (coupon) {
-          setSelectedCoupon(coupon);
-        }
+        if (coupon) setSelectedCoupon(coupon);
         setEditingOrderId(pending.orderId);
         setShowDeliveryForm(true);
-        setActiveTab("inventory");
       } else {
-        // Order already has delivery info, clear pending
         localStorage.removeItem(PENDING_ORDER_KEY);
       }
     } catch (err) {
@@ -193,60 +279,66 @@ export default function ShopPage() {
     }
   };
 
-  // Re-check pending order when coupons are loaded
-  useEffect(() => {
-    if (coupons.length > 0 && activeProfile?.type === "child") {
-      checkPendingOrder();
-    }
-  }, [coupons]);
+  // --- Helpers ---
 
   const generateCode = (prefix: string) => {
     const random = Math.floor(1000 + Math.random() * 9000);
     return `${prefix}-${random}`;
   };
 
-  const handlePurchase = (coupon: Coupon) => {
+  const getTopicKeyFromLink = (link: string) => {
+    const parts = link.split("/");
+    return parts[parts.length - 1];
+  };
+
+  const isAllChildrenPurchased = (topicKey: string) => {
+    if (!user) return false;
+    // We need children count — approximate by checking if status exists
+    // A more robust check happens in TopicPurchaseModal
+    const purchased = topicPurchaseStatus[topicKey];
+    if (!purchased || purchased.size === 0) return false;
+    // For now, we don't have children count cached here,
+    // so the TopicPurchaseModal handles the full check.
+    // We'll show "purchased" only if we know there are purchases.
+    return false; // Let the modal handle granular per-child checks
+  };
+
+  // --- XP Purchase Flow (Child) ---
+
+  const handleXpPurchase = (coupon: Coupon) => {
     if (purchaseLoading) return;
-
     setSelectedCoupon(coupon);
-    setShowPhoneDialog(true);
+    setShowXpConfirm(true);
   };
 
-  // Handle login required for inventory tab
-  const handleLoginRequired = () => {
-    toast.error("Купонуудыг харахын тулд нэвтэрнэ үү");
-    router.push("/login");
-  };
-
-  // Handle phone input submission - proceed to payment
-  const handlePhoneSubmit = (phone: string) => {
-    setCustomerPhone(phone);
-    setShowPhoneDialog(false);
-    setShowQPayDialog(true);
-  };
-
-  // Payment success - immediately save to Supabase
-  const handlePaymentSuccess = async () => {
-    if (!selectedCoupon) return;
+  const handleXpConfirm = async () => {
+    if (!selectedCoupon || !activeProfile || !spendXP) return;
 
     setPurchaseLoading(true);
 
     try {
-      // Generate code
+      const result = await spendXP(selectedCoupon.cost);
+
+      if (!result || !result.success) {
+        if (result?.error === "insufficient_xp") {
+          toast.error("XP хүрэхгүй байна!");
+        } else {
+          toast.error("XP зарцуулахад алдаа гарлаа");
+        }
+        setPurchaseLoading(false);
+        return;
+      }
+
+      // XP deducted successfully — create order
       const newCode = generateCode(selectedCoupon.codePrefix);
-
-      // Use activeProfile.id if logged in, otherwise use a guest UUID
-      const childId = activeProfile?.id || crypto.randomUUID();
-
-      // Immediately save to Supabase (without delivery info)
       const newOrder = {
-        child_id: childId,
+        child_id: activeProfile.id,
         coupon_id: selectedCoupon.id,
         code: newCode,
         is_used: false,
         created_at: new Date().toISOString(),
         delivery_status: "pending" as const,
-        phone: customerPhone,
+        purchase_type: "xp" as const,
       };
 
       const { data, error } = await supabase
@@ -256,28 +348,14 @@ export default function ShopPage() {
         .single();
 
       if (error) {
-        console.error("DB insert failed:", {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-          fullError: error,
-          insertedData: newOrder,
-        });
-
-        // Show error to user but still proceed with local storage as backup
-        toast.error("Серверт хадгалахад алдаа гарлаа. Хүргэлтийн мэдээллийг оруулна уу.", {
-          duration: 5000,
-        });
-
+        console.error("DB insert failed after XP spend:", error);
+        // Order failed but XP was already deducted — save locally as backup
         const localOrder = { ...newOrder, id: Date.now().toString() };
-        const updatedCoupons = [localOrder, ...purchasedCoupons];
-        setPurchasedCoupons(updatedCoupons);
+        setPurchasedCoupons([localOrder, ...purchasedCoupons]);
         localStorage.setItem(
-          `coupons_${childId}`,
-          JSON.stringify(updatedCoupons)
+          `coupons_${activeProfile.id}`,
+          JSON.stringify([localOrder, ...purchasedCoupons])
         );
-        // Store pending for delivery form
         localStorage.setItem(
           PENDING_ORDER_KEY,
           JSON.stringify({
@@ -286,17 +364,10 @@ export default function ShopPage() {
             code: newCode,
           })
         );
-        // For guest users, also save with phone as key
-        if (!activeProfile?.id && customerPhone) {
-          const guestKey = `guest_orders_${customerPhone}`;
-          const existingOrders = JSON.parse(localStorage.getItem(guestKey) || '[]');
-          existingOrders.unshift(localOrder);
-          localStorage.setItem(guestKey, JSON.stringify(existingOrders));
-        }
         setEditingOrderId(localOrder.id);
+        toast.error("Серверт хадгалахад алдаа гарлаа.");
       } else {
         setPurchasedCoupons([data, ...purchasedCoupons]);
-        // Store pending for delivery form (in case of refresh)
         localStorage.setItem(
           PENDING_ORDER_KEY,
           JSON.stringify({
@@ -306,32 +377,26 @@ export default function ShopPage() {
           })
         );
         setEditingOrderId(data.id);
-
-        // For guest users, save to localStorage with phone as key
-        if (!activeProfile?.id && customerPhone) {
-          const guestKey = `guest_orders_${customerPhone}`;
-          const existingOrders = JSON.parse(localStorage.getItem(guestKey) || '[]');
-          existingOrders.unshift({ ...data });
-          localStorage.setItem(guestKey, JSON.stringify(existingOrders));
-        }
-
-        showCharacterToast(
-          `Төлбөр амжилттай! Код: ${newCode}`,
-          "green"
-        );
+        showCharacterToast(`Шагнал авлаа! Код: ${newCode}`, "green");
       }
 
-      setShowQPayDialog(false);
+      setShowXpConfirm(false);
       setShowDeliveryForm(true);
-      setActiveTab("inventory");
-      setCustomerPhone('');
     } catch (err) {
-      console.error("Error saving order:", err);
-      toast.error("Захиалга хадгалахад алдаа гарлаа");
+      console.error("Error in XP purchase:", err);
+      toast.error("Алдаа гарлаа");
     } finally {
       setPurchaseLoading(false);
     }
   };
+
+  // --- QPay Purchase Flow (Parent/Guest) → Navigate to checkout page ---
+
+  const handleQPayPurchase = (coupon: Coupon) => {
+    router.push(`/shop/checkout/${coupon.id}`);
+  };
+
+  // --- Delivery ---
 
   const sendOrderNotification = async (
     orderCode: string,
@@ -360,7 +425,6 @@ export default function ShopPage() {
     }
   };
 
-  // Handle delivery form submission (update existing order)
   const handleDeliverySubmit = async (deliveryInfo: DeliveryInfo) => {
     if (!editingOrderId) return;
 
@@ -370,7 +434,6 @@ export default function ShopPage() {
       let data;
       let error;
 
-      // If user is logged in, try with child_id filter first for security
       if (activeProfile?.id) {
         const result = await supabase
           .from("child_coupons")
@@ -385,9 +448,7 @@ export default function ShopPage() {
         data = result.data;
         error = result.error;
 
-        // If no match with child_id filter, try without it (order might be from guest session)
         if (error && error.code === "PGRST116") {
-          console.warn("First update attempt failed, trying without child_id filter");
           const retryResult = await supabase
             .from("child_coupons")
             .update({
@@ -401,7 +462,6 @@ export default function ShopPage() {
           error = retryResult.error;
         }
       } else {
-        // Guest user - update by order ID only
         const result = await supabase
           .from("child_coupons")
           .update({
@@ -416,22 +476,20 @@ export default function ShopPage() {
       }
 
       if (error) {
-        console.error("DB update failed:", {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          editingOrderId,
-          childId: activeProfile?.id,
-        });
+        console.error("DB update failed:", error);
 
-        // Check if this is a local-only order (ID is not a valid UUID)
-        const isLocalId = !editingOrderId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+        const isLocalId = !editingOrderId.match(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        );
 
         if (isLocalId) {
-          // This is a local-only order, update localStorage and warn user
           const updatedCoupons = purchasedCoupons.map((pc) =>
             pc.id === editingOrderId
-              ? { ...pc, delivery_info: deliveryInfo, delivery_status: "pending" as const }
+              ? {
+                  ...pc,
+                  delivery_info: deliveryInfo,
+                  delivery_status: "pending" as const,
+                }
               : pc
           );
           setPurchasedCoupons(updatedCoupons);
@@ -441,7 +499,6 @@ export default function ShopPage() {
               JSON.stringify(updatedCoupons)
             );
           }
-
           toast.error("Захиалга серверт хадгалагдсангүй. Дахин оролдоно уу.");
           setShowDeliveryForm(false);
           setSelectedCoupon(null);
@@ -449,31 +506,25 @@ export default function ShopPage() {
           return;
         }
 
-        // DB error for a real order - show error and don't close form
         toast.error("Хүргэлтийн мэдээлэл хадгалахад алдаа гарлаа. Дахин оролдоно уу.");
         return;
       }
 
-      // Success - update state with new data from database
       setPurchasedCoupons((prev) =>
         prev.map((pc) => (pc.id === editingOrderId ? data : pc))
       );
 
-      // Clear pending order from localStorage
       localStorage.removeItem(PENDING_ORDER_KEY);
 
-      // Find the order to send notification
       const order = purchasedCoupons.find((pc) => pc.id === editingOrderId);
-      const coupon = selectedCoupon || coupons.find((c) => c.id === order?.coupon_id);
+      const coupon =
+        selectedCoupon || coupons.find((c) => c.id === order?.coupon_id);
 
       if (order && coupon) {
         sendOrderNotification(order.code, coupon, deliveryInfo);
       }
 
-      showCharacterToast(
-        "Хүргэлтийн мэдээлэл амжилттай хадгалагдлаа!",
-        "green"
-      );
+      showCharacterToast("Хүргэлтийн мэдээлэл амжилттай хадгалагдлаа!", "green");
 
       setShowDeliveryForm(false);
       setSelectedCoupon(null);
@@ -483,134 +534,277 @@ export default function ShopPage() {
       toast.error("Хүргэлтийн мэдээлэл хадгалахад алдаа гарлаа");
     } finally {
       setPurchaseLoading(false);
-      setLoadingCouponId(null);
     }
   };
 
-  // Cancel delivery form (order already saved, just close form)
   const handleDeliveryCancel = () => {
-    // Clear pending order from localStorage
     localStorage.removeItem(PENDING_ORDER_KEY);
-
     setShowDeliveryForm(false);
     setSelectedCoupon(null);
     setEditingOrderId(null);
   };
 
-  // Handle click on inventory card to add delivery info
   const handleAddDeliveryInfo = (orderId: string, couponId: string) => {
     const coupon = coupons.find((c) => c.id === couponId);
-    if (coupon) {
-      setSelectedCoupon(coupon);
-    }
+    if (coupon) setSelectedCoupon(coupon);
     setEditingOrderId(orderId);
     setShowDeliveryForm(true);
   };
 
-  const handlePaymentError = (error: string) => {
-    toast.error(error);
-    setShowQPayDialog(false);
-    setSelectedCoupon(null);
-  };
+  // --- Render ---
 
   if (loading) return null;
 
   return (
-    <div className="w-full min-h-[calc(100vh-77px)] flex justify-center bg-[#FFFAF7] px-4 pb-20">
-      <div className="max-w-[1280px] w-full flex flex-col gap-8 md:gap-14">
-        <ShopHeader activeProfile={activeProfile} />
-
-        <ShopTabs
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          inventoryCount={purchasedCoupons.length}
-          isLoggedIn={isLoggedIn}
-          onLoginRequired={handleLoginRequired}
-        />
-
-        {activeTab === "shop" ? (
-          <div className="flex flex-col gap-7 py-2">
-            <p className="text-[#4B5563] font-bold text-[28px] font-nunito px-2">
-              Боломжит бүтээгдэхүүнүүд
+    <div className="w-full min-h-[calc(100vh-77px)] flex flex-col items-center bg-[#FFFAF7]">
+      {/* Hero Banner */}
+      <div className="w-full bg-linear-to-br from-[#58CC02] via-[#4CAF00] to-[#3D9B00] relative overflow-hidden -mt-px">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-2 left-[10%] w-16 h-16 rounded-full bg-white/20" />
+          <div className="absolute bottom-4 right-[15%] w-24 h-24 rounded-full bg-white/15" />
+          <div className="absolute top-6 right-[30%] w-8 h-8 rounded-full bg-white/25" />
+        </div>
+        <div className="max-w-[1280px] mx-auto px-4 py-6 md:py-8 flex items-center gap-4 relative">
+          <div className="shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            {isChild ? (
+              <Gift size={28} className="text-white" />
+            ) : (
+              <ShoppingBag size={28} className="text-white" />
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <h1 className="text-white font-extrabold text-xl md:text-2xl font-nunito">
+              {isChild ? "Шагналын дэлгүүр" : "Дэлгүүр"}
+            </h1>
+            <p className="text-white/80 font-semibold text-xs md:text-sm font-nunito">
+              {isChild
+                ? `${activeProfile?.xp || 0} XP цуглуулсан — шагналаа аваарай!`
+                : isParent
+                ? "Хичээл болон бүтээгдэхүүн худалдаж аваарай"
+                : "Хүүхдэд зориулсан бүтээгдэхүүнүүд"}
             </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {coupons.map((coupon) => (
-                <CouponCard
-                  key={coupon.id}
-                  coupon={coupon}
-                  onPurchase={handlePurchase}
-                  isLoading={purchaseLoading}
-                  loadingId={loadingCouponId || undefined}
-                />
-              ))}
+          </div>
+          {isChild && (
+            <div className="ml-auto hidden sm:flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2">
+              <Zap size={20} className="text-[#FFD700] fill-[#FFD700]" />
+              <span className="text-white font-extrabold text-lg font-nunito">
+                {activeProfile?.xp || 0}
+              </span>
+              <span className="text-white/70 font-bold text-sm font-nunito">XP</span>
             </div>
+          )}
+        </div>
+        {/* Wave bottom */}
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full h-[20px] md:h-[30px] block">
+          <path d="M0,20 C360,40 720,0 1080,20 C1260,30 1380,15 1440,20 L1440,40 L0,40 Z" fill="#FFFAF7" />
+        </svg>
+      </div>
+
+      <div className="max-w-[1280px] w-full flex flex-col gap-6 md:gap-10 px-4 pb-20">
+        {/* Delivery Form Overlay */}
+        {showDeliveryForm && (selectedCoupon || editingOrderId) ? (
+          <div className="max-w-xl mx-auto w-full">
+            <DeliveryForm
+              onSubmit={handleDeliverySubmit}
+              onCancel={handleDeliveryCancel}
+              isLoading={purchaseLoading}
+              productPrice={selectedCoupon?.price || 0}
+            />
           </div>
         ) : (
-          <div className="flex flex-col gap-7 py-2">
-            {/* Show Delivery Form */}
-            {showDeliveryForm && (selectedCoupon || editingOrderId) ? (
-              <div className="max-w-xl mx-auto w-full">
-                <DeliveryForm
-                  onSubmit={handleDeliverySubmit}
-                  onCancel={handleDeliveryCancel}
-                  isLoading={purchaseLoading}
-                  productPrice={selectedCoupon?.price || 0}
-                />
-              </div>
-            ) : (
+          <>
+            {/* ===== CHILD VIEW ===== */}
+            {isChild && (
               <>
-                <p className="text-[#4B5563] font-bold text-[28px] font-nunito px-2">
-                  Таны цуглуулга
-                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {coupons.map((coupon) => (
+                    <XpCouponCard
+                      key={coupon.id}
+                      coupon={coupon}
+                      currentXp={activeProfile?.xp || 0}
+                      onPurchase={handleXpPurchase}
+                      isLoading={purchaseLoading}
+                      onDetail={(c) => {
+                        setDetailCoupon(c);
+                        setDetailXpMode(true);
+                      }}
+                    />
+                  ))}
+                </div>
+                <OrderHistorySection
+                  orders={purchasedCoupons}
+                  coupons={coupons}
+                  onAddDeliveryInfo={handleAddDeliveryInfo}
+                />
+              </>
+            )}
 
-                {purchasedCoupons.length === 0 ? (
-                  <EmptyInventory onShopClick={() => setActiveTab("shop")} />
-                ) : (
+            {/* ===== PARENT / GUEST VIEW (Tabbed) ===== */}
+            {!isChild && (
+              <>
+                {/* Tab Bar */}
+                <div className="flex gap-3 bg-[#F3F4F6] rounded-2xl p-1.5">
+                  <button
+                    onClick={() => setActiveTab("lessons")}
+                    className={`flex-1 py-2.5 rounded-xl font-bold text-sm font-nunito transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      activeTab === "lessons"
+                        ? "bg-white text-[#58CC02] shadow-sm"
+                        : "text-gray-400 hover:text-gray-600"
+                    }`}
+                  >
+                    <BookOpen size={16} />
+                    Хичээлүүд
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("products")}
+                    className={`flex-1 py-2.5 rounded-xl font-bold text-sm font-nunito transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      activeTab === "products"
+                        ? "bg-white text-[#58CC02] shadow-sm"
+                        : "text-gray-400 hover:text-gray-600"
+                    }`}
+                  >
+                    <ShoppingBag size={16} />
+                    Бүтээгдэхүүн
+                  </button>
+                </div>
+
+                {/* Lessons Tab */}
+                {activeTab === "lessons" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {purchasedCoupons.map((pc) => (
-                      <InventoryCard
-                        key={pc.id}
-                        purchasedCoupon={pc}
-                        coupon={coupons.find((c) => c.id === pc.coupon_id)}
-                        onAddDeliveryInfo={
-                          !pc.delivery_info
-                            ? () => handleAddDeliveryInfo(pc.id, pc.coupon_id)
-                            : undefined
-                        }
+                    {TOPICS_DATA.map((topic) => {
+                      const topicKey = getTopicKeyFromLink(topic.link);
+                      return (
+                        <TopicCard
+                          key={topic.link}
+                          topic={topic}
+                          allChildrenPurchased={isAllChildrenPurchased(topicKey)}
+                          onPurchase={() => {
+                            if (!user) {
+                              router.push(
+                                `/login?redirect=${encodeURIComponent("/shop?tab=lessons")}`
+                              );
+                              return;
+                            }
+                            setSelectedTopicKey(topicKey);
+                            setShowTopicModal(true);
+                          }}
+                          onDetail={() => setDetailTopic(topic)}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Products Tab */}
+                {activeTab === "products" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {coupons.map((coupon) => (
+                      <CouponCard
+                        key={coupon.id}
+                        coupon={coupon}
+                        onPurchase={handleQPayPurchase}
+                        isLoading={purchaseLoading}
+                        onDetail={(c) => {
+                          setDetailCoupon(c);
+                          setDetailXpMode(false);
+                        }}
                       />
                     ))}
                   </div>
                 )}
+
+                {isParent && (
+                  <OrderHistorySection
+                    orders={purchasedCoupons}
+                    coupons={coupons}
+                    onAddDeliveryInfo={handleAddDeliveryInfo}
+                  />
+                )}
               </>
             )}
-          </div>
+          </>
         )}
 
-        {/* Phone Input Dialog - before payment */}
-        <PhoneInputDialog
-          isOpen={showPhoneDialog}
+        {/* ===== MODALS ===== */}
+
+        {/* Topic Detail Modal */}
+        {detailTopic && (
+          <TopicDetailModal
+            isOpen={!!detailTopic}
+            onClose={() => setDetailTopic(null)}
+            topic={detailTopic}
+            allChildrenPurchased={isAllChildrenPurchased(
+              getTopicKeyFromLink(detailTopic.link)
+            )}
+            onPurchase={() => {
+              if (!user) {
+                router.push(
+                  `/login?redirect=${encodeURIComponent("/shop?tab=lessons")}`
+                );
+                return;
+              }
+              const topicKey = getTopicKeyFromLink(detailTopic.link);
+              setDetailTopic(null);
+              setSelectedTopicKey(topicKey);
+              setShowTopicModal(true);
+            }}
+          />
+        )}
+
+        {/* Product Detail Modal */}
+        {detailCoupon && (
+          <ProductDetailModal
+            isOpen={!!detailCoupon}
+            onClose={() => {
+              setDetailCoupon(null);
+              setDetailXpMode(false);
+            }}
+            coupon={detailCoupon}
+            xpMode={detailXpMode}
+            currentXp={activeProfile?.xp || 0}
+            isLoading={purchaseLoading}
+            onPurchase={() => {
+              const coupon = detailCoupon;
+              setDetailCoupon(null);
+              if (detailXpMode) {
+                handleXpPurchase(coupon);
+              } else {
+                handleQPayPurchase(coupon);
+              }
+              setDetailXpMode(false);
+            }}
+          />
+        )}
+
+        {/* XP Purchase Confirmation (Child) */}
+        <PurchaseConfirmModal
+          isOpen={showXpConfirm}
           onClose={() => {
-            setShowPhoneDialog(false);
+            setShowXpConfirm(false);
             setSelectedCoupon(null);
           }}
-          onSubmit={handlePhoneSubmit}
-          productTitle={selectedCoupon?.title}
+          onConfirm={handleXpConfirm}
+          coupon={selectedCoupon}
+          currentXp={activeProfile?.xp || 0}
+          isLoading={purchaseLoading}
         />
 
-        {/* QPay Payment Dialog */}
-        <QPayDialog
-          isOpen={showQPayDialog}
-          onClose={() => {
-            setShowQPayDialog(false);
-            setSelectedCoupon(null);
-            setCustomerPhone('');
-          }}
-          amount={selectedCoupon?.price || 0}
-          onSuccess={handlePaymentSuccess}
-          onError={handlePaymentError}
-          userId={user?.id}
-        />
+        {/* Topic Purchase Modal (Parent) */}
+        {selectedTopicKey && (
+          <TopicPurchaseModal
+            isOpen={showTopicModal}
+            onClose={() => {
+              setShowTopicModal(false);
+              setSelectedTopicKey(null);
+            }}
+            topicKey={selectedTopicKey}
+            onSuccess={() => {
+              fetchTopicPurchaseStatus();
+            }}
+          />
+        )}
+
+
       </div>
     </div>
   );

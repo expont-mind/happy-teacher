@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { X, Loader2, CheckCircle, XCircle, Smartphone } from 'lucide-react';
+import { X, CheckCircle, XCircle, Smartphone } from 'lucide-react';
 
 interface QPayLink {
     name: string;
@@ -20,6 +20,9 @@ interface QPayDialogProps {
     topicKey?: string;
     childIds?: string[];
     userId?: string;
+    couponId?: string;
+    phone?: string;
+    purchaseType?: 'topic' | 'product';
 }
 
 type PaymentStatus = 'idle' | 'creating' | 'waiting' | 'checking' | 'success' | 'error' | 'expired';
@@ -33,6 +36,9 @@ export default function QPayDialog({
     topicKey,
     childIds,
     userId,
+    couponId,
+    phone,
+    purchaseType,
 }: QPayDialogProps) {
     const [status, setStatus] = useState<PaymentStatus>('idle');
     const [qrImage, setQrImage] = useState<string>('');
@@ -99,13 +105,31 @@ export default function QPayDialog({
             localStorage.setItem(`qpay_invoice_${data.transactionId}`, data.invoiceId);
             localStorage.setItem('qpay_latest_qrcode', data.qrCode);
 
+            // Save pending invoice to DB for interrupted payment recovery
+            fetch('/api/bonum/save-pending-invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    transactionId: data.transactionId,
+                    invoiceId: data.invoiceId,
+                    qrCode: data.qrCode,
+                    amount,
+                    userId,
+                    purchaseType,
+                    topicKey,
+                    childIds: childIds?.join(','),
+                    couponId,
+                    phone,
+                }),
+            }).catch((err) => console.error('Error saving pending invoice:', err));
+
         } catch (error) {
             console.error('Error creating invoice:', error);
             setErrorMessage(error instanceof Error ? error.message : 'Алдаа гарлаа');
             setStatus('error');
             onError?.(error instanceof Error ? error.message : 'Алдаа гарлаа');
         }
-    }, [amount, onError]);
+    }, [amount, onError, userId, purchaseType, topicKey, childIds, couponId, phone]);
 
     // Төлбөр шалгах
     const checkPaymentStatus = useCallback(async () => {
@@ -140,6 +164,13 @@ export default function QPayDialog({
                 // localStorage цэвэрлэх
                 localStorage.removeItem(`qpay_invoice_${transactionId}`);
                 localStorage.removeItem('qpay_latest_qrcode');
+
+                // Mark pending invoice as completed
+                fetch('/api/bonum/save-pending-invoice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transactionId, status: 'completed' }),
+                }).catch((err) => console.error('Error updating pending invoice:', err));
 
                 onSuccess();
                 return true;
@@ -197,8 +228,8 @@ export default function QPayDialog({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-md bg-white rounded-3xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 shadow-2xl max-h-[90vh]">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
+            <div className="relative w-full max-w-md bg-white rounded-3xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 shadow-2xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-100">
                     <div className="flex items-center gap-2">
@@ -220,7 +251,7 @@ export default function QPayDialog({
                     {/* Loading */}
                     {status === 'creating' && (
                         <div className="flex flex-col items-center justify-center py-12">
-                            <Loader2 size={48} className="text-[#58CC02] animate-spin" />
+                            <video src="/bouncing-loader.webm" autoPlay loop muted playsInline className="w-40 h-40" />
                             <p className="mt-4 text-gray-600">QR код үүсгэж байна...</p>
                         </div>
                     )}
@@ -290,7 +321,7 @@ export default function QPayDialog({
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2 mt-3">
-                                    <Loader2 size={16} className="text-[#58CC02] animate-spin" />
+                                    <div className="w-4 h-4 border-2 border-[#58CC02]/30 border-t-[#58CC02] rounded-full animate-spin" />
                                     <p className="text-sm text-[#58CC02]">Төлбөр шалгаж байна...</p>
                                 </div>
 

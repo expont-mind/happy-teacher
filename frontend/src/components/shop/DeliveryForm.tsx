@@ -185,7 +185,7 @@ export const DeliveryForm = ({
   if (dataLoading) {
     return (
       <div className="bg-white rounded-3xl border-2 border-[#E5E5E5] p-6 flex justify-center py-12">
-        <div className="w-8 h-8 border-2 border-[#58CC02]/30 border-t-[#58CC02] rounded-full animate-spin" />
+        <video src="/bouncing-loader.webm" autoPlay loop muted playsInline className="w-40 h-40" />
       </div>
     );
   }

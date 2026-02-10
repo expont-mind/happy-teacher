@@ -24,9 +24,12 @@ function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const step = (parseInt(searchParams.get("step") ?? "1") || 1) as 1 | 2;
+  const redirectParam = searchParams.get("redirect");
 
   const setStep = (newStep: 1 | 2) => {
-    router.push(`/register?step=${newStep}`);
+    const params = new URLSearchParams({ step: String(newStep) });
+    if (redirectParam) params.set("redirect", redirectParam);
+    router.push(`/register?${params.toString()}`);
   };
 
   const [loading, setLoading] = useState(false);
@@ -138,7 +141,12 @@ function RegisterContent() {
     return (
       <RegistrationSuccess
         generatedCode={generatedCode}
-        onContinue={() => router.push("/login")}
+        onContinue={() => {
+          const loginUrl = redirectParam
+            ? `/login?redirect=${encodeURIComponent(redirectParam)}`
+            : "/login";
+          router.push(loginUrl);
+        }}
       />
     );
   }

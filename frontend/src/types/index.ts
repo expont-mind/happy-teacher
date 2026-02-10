@@ -41,4 +41,6 @@ export interface PurchasedCoupon {
   is_used: boolean;
   delivery_info?: DeliveryInfo;
   delivery_status?: "pending" | "processing" | "shipped" | "delivered";
+  purchase_type?: "xp" | "qpay";
+  phone?: string;
 }

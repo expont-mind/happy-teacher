@@ -99,6 +99,7 @@ function MultiplicationRoadmapContent() {
 
   const router = useRouter();
   const isAdult = activeProfile?.type === "adult";
+  const isChild = activeProfile?.type === "child";
 
   const handleSwitchProfile = () => {
     router.push("/profiles?redirect=/topic/multiplication");
@@ -129,6 +130,7 @@ function MultiplicationRoadmapContent() {
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
             isAdult={isAdult}
+            isChild={isChild}
             onSwitchProfile={handleSwitchProfile}
             topicKey="multiplication"
           />
@@ -145,8 +147,8 @@ function MultiplicationRoadmapContent() {
           />
         </div>
 
-        {/* Paywall Dialog */}
-        {showPaywall && (
+        {/* Paywall Dialog - only for adults */}
+        {showPaywall && !isChild && (
           <Paywall
             topicKey="multiplication"
             onUnlocked={() => {

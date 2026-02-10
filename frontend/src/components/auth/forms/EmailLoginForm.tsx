@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent } from "react";
-import { Mail, Lock } from "lucide-react";
+import { UserCircle, Lock } from "lucide-react";
 import Link from "next/link";
 import Loader from "@/src/components/ui/Loader";
 
@@ -12,6 +12,7 @@ interface EmailLoginFormProps {
   onEmailChange: (email: string) => void;
   onPasswordChange: (password: string) => void;
   onSubmit: (e: FormEvent) => void;
+  redirectParam?: string | null;
 }
 
 export default function EmailLoginForm({
@@ -21,19 +22,20 @@ export default function EmailLoginForm({
   onEmailChange,
   onPasswordChange,
   onSubmit,
+  redirectParam,
 }: EmailLoginFormProps) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-9">
       <div className="border border-[#0C0A0126] w-full shadow-sm bg-white rounded-[18px] p-3 flex gap-6 justify-center">
         <div className="w-[64px] h-[64px] bg-[#0C0A0126] rounded-full flex items-center justify-center">
-          <Mail size={32} color="#333333" />
+          <UserCircle size={32} color="#333333" />
         </div>
         <div className="flex flex-col max-w-[204px] justify-center">
           <p className="text-lg font-extrabold text-[#333333] font-nunito">
             Тавтай морил!
           </p>
           <p className="text-sm font-semibold text-[#858480] font-nunito">
-            Имэйл хаягаар нэвтрэх
+            Эцэг эхийн бүртгэлээр нэвтрэх
           </p>
         </div>
       </div>
@@ -82,7 +84,7 @@ export default function EmailLoginForm({
             disabled={loading}
             className="bg-[#58CC02] w-full shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all rounded-2xl px-6 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer"
           >
-            {loading ? <Loader /> : "Нэвтрэх"}
+            {loading ? <Loader variant="spinner" /> : "Нэвтрэх"}
           </button>
         </div>
 
@@ -90,7 +92,14 @@ export default function EmailLoginForm({
 
         <p className="text-base font-normal text-[#0C0A01] font-nunito text-center">
           Бүртгэл байхгүй юу?{" "}
-          <Link href="/register" className="text-[#58CC02] font-bold underline">
+          <Link
+            href={
+              redirectParam
+                ? `/register?redirect=${encodeURIComponent(redirectParam)}`
+                : "/register"
+            }
+            className="text-[#58CC02] font-bold underline"
+          >
             Бүртгүүлэх
           </Link>
         </p>

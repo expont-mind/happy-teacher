@@ -95,6 +95,7 @@ function FractionsRoadmapContent() {
 
   const router = useRouter();
   const isAdult = activeProfile?.type === "adult";
+  const isChild = activeProfile?.type === "child";
 
   const handleSwitchProfile = () => {
     router.push("/profiles?redirect=/topic/fractions");
@@ -123,6 +124,7 @@ function FractionsRoadmapContent() {
             isPaid={paid}
             onShowPaywall={() => setShowPaywall(true)}
             isAdult={isAdult}
+            isChild={isChild}
             onSwitchProfile={handleSwitchProfile}
             topicKey="fractions"
           />
@@ -139,8 +141,8 @@ function FractionsRoadmapContent() {
           />
         </div>
 
-        {/* Paywall Dialog */}
-        {showPaywall && (
+        {/* Paywall Dialog - only for adults */}
+        {showPaywall && !isChild && (
           <Paywall
             topicKey="fractions"
             onUnlocked={() => {

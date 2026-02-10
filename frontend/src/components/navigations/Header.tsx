@@ -13,6 +13,7 @@ import {
   HelpCircle,
   LogOut,
   ShoppingBag,
+  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/src/components/auth";
@@ -120,10 +121,10 @@ function HeaderContent() {
       <header
         className={`${
           isLessonPage ? "" : "sticky top-0"
-        } z-50 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4`}
+        } z-50 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4 lg:px-8`}
       >
         <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
-          <Link href="/" className="flex gap-[10px] items-center py-1.5 z-20">
+          <Link href={isMounted && (user || activeProfile) ? (activeProfile?.type === "child" ? "/topic" : "/dashboard") : "/"} className="flex gap-[10px] items-center py-1.5 z-20">
             <Image
               src="/svg/GraduationCap.svg"
               alt="Logo"
@@ -192,7 +193,14 @@ function HeaderContent() {
                   </>
                 ) : (
                   <>
-                    {/* Adult View: Shop, Settings, Users, Notifications, Help, Logout */}
+                    {/* Adult View: Dashboard, Shop, etc. */}
+                    <Link href="/dashboard" data-tutorial="dashboard-btn">
+                      <button className="px-4 py-[10px] rounded-[10px] border-2 border-[#0C0A0126] hover:border-[#58CC02] text-sm font-extrabold text-[#333333] cursor-pointer uppercase font-nunito flex items-center gap-2 transition-colors">
+                        <LayoutDashboard size={16} className="text-[#58CC02]" />
+                        Самбар
+                      </button>
+                    </Link>
+
                     <Link href="/shop" data-tutorial="shop-btn">
                       <button className="px-4 py-[10px] rounded-[10px] bg-[#58CC02] text-sm font-extrabold text-white cursor-pointer uppercase font-nunito flex items-center gap-2 hover:bg-[#4CAF00] transition-colors shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-[2px]">
                         <ShoppingBag size={16} />
@@ -264,16 +272,30 @@ function HeaderContent() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          {!isOpen && (
-            <button
-              onClick={() => setIsOpen(true)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors z-20"
-              data-tutorial="mobile-menu-btn"
-            >
-              <Menu size={24} className="text-gray-700" />
-            </button>
-          )}
+          {/* Mobile: Stats + Menu Button */}
+          <div className="md:hidden flex items-center gap-2 z-20">
+            {isMounted && !loading && activeProfile?.type === "child" && (
+              <>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-200">
+                  <Flame size={18} color="#ff4b4b" />
+                  <span className="text-sm font-extrabold text-gray-700">{activeProfile?.streak || 0}</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-200">
+                  <Zap size={18} color="#FBBF24" />
+                  <span className="text-sm font-extrabold text-gray-700">{activeProfile?.xp || 0}</span>
+                </div>
+              </>
+            )}
+            {!isOpen && (
+              <button
+                onClick={() => setIsOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                data-tutorial="mobile-menu-btn"
+              >
+                <Menu size={24} className="text-gray-700" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Mobile Menu Overlay */}
@@ -407,6 +429,17 @@ function HeaderContent() {
                         <>
                           {/* Adult View Mobile */}
                           <Link
+                            href="/dashboard"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full"
+                          >
+                            <button className="duo-button duo-button-green w-full px-4 py-3 text-sm cursor-pointer flex items-center justify-center gap-2">
+                              <LayoutDashboard size={16} />
+                              <span>Самбар</span>
+                            </button>
+                          </Link>
+
+                          <Link
                             href="/shop"
                             onClick={() => setIsOpen(false)}
                             className="w-full"
@@ -525,7 +558,7 @@ export const Header = () => {
   return (
     <Suspense
       fallback={
-        <header className="sticky top-0 z-5 w-full flex justify-center bg-white border-b border-[#0C0A0126]">
+        <header className="sticky top-0 z-5 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4 lg:px-8">
           <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
             <div className="flex gap-[10px] items-center py-1.5">
               <Skeleton className="w-[30px] h-[30px]" />

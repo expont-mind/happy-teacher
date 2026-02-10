@@ -4,7 +4,23 @@ import { TOPICS_DATA } from "@/src/data/topics";
 
 export const Footer = () => {
   return (
-    <footer className="w-full flex justify-center bg-[#4A4A4A] py-16 lg:py-20 px-4">
+    <>
+      {/* Steppe grass divider */}
+      <div className="w-full overflow-hidden leading-[0] bg-[#58CC02]">
+        <svg
+          viewBox="0 0 1440 60"
+          preserveAspectRatio="none"
+          className="w-full h-[30px] md:h-[40px] lg:h-[60px] block"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0,30 C180,60 360,0 540,30 C720,60 900,0 1080,30 C1260,60 1440,20 1440,30 L1440,60 L0,60 Z"
+            fill="#2D2D2D"
+          />
+        </svg>
+      </div>
+
+      <footer className="w-full flex justify-center bg-[#2D2D2D] py-16 lg:py-20 px-4 lg:px-8 pb-32 md:pb-20 -mb-16 md:mb-0">
       <div className="max-w-[1280px] w-full flex flex-col gap-12 lg:gap-20">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-8 w-full justify-between">
           <div className="max-w-none lg:max-w-[316px] w-full">
@@ -33,6 +49,13 @@ export const Footer = () => {
                   className="text-sm font-semibold text-[#F3F4F6] font-nunito hover:text-[#58CC02] transition-colors"
                 >
                   Хичээлүүд
+                </Link>
+                <Link
+                  href="/shop"
+                  prefetch={true}
+                  className="text-sm font-semibold text-[#F3F4F6] font-nunito hover:text-[#58CC02] transition-colors"
+                >
+                  Дэлгүүр
                 </Link>
                 {TOPICS_DATA.map((topic, index) => (
                   <Link
@@ -130,5 +153,6 @@ export const Footer = () => {
         </div>
       </div>
     </footer>
+    </>
   );
 };

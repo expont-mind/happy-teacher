@@ -3,6 +3,7 @@ import { multiplicationLessons } from "@/src/data/lessons/multiplication";
 
 export const TOPICS_DATA = [
   {
+    key: "fractions",
     title: "Энгийн бутархай",
     description:
       "Энгийн бутархайн бодлогыг шат дараатай эзэмшиж, хөгжилтэй тоглоомын аргаар суралцаарай",
@@ -16,6 +17,7 @@ export const TOPICS_DATA = [
     planet: "/Planet.png",
   },
   {
+    key: "multiplication",
     title: "Хүрд",
     description:
       "Хүрдийг хялбар аргаар цээжилснээр тоо бодох хурд нэмэгдэж, математикийн хичээлд дурлах эхлэл тавигдана",

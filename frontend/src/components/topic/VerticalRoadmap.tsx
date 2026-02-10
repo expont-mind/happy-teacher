@@ -215,79 +215,111 @@ export default function VerticalRoadmap({
         <div style={{ height: `${items.length * nodeSpacing}px` }} />
       </div>
 
-      {/* --- MOBILE VIEW (Straight Vertical Roadmap) --- */}
-      <div className="md:hidden relative w-full flex flex-col items-center">
-        <div className="flex flex-col items-center gap-8 w-full px-4">
-          {items.map((item, idx) => {
-            const unlocked = canEnter(idx);
-            const done = completedIds.includes(item.id);
-            const isCurrent = unlocked && !done;
-            const isLast = idx === items.length - 1;
+      {/* --- MOBILE VIEW (Duolingo-style Snaking Roadmap) --- */}
+      <div className="md:hidden relative w-full">
+        {(() => {
+          const mobileNodeSpacing = 110;
+          const mobileCurve = 60;
 
-            return (
-              <div
-                key={item.id}
-                className="flex flex-col items-center relative w-full"
+          const getMobilePos = (i: number) => {
+            const pattern = i % 4;
+            if (pattern === 0) return 0;
+            if (pattern === 1) return mobileCurve;
+            if (pattern === 2) return 0;
+            return -mobileCurve;
+          };
+
+          return (
+            <div className="relative w-full max-w-[280px] mx-auto">
+              {/* SVG connecting paths */}
+              <svg
+                className="absolute top-0 left-0 w-full pointer-events-none"
+                style={{ height: `${items.length * mobileNodeSpacing}px`, overflow: "visible" }}
               >
-                <div
-                  onClick={() => handleLessonClick(item, unlocked)}
-                  className={`flex items-center gap-4 w-full justify-center ${
-                    unlocked ? "cursor-pointer" : "cursor-not-allowed"
-                  }`}
-                >
-                  {/* Left side label (if needed, or just keep icon centered) - let's put label on right for clarity on mobile */}
+                {items.map((_, idx) => {
+                  if (idx === items.length - 1) return null;
 
-                  <div
-                    className={`nav-item-transition relative z-10 w-16 h-16 rounded-[20px] flex items-center justify-center shrink-0 border-b-4 active:border-b-0 active:translate-y-1 transition-all ${
-                      done
-                        ? "bg-[#58CC02] border-[#46A302]"
-                        : isCurrent
-                        ? "bg-[#58CC02] border-[#46A302]"
-                        : "bg-[#E5E5E5] border-[#CECECE]"
-                    }`}
-                  >
-                    {done ? (
-                      <Star
-                        size={28}
-                        className="text-white"
-                        strokeWidth={3}
-                        fill="white"
-                      />
-                    ) : isCurrent ? (
-                      <Play
-                        size={28}
-                        className="text-white ml-0.5"
-                        fill="white"
-                      />
-                    ) : (
-                      <Lock size={24} className="text-[#AFAFAF]" />
-                    )}
+                  const startX = 140 + getMobilePos(idx);
+                  const endX = 140 + getMobilePos(idx + 1);
+                  const startY = idx * mobileNodeSpacing + 32;
+                  const endY = (idx + 1) * mobileNodeSpacing + 32;
+                  const midY = (startY + endY) / 2;
 
-                    {isCurrent && (
-                      <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-white text-[#58CC02] text-xs font-black px-2 py-1 rounded-lg border-2 border-[#58CC02] shadow-sm animate-bounce whitespace-nowrap">
-                        START
+                  return (
+                    <path
+                      key={idx}
+                      d={`M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`}
+                      stroke="#D1D5DB"
+                      strokeWidth="4"
+                      strokeDasharray="10 8"
+                      fill="none"
+                      strokeLinecap="round"
+                      className="opacity-60"
+                    />
+                  );
+                })}
+              </svg>
+
+              {/* Nodes */}
+              <div className="relative flex flex-col items-center">
+                {items.map((item, idx) => {
+                  const unlocked = canEnter(idx);
+                  const done = completedIds.includes(item.id);
+                  const isCurrent = unlocked && !done;
+                  const xOffset = getMobilePos(idx);
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex flex-col items-center"
+                      style={{
+                        height: `${mobileNodeSpacing}px`,
+                        transform: `translateX(${xOffset}px)`,
+                      }}
+                    >
+                      <div
+                        onClick={() => handleLessonClick(item, unlocked)}
+                        className={`relative z-10 ${unlocked ? "cursor-pointer" : "cursor-not-allowed"}`}
+                      >
+                        <div
+                          className={`nav-item-transition w-16 h-16 rounded-full flex items-center justify-center shrink-0 border-b-4 active:border-b-0 active:translate-y-1 transition-all ${
+                            done
+                              ? "bg-[#58CC02] border-[#46A302]"
+                              : isCurrent
+                              ? "bg-[#58CC02] border-[#46A302] ring-4 ring-[#58CC02]/20"
+                              : "bg-[#E5E5E5] border-[#CECECE]"
+                          }`}
+                        >
+                          {done ? (
+                            <Star size={28} className="text-white" strokeWidth={3} fill="white" />
+                          ) : isCurrent ? (
+                            <Play size={28} className="text-white ml-0.5" fill="white" />
+                          ) : (
+                            <Lock size={22} className="text-[#AFAFAF]" />
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Label below or next to icon? Below might be cleaner for straight line */}
-                <span
-                  className={`mt-2 font-bold text-sm text-center ${
-                    done || isCurrent ? "text-gray-700" : "text-gray-400"
-                  }`}
-                >
-                  {item.title}
-                </span>
-
-                {/* Connecting Line */}
-                {!isLast && (
-                  <div className="absolute top-[60px] bottom-[-32px] w-1 border-l-4 border-dashed border-[#D1D5DB] opacity-50 z-0 left-1/2 -translate-x-1/2" />
-                )}
+                      {isCurrent ? (
+                        <div className="mt-2 bg-white text-[#58CC02] text-xs font-black px-3 py-1 rounded-lg border-2 border-[#58CC02] shadow-sm animate-bounce whitespace-nowrap">
+                          START
+                        </div>
+                      ) : (
+                        <span
+                          className={`mt-1.5 font-bold text-xs text-center max-w-[140px] leading-tight ${
+                            done ? "text-gray-700" : "text-gray-400"
+                          }`}
+                        >
+                          {item.title}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
+              <div style={{ height: `${items.length * mobileNodeSpacing}px` }} className="sr-only" />
+            </div>
+          );
+        })()}
       </div>
 
       {planetImage && (

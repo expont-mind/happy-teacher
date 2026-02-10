@@ -1,10 +1,15 @@
-import { Flame, BookOpen, Calendar, Trophy, Star } from "lucide-react";
+
+"use client";
+
+import { useState } from "react";
+import { Flame, BookOpen, Calendar, Star, Copy, Check } from "lucide-react";
 import Image from "next/image";
 import { RecentActivity } from "./RecentActivity";
 
 interface ChildData {
   id: string;
   name: string;
+  pin_code: string;
   streak_count: number;
   total_lessons: number;
   xp: number;
@@ -23,6 +28,15 @@ interface ChildCardProps {
 }
 
 export const ChildCard = ({ child }: ChildCardProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyPin = () => {
+    if (!child.pin_code) return;
+    navigator.clipboard.writeText(child.pin_code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="border border-[#0C0A0126] w-full bg-white rounded-[16px] p-6 flex flex-col gap-6">
       <div className="flex items-center gap-5">
@@ -50,6 +64,22 @@ export const ChildCard = ({ child }: ChildCardProps) => {
                 {child.xp} XP
               </span>
             </div>
+            {child.pin_code && (
+              <button
+                onClick={handleCopyPin}
+                className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
+                title="Код хуулах"
+              >
+                <span className="text-xs font-bold text-gray-500 font-nunito tracking-widest">
+                  {child.pin_code}
+                </span>
+                {copied ? (
+                  <Check size={12} className="text-[#58CC02]" strokeWidth={3} />
+                ) : (
+                  <Copy size={12} className="text-gray-400" strokeWidth={2.5} />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

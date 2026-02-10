@@ -284,6 +284,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const spendXP = async (
+    amount: number
+  ): Promise<{
+    success: boolean;
+    xp?: number;
+    level?: number;
+    error?: string;
+    current_xp?: number;
+    required?: number;
+  } | null> => {
+    if (activeProfile?.type !== "child") return null;
+
+    try {
+      const { data, error } = await supabase.rpc("spend_child_xp", {
+        p_child_id: activeProfile.id,
+        p_amount: amount,
+      });
+
+      if (error) throw error;
+
+      if (!data.success) return data;
+
+      // Update local state
+      const updatedProfile = {
+        ...activeProfile,
+        xp: data.xp,
+        level: data.level,
+      };
+      setActiveProfile(updatedProfile);
+      activeProfileRef.current = updatedProfile;
+      localStorage.setItem("activeProfile", JSON.stringify(updatedProfile));
+
+      return data;
+    } catch (err) {
+      console.error("Error spending XP:", err);
+      return null;
+    }
+  };
+
   const checkPurchase = async (topicKey: string): Promise<boolean> => {
     // Use state first, then fallback to localStorage to be safe
     let currentProfile = activeProfile;
@@ -739,6 +778,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         getCompletedLessons,
         lastPurchaseTime,
         addXP,
+        spendXP,
       }}
     >
       {children}

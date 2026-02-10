@@ -169,7 +169,7 @@ export default function SettingsForm() {
               disabled={isSaving}
               className="bg-[#58CC02] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all rounded-2xl px-7 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer hover:brightness-95 disabled:opacity-70"
             >
-              {isSaving ? <Loader /> : "Хадгалах"}
+              {isSaving ? <Loader variant="spinner" /> : "Хадгалах"}
             </button>
           </div>
         </div>
@@ -317,7 +317,7 @@ export default function SettingsForm() {
               disabled={passwordLoading}
               className="bg-[#58CC02] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all rounded-2xl px-7 py-[10px] text-white font-bold text-lg font-nunito leading-7 cursor-pointer hover:brightness-95 disabled:opacity-70"
             >
-              {passwordLoading ? <Loader /> : "Нууц үг солих"}
+              {passwordLoading ? <Loader variant="spinner" /> : "Нууц үг солих"}
             </button>
           </div>
         </div>
