@@ -36,8 +36,8 @@ const features = [
 
 export const Features = () => {
   return (
-    <section className="w-full flex justify-center py-20 lg:py-32 px-4 lg:px-8">
-      <div className="max-w-[1280px] w-full flex flex-col gap-14 lg:gap-20 items-center">
+    <section className="w-full py-20 lg:py-32 px-4 lg:px-8">
+      <div className="max-w-5xl mx-auto w-full flex flex-col gap-14 lg:gap-20 items-center">
         <AnimatedSection className="text-center">
           <p className="text-[#58CC02] text-sm font-bold font-nunito uppercase tracking-wider mb-3">
             Яагаад бид вэ?
@@ -59,7 +59,7 @@ export const Features = () => {
                 } items-center gap-8 lg:gap-16`}
               >
                 {/* Image Side */}
-                <div className="lg:w-1/2 flex justify-center">
+                <div className={`lg:w-1/2 flex justify-center ${index % 2 === 0 ? "lg:justify-start" : "lg:justify-end"}`}>
                   <Image
                     src={feature.image}
                     alt={feature.title}

@@ -3,7 +3,7 @@ import { ShoppingBag } from "lucide-react";
 
 export const CTA = () => {
   return (
-    <section className="w-full flex justify-center bg-[#58CC02] py-16 lg:py-24 px-4 lg:px-8 overflow-hidden relative">
+    <section className="w-full bg-[#58CC02] py-16 lg:py-24 px-4 lg:px-8 overflow-hidden relative">
       {/* Decorative circles */}
       <div className="absolute top-[-40px] right-[-40px] w-[200px] h-[200px] rounded-full bg-[#4CAF00]/30" />
       <div className="absolute bottom-[-60px] left-[-30px] w-[180px] h-[180px] rounded-full bg-[#46A302]/20" />
@@ -13,7 +13,7 @@ export const CTA = () => {
         style={{ animationDelay: "1.5s" }}
       />
 
-      <div className="max-w-[800px] w-full flex flex-col gap-6 lg:gap-8 items-center text-center relative z-10">
+      <div className="max-w-5xl mx-auto w-full flex flex-col gap-6 lg:gap-8 items-center text-center relative z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/landing-page-illustrations/cta-ensemble.png"

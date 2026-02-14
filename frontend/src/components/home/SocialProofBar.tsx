@@ -10,7 +10,7 @@ const stats = [
 export const SocialProofBar = () => {
   return (
     <section className="w-full bg-white py-4 lg:py-5 px-4 lg:px-8">
-      <div className="max-w-[1280px] mx-auto flex flex-wrap justify-center gap-6 lg:gap-14">
+      <div className="max-w-5xl mx-auto flex flex-wrap justify-center gap-6 lg:gap-14">
         {stats.map((stat) => (
           <div
             key={stat.label}
