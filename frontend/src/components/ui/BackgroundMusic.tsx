@@ -49,7 +49,7 @@ export const BackgroundMusic = () => {
   return (
     <button
       onClick={toggle}
-      className="fixed bottom-20 md:bottom-6 right-4 z-50 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#58CC02] hover:border-[#58CC02] transition-all cursor-pointer"
+      className="fixed bottom-24 md:bottom-6 right-4 z-50 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#58CC02] hover:border-[#58CC02] transition-all cursor-pointer"
       aria-label={muted ? "Хөгжим тоглуулах" : "Хөгжим зогсоох"}
     >
       {muted ? <VolumeOff size={18} /> : <Volume2 size={18} />}

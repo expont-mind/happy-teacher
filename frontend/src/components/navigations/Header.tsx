@@ -286,7 +286,7 @@ function HeaderContent() {
                 </div>
               </>
             )}
-            {!isOpen && (
+            {!isOpen && !isAuthPage && (
               <button
                 onClick={() => setIsOpen(true)}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
