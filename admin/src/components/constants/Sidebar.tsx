@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ActiveZap, WhiteCircle, Zap } from "../svg";
+import { LogoutButton } from "./LogoutButton";
 
 type SidebarLinkProps = {
   href: string;
@@ -76,6 +77,9 @@ export const Sidebar = (props: SidebarType) => {
               label="Авах цэг"
             />
           </div>
+        </div>
+        <div className="p-2 w-full border-t border-gray-100 sticky bottom-0 bg-white">
+          <LogoutButton />
         </div>
       </div>
     </div>
