@@ -31,6 +31,7 @@ type SidebarType = {
   user: string;
   payment: string;
   delivery?: string;
+  classes?: string;
 };
 
 export const Sidebar = (props: SidebarType) => {
@@ -75,6 +76,17 @@ export const Sidebar = (props: SidebarType) => {
               href="/delivery/pickup"
               isActive={props.delivery === "pickup"}
               label="Авах цэг"
+            />
+          </div>
+          {/* Сургалт Section */}
+          <div className="p-2 w-full border-t border-gray-100">
+            <p className="px-2 py-1 text-xs text-gray-400 uppercase font-Inter">
+              Сургалт
+            </p>
+            <SidebarLink
+              href="/classes"
+              isActive={props.classes === "classes"}
+              label="Ангиуд"
             />
           </div>
         </div>
