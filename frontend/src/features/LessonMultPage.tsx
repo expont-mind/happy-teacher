@@ -91,6 +91,12 @@ export default function LessonMultPage() {
   const [timerRunning, setTimerRunning] = useState(false);
   const elapsedSecondsRef = useRef(0);
   const lessonStartRef = useRef<Date>(new Date());
+  // Reset the open-time when navigating to a different lesson (the component
+  // instance is reused across /topic/multiplication/[lessonId] navigations, so
+  // the ref would otherwise keep the first lesson's start time).
+  useEffect(() => {
+    lessonStartRef.current = new Date();
+  }, [params.lessonId]);
   const [retryCount, setRetryCount] = useState(0);
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [timerResetKey, setTimerResetKey] = useState(0);

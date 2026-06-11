@@ -12,6 +12,9 @@ export async function GET(request: Request) {
   const { data: inactiveChildren } = await supabase
     .from("children")
     .select("id, name, parent_id, last_active_at")
+    // Class children have no parent (parent_id null) and no parent to notify;
+    // excluding them avoids a NOT NULL violation on notifications.user_id.
+    .not("parent_id", "is", null)
     .lt("last_active_at", twoDaysAgo.toISOString());
 
   const logs = [];
