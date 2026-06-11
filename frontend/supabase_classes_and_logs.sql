@@ -60,3 +60,20 @@ drop policy if exists lesson_logs_anon_insert on lesson_logs;
 create policy lesson_logs_anon_insert on lesson_logs
   for insert to anon, authenticated
   with check (true);
+
+-- 5. Aggregate totals for a child's logs — computed in the DB so the admin
+-- log page reports correct lifetime totals regardless of row count (a plain
+-- select is capped at 1000 rows by PostgREST and would silently undercount).
+create or replace function child_log_totals(p_child_id uuid)
+returns table(lessons bigint, seconds bigint, mistakes bigint, xp bigint)
+language sql
+stable
+as $$
+  select
+    count(*)::bigint,
+    coalesce(sum(duration_seconds), 0)::bigint,
+    coalesce(sum(mistake_count), 0)::bigint,
+    coalesce(sum(xp_earned), 0)::bigint
+  from lesson_logs
+  where child_id = p_child_id;
+$$;
