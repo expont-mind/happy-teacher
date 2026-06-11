@@ -300,7 +300,14 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         if (!allowedColorsSet.has(maskColor)) {
           const fillColor = isEraserMode ? "#ffffff" : selectedColor;
           if (
-            floodFill({ canvas, maskData, startX: x, startY: y, fillColor })
+            floodFill({
+              canvas,
+              maskData,
+              startX: x,
+              startY: y,
+              fillColor,
+              paletteColors: palette,
+            })
           ) {
             handleSaveToHistory();
           }
@@ -311,7 +318,14 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         if (maskColor === "#ffffff") {
           const fillColor = isEraserMode ? "#ffffff" : selectedColor;
           if (
-            floodFill({ canvas, maskData, startX: x, startY: y, fillColor })
+            floodFill({
+              canvas,
+              maskData,
+              startX: x,
+              startY: y,
+              fillColor,
+              paletteColors: palette,
+            })
           ) {
             handleSaveToHistory();
           }
@@ -327,6 +341,7 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
               startX: x,
               startY: y,
               fillColor: "#ffffff",
+              paletteColors: palette,
             })
           ) {
             handleSaveToHistory();
@@ -352,7 +367,16 @@ const ColoringCanvas = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         onSuccessfulFill?.();
 
         const fillColor = isEraserMode ? "#ffffff" : selectedColor;
-        if (floodFill({ canvas, maskData, startX: x, startY: y, fillColor })) {
+        if (
+          floodFill({
+            canvas,
+            maskData,
+            startX: x,
+            startY: y,
+            fillColor,
+            paletteColors: palette,
+          })
+        ) {
           handleSaveToHistory();
         }
       },

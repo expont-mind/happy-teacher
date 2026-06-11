@@ -277,7 +277,16 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
         // If mask color is not in palette, just fill without checking
         if (!allowedColorsSet.has(maskColor)) {
-          if (floodFill({ canvas, maskData, startX: x, startY: y, fillColor })) {
+          if (
+            floodFill({
+              canvas,
+              maskData,
+              startX: x,
+              startY: y,
+              fillColor,
+              paletteColors: palette,
+            })
+          ) {
             handleSaveToHistory();
           }
           return;
@@ -285,7 +294,16 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
         // White can be painted with any color
         if (maskColor === "#ffffff") {
-          if (floodFill({ canvas, maskData, startX: x, startY: y, fillColor })) {
+          if (
+            floodFill({
+              canvas,
+              maskData,
+              startX: x,
+              startY: y,
+              fillColor,
+              paletteColors: palette,
+            })
+          ) {
             handleSaveToHistory();
           }
           return;
@@ -293,7 +311,16 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
 
         // If eraser mode, allow erasing
         if (isEraserMode) {
-          if (floodFill({ canvas, maskData, startX: x, startY: y, fillColor })) {
+          if (
+            floodFill({
+              canvas,
+              maskData,
+              startX: x,
+              startY: y,
+              fillColor,
+              paletteColors: palette,
+            })
+          ) {
             handleSaveToHistory();
           }
           return;
@@ -314,7 +341,16 @@ const ColoringCanvasMult = forwardRef<ColoringCanvasRef, ColoringCanvasProps>(
         // Reset wrong click counter on successful fill
         wrongClickCountRef.current = 0;
 
-        if (floodFill({ canvas, maskData, startX: x, startY: y, fillColor })) {
+        if (
+          floodFill({
+            canvas,
+            maskData,
+            startX: x,
+            startY: y,
+            fillColor,
+            paletteColors: palette,
+          })
+        ) {
           handleSaveToHistory();
         }
       },
