@@ -45,7 +45,7 @@ export default function LoginContent() {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("children")
-        .select("name, id, parent_id, avatar")
+        .select("name, id, parent_id, avatar, class_id")
         .eq("pin_code", pin)
         .maybeSingle();
 
@@ -61,6 +61,7 @@ export default function LoginContent() {
         type: "child",
         avatar: data.avatar,
         parentId: data.parent_id,
+        classId: data.class_id,
       });
 
       setPin("");
