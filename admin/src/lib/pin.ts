@@ -1,13 +1,16 @@
+import { randomInt } from "crypto";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 // Generate a 6-digit PIN unique against children.pin_code.
-// Relies on the children_pin_code_unique index to reject races on insert,
-// but pre-checks to minimize retries. Throws after 5 attempts.
+// Uses crypto.randomInt (not Math.random) since the PIN gates access to a
+// child's learning profile. The children_pin_code_unique index is the
+// authoritative dedupe (the caller maps its 23505 violation to a 409); this
+// pre-check only reduces retries. Throws after 5 attempts.
 export async function generateUniquePin(
   supabase: SupabaseClient
 ): Promise<string> {
   for (let attempt = 0; attempt < 5; attempt++) {
-    const pin = String(100000 + Math.floor(Math.random() * 900000));
+    const pin = String(randomInt(100000, 1000000));
     const { data, error } = await supabase
       .from("children")
       .select("id")

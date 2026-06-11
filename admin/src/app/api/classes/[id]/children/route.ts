@@ -54,9 +54,13 @@ export async function POST(
     const body = await request.json();
     name = typeof body.name === "string" ? body.name.trim() : "";
     avatar = typeof body.avatar === "string" ? body.avatar : null;
-    age = typeof body.age === "number" ? body.age : null;
+    age = Number.isInteger(body.age) && (body.age as number) >= 0
+      ? (body.age as number)
+      : null;
     // `class` here is the child's GRADE level (integer), not class_id.
-    grade = typeof body.class === "number" ? body.class : null;
+    grade = Number.isInteger(body.class) && (body.class as number) >= 0
+      ? (body.class as number)
+      : null;
   } catch {
     // fall through
   }

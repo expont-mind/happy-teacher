@@ -41,8 +41,10 @@ export async function PATCH(
   const update: Record<string, unknown> = {};
   if (typeof body.name === "string") update.name = body.name.trim();
   if (typeof body.avatar === "string") update.avatar = body.avatar;
-  if (typeof body.age === "number") update.age = body.age;
-  if (typeof body.class === "number") update.class = body.class;
+  if (Number.isInteger(body.age) && (body.age as number) >= 0)
+    update.age = body.age;
+  if (Number.isInteger(body.class) && (body.class as number) >= 0)
+    update.class = body.class;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: "Өөрчлөх утга алга" }, { status: 400 });

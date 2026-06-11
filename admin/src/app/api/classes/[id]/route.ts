@@ -30,10 +30,13 @@ export async function PATCH(
     .update(update)
     .eq("id", id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  if (!data) {
+    return NextResponse.json({ error: "Анги олдсонгүй" }, { status: 404 });
   }
   return NextResponse.json({ class: data });
 }
