@@ -47,7 +47,11 @@ export const ClassDetailPage = ({ classId }: { classId: string }) => {
   };
 
   useEffect(() => {
-    load();
+    const run = async () => {
+      await load();
+    };
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classId]);
 
   const handleCreate = async () => {

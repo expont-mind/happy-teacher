@@ -41,7 +41,10 @@ export const ClassesPage = () => {
   };
 
   useEffect(() => {
-    load();
+    const run = async () => {
+      await load();
+    };
+    run();
   }, []);
 
   const handleCreate = async () => {

@@ -78,8 +78,12 @@ export const ChildLogsPage = ({ childId }: { childId: string }) => {
   };
 
   useEffect(() => {
-    load(0, false);
-    setOffset(0);
+    const run = async () => {
+      setOffset(0);
+      await load(0, false);
+    };
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [childId]);
 
   const loadMore = () => {
