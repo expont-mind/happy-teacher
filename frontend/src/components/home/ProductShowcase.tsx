@@ -6,8 +6,8 @@ import { AnimatedSection } from "./AnimatedSection";
 
 export const ProductShowcase = () => {
   return (
-    <section className="w-full flex justify-center bg-white py-16 lg:py-24 px-4 lg:px-8">
-      <div className="max-w-[1280px] w-full flex flex-col gap-12 lg:gap-16 items-center">
+    <section className="w-full bg-white py-16 lg:py-24 px-4 lg:px-8">
+      <div className="max-w-5xl mx-auto w-full flex flex-col gap-12 lg:gap-16 items-center">
         <AnimatedSection className="text-center">
           <h2 className="text-[#1F2937] text-3xl lg:text-5xl font-bold font-nunito">
             Юу хийж болох вэ?

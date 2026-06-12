@@ -20,8 +20,8 @@ export const Footer = () => {
         </svg>
       </div>
 
-      <footer className="w-full flex justify-center bg-[#2D2D2D] py-16 lg:py-20 px-4 lg:px-8 pb-32 md:pb-20 -mb-16 md:mb-0">
-      <div className="max-w-[1280px] w-full flex flex-col gap-12 lg:gap-20">
+      <footer className="w-full bg-[#2D2D2D] py-16 lg:py-20 px-4 lg:px-8 pb-32 md:pb-20 -mb-16 md:mb-0">
+      <div className="max-w-5xl mx-auto w-full flex flex-col gap-12 lg:gap-20">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-8 w-full justify-between">
           <div className="max-w-none lg:max-w-[316px] w-full">
             <div className="flex gap-[10px] items-center py-1.5">

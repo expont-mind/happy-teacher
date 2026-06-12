@@ -7,6 +7,7 @@ import { Header } from "@/src/components/navigations/Header";
 import { BottomNavbarWrapper } from "@/src/components/navigations/BottomNavbarWrapper";
 import { AuthProvider } from "@/src/components/auth";
 import { TutorialProvider, TutorialOverlay } from "@/src/components/tutorial";
+import { BackgroundMusic } from "@/src/components/ui/BackgroundMusic";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -160,6 +161,7 @@ export default function RootLayout({
               <BottomNavbarWrapper />
             </div>
             <TutorialOverlay />
+            <BackgroundMusic />
             <Toaster richColors position="top-right" />
           </TutorialProvider>
         </AuthProvider>

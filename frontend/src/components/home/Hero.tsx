@@ -4,8 +4,8 @@ import { ShoppingBag } from "lucide-react";
 
 export const Hero = () => {
   return (
-    <section className="w-full flex justify-center bg-white py-16 lg:py-32 px-4 lg:px-8 overflow-hidden">
-      <div className="max-w-[1280px] w-full flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16">
+    <section className="w-full bg-white py-16 lg:py-32 px-4 lg:pl-20 overflow-hidden">
+      <div className="max-w-5xl mx-auto w-full flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16">
         {/* Text Side */}
         <div className="flex flex-col gap-5 lg:gap-6 lg:w-[45%] text-center lg:text-left items-center  lg:items-start">
           <span className="inline-flex bg-[#58CC02]/10 text-[#58CC02] px-4 py-1.5 rounded-full font-bold text-sm font-nunito border border-[#58CC02]/20">

@@ -35,8 +35,8 @@ const steps = [
 
 export const HowItWorks = () => {
   return (
-    <section className="w-full flex justify-center py-16 lg:py-24 px-4 lg:px-8">
-      <div className="max-w-[1280px] w-full flex flex-col gap-12 lg:gap-16 items-center">
+    <section className="w-full py-16 lg:py-24 px-4 lg:px-8">
+      <div className="max-w-5xl mx-auto w-full flex flex-col gap-12 lg:gap-16 items-center">
         <AnimatedSection className="text-center">
           <h2 className="text-[#1F2937] text-3xl lg:text-5xl font-bold font-nunito">
             Хэрхэн ажилладаг вэ?
@@ -55,7 +55,7 @@ export const HowItWorks = () => {
                 } items-center gap-6 lg:gap-16`}
               >
                 {/* Illustration */}
-                <div className="lg:w-1/2 flex justify-center">
+                <div className={`lg:w-1/2 flex justify-center ${index % 2 === 0 ? "lg:justify-start" : "lg:justify-end"}`}>
                   <Image
                     src={step.icon}
                     alt={step.title}
