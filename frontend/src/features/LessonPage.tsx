@@ -33,6 +33,7 @@ import {
 import TimerDisplay from "@/src/components/coloring/TimerDisplay";
 import TimeUpModal from "@/src/components/coloring/TimeUpModal";
 import { saveLessonTime, getLessonTime } from "@/src/utils/lessonTimeStorage";
+import { logLessonCompletion } from "@/src/utils/lessonLog";
 
 export default function LessonPage() {
   const params = useParams<{ lessonId: string }>();
@@ -84,6 +85,13 @@ export default function LessonPage() {
   // Timer state
   const [timerRunning, setTimerRunning] = useState(false);
   const elapsedSecondsRef = useRef(0);
+  const lessonStartRef = useRef<Date>(new Date());
+  // Reset the open-time when navigating to a different lesson (the component
+  // instance is reused across /topic/fractions/[lessonId] navigations, so the
+  // ref would otherwise keep the first lesson's start time).
+  useEffect(() => {
+    lessonStartRef.current = new Date();
+  }, [params.lessonId]);
   const [retryCount, setRetryCount] = useState(0);
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [timerResetKey, setTimerResetKey] = useState(0);
@@ -358,10 +366,12 @@ export default function LessonPage() {
       console.error("Failed to trigger notification:", err);
     }
 
+    // Compute mistakes once (used for both XP and the learning log).
+    const mistakes = canvasRef.current?.getMistakeCount() || 0;
+    let xpForLog = 0;
+
     // Only award XP on first completion
     if (isFirstCompletion) {
-      // Calculate XP based on mistakes
-      const mistakes = canvasRef.current?.getMistakeCount() || 0;
       const baseXP = 10;
       const bonusXP = mistakes === 0 ? 5 : 0;
       const totalXP = baseXP + bonusXP;
@@ -373,9 +383,24 @@ export default function LessonPage() {
         console.error("Failed to add XP:", err);
       }
       setXpEarned(totalXP);
+      xpForLog = totalXP;
     } else {
       // No XP for re-completing
       setXpEarned(0);
+    }
+
+    // Fire-and-forget learning log (child profiles only). Not awaited.
+    if (activeProfile?.type === "child") {
+      logLessonCompletion({
+        childId: activeProfile.id,
+        topicKey: "fractions",
+        lessonId: lesson.id,
+        startedAt: lessonStartRef.current,
+        durationSeconds: elapsedSecondsRef.current,
+        mistakeCount: mistakes,
+        xpEarned: xpForLog,
+        isFirstCompletion,
+      });
     }
 
     setShowReward(true);

@@ -7,6 +7,14 @@ export interface FloodFillOptions {
   startY: number;
   fillColor: string;
   maxPixels?: number;
+  /**
+   * The lesson's region colors (palette hex strings). When provided, the mask
+   * is matched by snapping each pixel to its nearest canonical color (palette +
+   * white + black) instead of requiring an exact match. This fills the
+   * anti-aliased transition pixels at region edges that an exact match leaves
+   * as white gaps. Falls back to exact matching when omitted.
+   */
+  paletteColors?: string[];
 }
 
 /**
@@ -20,6 +28,7 @@ export function floodFill({
   startY,
   fillColor,
   maxPixels = 500000,
+  paletteColors,
 }: FloodFillOptions): boolean {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return false;
@@ -49,6 +58,48 @@ export function floodFill({
   const startMaskG = maskData.data[startPos + 1];
   const startMaskB = maskData.data[startPos + 2];
 
+  // Canonical color classification (palette + white + black). When available,
+  // every mask pixel is assigned to its nearest canonical color, so anti-aliased
+  // edge pixels are filled up to the true region boundary instead of being left
+  // as white gaps. `nearestCanonical` is memoized since masks repeat colors.
+  const canonical: Array<[number, number, number]> | null = paletteColors
+    ? [
+        ...paletteColors.map((hex) => {
+          const { r, g, b } = hexToRgb(hex);
+          return [r, g, b] as [number, number, number];
+        }),
+        [255, 255, 255],
+        [0, 0, 0],
+      ]
+    : null;
+
+  const canonCache = new Map<number, number>();
+  const nearestCanonical = (r: number, g: number, b: number): number => {
+    if (!canonical) return -1;
+    const key = (r << 16) | (g << 8) | b;
+    const cached = canonCache.get(key);
+    if (cached !== undefined) return cached;
+    let bestIndex = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < canonical.length; i++) {
+      const c = canonical[i];
+      const dr = c[0] - r;
+      const dg = c[1] - g;
+      const db = c[2] - b;
+      const dist = dr * dr + dg * dg + db * db;
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIndex = i;
+      }
+    }
+    canonCache.set(key, bestIndex);
+    return bestIndex;
+  };
+
+  const startCanonical = canonical
+    ? nearestCanonical(startMaskR, startMaskG, startMaskB)
+    : -1;
+
   const stack: Array<[number, number]> = [[startX, startY]];
   const visited = new Set<string>();
 
@@ -64,7 +115,7 @@ export function floodFill({
     // Black pixels are boundaries
     if (isBlackPixel(r, g, b, a)) return false;
 
-    // Use mask color for boundary detection (exact match required)
+    // Use mask color for boundary detection
     const maskR = maskData.data[pos];
     const maskG = maskData.data[pos + 1];
     const maskB = maskData.data[pos + 2];
@@ -73,6 +124,10 @@ export function floodFill({
     // Transparent mask pixels are boundaries
     if (maskA < 128) return false;
 
+    // Nearest-canonical match (fills anti-aliased edges); falls back to exact.
+    if (canonical) {
+      return nearestCanonical(maskR, maskG, maskB) === startCanonical;
+    }
     return (
       maskR === startMaskR && maskG === startMaskG && maskB === startMaskB
     );

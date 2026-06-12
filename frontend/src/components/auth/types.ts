@@ -10,6 +10,7 @@ export interface UserProfile {
   level?: number;
   avatar?: string;
   class?: number;
+  classId?: string | null;
 }
 
 export interface AuthContextType {

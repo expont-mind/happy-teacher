@@ -29,7 +29,7 @@ export const CTA = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 mt-2">
-          <Link href="/shop?tab=lessons">
+          <Link href="/topic">
             <button className="bg-white hover:bg-gray-50 rounded-[16px] shadow-[0_4px_0_#46A302] active:shadow-none active:translate-y-1 transition-all px-8 py-3.5 text-[#58CC02] font-bold text-sm leading-6 font-nunito uppercase cursor-pointer">
               Суралцаж эхлэх
             </button>

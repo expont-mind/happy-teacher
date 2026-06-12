@@ -7,6 +7,14 @@ interface ProfileInfo {
 }
 
 const BUCKET_NAME = "coloring-progress";
+const LOCAL_KEY_PREFIX = "coloring_local:";
+
+/**
+ * localStorage key for a profile + lesson's coloring image.
+ */
+function localKey(profileId: string, lessonImage: string): string {
+  return `${LOCAL_KEY_PREFIX}${profileId}:${lessonImage}`;
+}
 
 /**
  * Convert a mainImage path to a safe storage file name.
@@ -63,6 +71,23 @@ export async function saveColoringProgress(
 
   try {
     const supabase = createClient();
+
+    // The coloring-progress bucket and table are protected by RLS keyed on
+    // auth.uid(). Class children (and any PIN-login child) have no Supabase
+    // auth session, so the cloud write would be rejected. Persist locally
+    // instead — consistent with the app's localStorage-fallback pattern.
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      try {
+        localStorage.setItem(localKey(profile.id, lessonImage), dataUrl);
+      } catch {
+        // quota exceeded or unavailable — best effort, skip silently
+      }
+      return;
+    }
+
     const storagePath = buildStoragePath(profile, lessonImage);
     const blob = dataUrlToBlob(dataUrl);
 
@@ -131,6 +156,20 @@ export async function loadColoringProgress(
 
   try {
     const supabase = createClient();
+
+    // Sessionless profiles (class / PIN-login children) read from localStorage
+    // — see saveColoringProgress for why the cloud bucket is unavailable here.
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      try {
+        return localStorage.getItem(localKey(profile.id, lessonImage));
+      } catch {
+        return null;
+      }
+    }
+
     const storagePath = buildStoragePath(profile, lessonImage);
 
     const { data, error } = await supabase.storage
@@ -174,6 +213,20 @@ export async function deleteColoringProgress(
 
   try {
     const supabase = createClient();
+
+    // Sessionless profiles (class / PIN-login children) clear localStorage.
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      try {
+        localStorage.removeItem(localKey(profile.id, lessonImage));
+      } catch {
+        // ignore
+      }
+      return true;
+    }
+
     const storagePath = buildStoragePath(profile, lessonImage);
 
     const { error: storageError } = await supabase.storage

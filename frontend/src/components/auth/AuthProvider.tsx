@@ -339,6 +339,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // If active profile is child
     if (currentProfile?.type === "child") {
+      // Class children get all topics unlocked — no DB call.
+      if (currentProfile.classId) {
+        return true;
+      }
       // Self-healing: If parentId is missing, try to fetch it
       if (!currentProfile.parentId) {
         try {

@@ -124,7 +124,7 @@ function HeaderContent() {
         } z-50 w-full flex justify-center bg-white border-b border-[#0C0A0126] px-4 lg:px-8`}
       >
         <div className="max-w-[1280px] w-full py-4 flex items-center justify-between">
-          <Link href={isMounted && (user || activeProfile) ? (activeProfile?.type === "child" ? "/topic" : "/dashboard") : "/"} className="flex gap-[10px] items-center py-1.5 z-20">
+          <Link href="/" className="flex gap-[10px] items-center py-1.5 z-20">
             <Image
               src="/svg/GraduationCap.svg"
               alt="Logo"

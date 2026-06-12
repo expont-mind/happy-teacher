@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ActiveZap, WhiteCircle, Zap } from "../svg";
+import { LogoutButton } from "./LogoutButton";
 
 type SidebarLinkProps = {
   href: string;
@@ -30,6 +31,7 @@ type SidebarType = {
   user: string;
   payment: string;
   delivery?: string;
+  classes?: string;
   coupon?: string;
 };
 
@@ -77,6 +79,17 @@ export const Sidebar = (props: SidebarType) => {
               label="Авах цэг"
             />
           </div>
+          {/* Сургалт Section */}
+          <div className="p-2 w-full border-t border-gray-100">
+            <p className="px-2 py-1 text-xs text-gray-400 uppercase font-Inter">
+              Сургалт
+            </p>
+            <SidebarLink
+              href="/classes"
+              isActive={props.classes === "classes"}
+              label="Ангиуд"
+            />
+          </div>
           {/* Shop Section */}
           <div className="p-2 w-full border-t border-gray-100">
             <p className="px-2 py-1 text-xs text-gray-400 uppercase font-Inter">
@@ -88,6 +101,9 @@ export const Sidebar = (props: SidebarType) => {
               label="Бүтээгдэхүүн"
             />
           </div>
+        </div>
+        <div className="p-2 w-full border-t border-gray-100 sticky bottom-0 bg-white">
+          <LogoutButton />
         </div>
       </div>
     </div>
