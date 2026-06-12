@@ -24,7 +24,7 @@ export const Hero = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <Link
-              href="/shop?tab=lessons"
+              href="/topic"
               className="cursor-pointer"
               data-tutorial="main-cta"
             >
