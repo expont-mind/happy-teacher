@@ -21,13 +21,11 @@ export default function TopicsContent() {
   >({});
   const [loadingTopics, setLoadingTopics] = useState(true);
 
-  // Redirect adults to dashboard, guests to home
+  // Redirect adults to their dashboard. Guests may view this page with both
+  // topics shown locked; the unlock button sends them to login.
   useEffect(() => {
     if (activeProfile?.type === "adult") {
       router.replace("/dashboard");
-    }
-    if (!user && !activeProfile) {
-      router.replace("/");
     }
   }, [activeProfile, router, user]);
 
@@ -68,9 +66,8 @@ export default function TopicsContent() {
     loadTopicStates();
   }, [user, activeProfile, checkPurchase, getCompletedLessons, isChild]);
 
-  // If adult or guest, don't render (redirect will happen)
+  // Adults are redirected to the dashboard; guests see the page (topics locked).
   if (activeProfile?.type === "adult") return null;
-  if (!user && !activeProfile) return null;
 
   let displayAvatar = activeProfile?.avatar;
   if (isChild && !displayAvatar) {
