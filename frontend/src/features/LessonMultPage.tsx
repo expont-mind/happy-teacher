@@ -333,6 +333,10 @@ export default function LessonMultPage() {
         "#ffe234": "Шар",
         "#ff757f": "Ягаан",
         "#ff6135": "Улбар шар",
+        // page-15 recolored answers (18, 49, 63) — distinct from their near-twins
+        "#9acd32": "Цайвар ногоон",
+        "#556b2f": "Хар ногоон",
+        "#ff1493": "Час ягаан",
       };
 
       const missingColorNames = missingColors
